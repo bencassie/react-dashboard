@@ -4,69 +4,61 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { graphs, type GraphModule } from "@/components/graphs";
+import { graphs } from "@/components/graphs";
 import { RefreshCw, ExternalLink } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect, startTransition, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useStore } from "@/lib/store";
+
 const apiUrl = "https://dummyjson.com/products";
-const isDev = process.env.NODE_ENV === "development";
-const getTimestamp = () => new Date().toISOString();
+
 const fetchData = async (url: string) => {
-  if (isDev) {
-    console.log(`[${getTimestamp()}] API request begin:`, url);
-  }
-  const startTime = performance.now();
   const res = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
   if (!res.ok) throw new Error("Failed to fetch");
-  const data = await res.json();
-  const endTime = performance.now();
-  if (isDev) {
-    console.log(`[${getTimestamp()}] API request end:`, url, `(${Math.round(endTime - startTime)}ms)`);
-  }
- 
-  return data;
+  return res.json();
 };
+
 export default function Page() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const { selectedGraphs, renderKeys, toggleGraph } = useStore();
+
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["data", apiUrl],
     queryFn: () => fetchData(apiUrl),
   });
 
-  // Initialize store from URL params on mount
+  // Initialize from URL on mount (once only)
   useEffect(() => {
     const param = searchParams.get("selected");
-    let initialSelected: string[] = graphs.map((g) => g.name); // Default to all
-    if (param) {
-      const fromUrl = param
-        .split(",")
-        .map((s) => s.trim())
-        .filter((s) => graphs.some((g) => g.name === s));
-      if (fromUrl.length > 0) {
-        initialSelected = fromUrl;
-      }
+    
+    // If param exists (even if empty string), use it; otherwise default to all
+    if (param !== null) {
+      const selected = param
+        ? param.split(",").filter((s) => graphs.some((g) => g.name === s))
+        : []; // Empty string = no charts selected
+      useStore.setState({ selectedGraphs: selected });
+    } else {
+      // No param = first visit, default to all
+      useStore.setState({ selectedGraphs: graphs.map((g) => g.name) });
     }
-    useStore.setState({ selectedGraphs: initialSelected });
-  }, []); // Run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
 
-  // Sync store changes to URL - FIXED: Always show selected graphs
+  // Sync to URL when selection changes (but avoid triggering re-initialization)
   useEffect(() => {
-    const query = new URLSearchParams(searchParams.toString());
-    query.set("selected", selectedGraphs.join(","));
-    router.replace(`${pathname}?${query.toString()}`, { scroll: false });
+    const currentParam = searchParams.get("selected") || "";
+    const newValue = selectedGraphs.join(",");
+    
+    // Only update URL if it's actually different
+    if (currentParam !== newValue) {
+      const query = new URLSearchParams(searchParams.toString());
+      query.set("selected", newValue);
+      router.replace(`${pathname}?${query.toString()}`, { scroll: false });
+    }
   }, [selectedGraphs, router, pathname, searchParams]);
 
-  const handleToggle = (name: string) => {
-    startTransition(() => {
-      toggleGraph(name);
-    });
-  };
-
-  // Memoize filtered graphs + keys for stable re-renders
   const renderedGraphs = useMemo(
     () =>
       graphs
@@ -78,16 +70,6 @@ export default function Page() {
     [selectedGraphs, renderKeys]
   );
 
-  // Dev-only timing: Robust against StrictMode doubles
-  useEffect(() => {
-    if (isDev) {
-      console.time("Page Grid Render");
-      return () => {
-        console.timeEnd("Page Grid Render");
-      };
-    }
-  }, [renderedGraphs]); // Keyed to grid changes only
-
   return (
     <div className="min-h-screen flex">
       <div className="w-64 border-r bg-muted/40 p-4 flex flex-col gap-2">
@@ -97,7 +79,7 @@ export default function Page() {
             <Checkbox
               id={graph.name}
               checked={selectedGraphs.includes(graph.name)}
-              onCheckedChange={() => handleToggle(graph.name)}
+              onCheckedChange={() => toggleGraph(graph.name)}
             />
             <label htmlFor={graph.name} className="text-sm font-medium">
               {graph.name}
@@ -105,6 +87,7 @@ export default function Page() {
           </div>
         ))}
       </div>
+
       <div className="flex-1 p-4 md:p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-6">
@@ -121,8 +104,8 @@ export default function Page() {
               </Button>
             </div>
           </div>
+
           {isLoading ? (
-            // Show a grid of skeletons during global data load for better perceived perf
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {Array.from({ length: graphs.length }, (_, i) => (
                 <div key={i} className="h-[500px]">
@@ -142,7 +125,13 @@ export default function Page() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {renderedGraphs.map(({ Component, name, key }) => (
-                <Component key={`${name}-${key}`} data={data} isLoading={false} error={null} />
+                <Component 
+                  key={`${name}-${key}`} 
+                  data={data} 
+                  isLoading={false} 
+                  error={null}
+                  renderKey={key}
+                />
               ))}
             </div>
           )}

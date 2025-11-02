@@ -1,10 +1,9 @@
 import dynamic from "next/dynamic";
+import { useState, useEffect, ComponentType } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { GraphModule } from "./types";
-import { useState, useEffect, ComponentType } from "react";
 
-// Consistent loading fallback for dynamic imports (matches Suspense)
 const ChartLoadingFallback = () => (
   <Card className="animate-pulse">
     <CardHeader>
@@ -16,43 +15,40 @@ const ChartLoadingFallback = () => (
   </Card>
 );
 
-// Wrapper that shows skeleton during initial mount (fixes remount issue)
-function withMountDelay<P extends object>(Component: ComponentType<P>) {
-  return function WrappedComponent(props: P) {
-    const [isMounted, setIsMounted] = useState(false);
+// Ensures skeleton shows before chart renders (only on remount/toggle, not initial load)
+function withSkeletonDelay<P extends object>(Component: ComponentType<P>) {
+  return function WrappedComponent(props: P & { renderKey?: number }) {
+    const [isReady, setIsReady] = useState(false);
+    const { renderKey, ...restProps } = props;
+    
+    // Skip delay on initial render (renderKey 0 or undefined)
+    const shouldDelay = renderKey && renderKey > 0;
 
     useEffect(() => {
-      // Small delay to ensure skeleton shows before chart renders
-      const timer = setTimeout(() => setIsMounted(true), 50);
-      return () => clearTimeout(timer);
-    }, []);
+      if (shouldDelay) {
+        const timer = setTimeout(() => setIsReady(true), 50);
+        return () => clearTimeout(timer);
+      } else {
+        // No delay for initial render
+        setIsReady(true);
+      }
+    }, [shouldDelay]);
 
-    if (!isMounted) {
+    if (shouldDelay && !isReady) {
       return <ChartLoadingFallback />;
     }
 
-    return <Component {...props} />;
+    return <Component {...(restProps as P)} />;
   };
 }
 
-// Lazy-load all charts with SSR disabled; use consistent skeleton
-const BarChartBase = dynamic(() => import("./barchart"), { 
-  ssr: false,
-  loading: ChartLoadingFallback
-});
-const PieChartBase = dynamic(() => import("./piechart"), { 
-  ssr: false,
-  loading: ChartLoadingFallback
-});
-const HeatmapChartBase = dynamic(() => import("./heatmapchart"), { 
-  ssr: false,
-  loading: ChartLoadingFallback
-});
+const BarChartBase = dynamic(() => import("./barchart"), { ssr: false });
+const PieChartBase = dynamic(() => import("./piechart"), { ssr: false });
+const HeatmapChartBase = dynamic(() => import("./heatmapchart"), { ssr: false });
 
-// Wrap with mount delay to show skeleton on remount
-const BarChart = withMountDelay(BarChartBase);
-const PieChart = withMountDelay(PieChartBase);
-const HeatmapChart = withMountDelay(HeatmapChartBase);
+const BarChart = withSkeletonDelay(BarChartBase);
+const PieChart = withSkeletonDelay(PieChartBase);
+const HeatmapChart = withSkeletonDelay(HeatmapChartBase);
 
 export const graphs: GraphModule[] = [
   { name: "Bar Chart", Component: BarChart },
