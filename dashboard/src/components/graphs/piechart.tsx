@@ -3,10 +3,11 @@ import { memo } from "react";
 import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { ChartComponentProps } from "@/lib/charts/types";
 
 const ReactECharts = dynamic(() => import("echarts-for-react"), { ssr: false });
 
-function PieChartInner({ data, isLoading }: { data?: any; isLoading?: boolean }) {
+function PieChartInner({ data, isLoading, error }: ChartComponentProps) {
   if (isLoading) {
     return (
       <Card>
@@ -20,12 +21,22 @@ function PieChartInner({ data, isLoading }: { data?: any; isLoading?: boolean })
     );
   }
 
-  const products = data?.products || [];
-  const pieData = products.reduce((acc: Record<string, number>, p: any) => {
-    const cat = p.category;
-    acc[cat] = (acc[cat] || 0) + 1;
-    return acc;
-  }, {});
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Category Distribution</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-red-500">Error loading data</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Data is now pre-transformed from the registry!
+  // It's already in the format: [{ name, value }, ...]
+  const pieData = data || [];
 
   const pieOption = {
     tooltip: { trigger: "item" },
@@ -33,13 +44,13 @@ function PieChartInner({ data, isLoading }: { data?: any; isLoading?: boolean })
       {
         type: "pie",
         radius: "60%",
-        data: Object.entries(pieData).map(([name, value]) => ({ name, value })),
-        emphasis: { 
-          itemStyle: { 
-            shadowBlur: 10, 
-            shadowOffsetX: 0, 
-            shadowColor: "rgba(0,0,0,0.5)" 
-          } 
+        data: pieData,
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: "rgba(0,0,0,0.5)",
+          },
         },
       },
     ],

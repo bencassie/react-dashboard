@@ -3,8 +3,9 @@ import { memo } from "react";
 import { ResponsiveBar } from "@nivo/bar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { ChartComponentProps } from "@/lib/charts/types";
 
-function BarChartInner({ data, isLoading, error }: { data?: any; isLoading?: boolean; error?: Error }) {
+function BarChartInner({ data, isLoading, error }: ChartComponentProps) {
   if (isLoading) {
     return (
       <Card>
@@ -31,12 +32,9 @@ function BarChartInner({ data, isLoading, error }: { data?: any; isLoading?: boo
     );
   }
 
-  const products = data?.products || [];
-  const barData = products.slice(0, 10).map((p: any) => ({
-    id: p.title.slice(0, 20),
-    price: p.price,
-    rating: p.rating,
-  }));
+  // Data is now pre-transformed from the registry!
+  // It's already in the format: [{ id, price, rating }, ...]
+  const barData = data || [];
 
   return (
     <Card>
