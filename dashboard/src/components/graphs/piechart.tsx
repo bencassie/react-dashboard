@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 const ReactECharts = dynamic(() => import("echarts-for-react"), { ssr: false });
 
 export default function PieChart({ data, isLoading }: { data?: any; isLoading?: boolean }) {
+  console.log('PieChart render begin');
   if (isLoading) {
     return (
       <Card>
@@ -37,7 +38,7 @@ export default function PieChart({ data, isLoading }: { data?: any; isLoading?: 
       },
     ],
   };
-
+  console.log('PieChart render end');
   return (
     <Card>
       <CardHeader>

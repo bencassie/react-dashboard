@@ -4,6 +4,8 @@ import { ResponsiveHeatMap } from "@nivo/heatmap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function HeatmapChart() {
+  console.log('HeatmapChart render begin');
+
   const heatmapData = useMemo(
     () =>
       Array.from({ length: 7 }, (_, i) => ({
@@ -15,7 +17,8 @@ export default function HeatmapChart() {
       })),
     []
   );
-
+  
+  console.log('HeatmapChart render end');
   return (
     <Card>
       <CardHeader>

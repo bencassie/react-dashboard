@@ -25,13 +25,17 @@ const useStore = create<Store>()((set) => ({
 }));
 
 const apiUrl = "https://dummyjson.com/products";
-
 const fetchData = async (url: string) => {
+  console.log('API request begin:', url);
+  const startTime = performance.now();
   const res = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
   if (!res.ok) throw new Error("Failed to fetch");
-  return res.json();
+  const data = await res.json();
+  const endTime = performance.now();
+  console.log('API request end:', url, `(${Math.round(endTime - startTime)}ms)`);
+  
+  return data;
 };
-
 export default function Page() {
   const { selectedGraphs, toggleGraph } = useStore();
   const { data, isLoading, error, refetch } = useQuery({

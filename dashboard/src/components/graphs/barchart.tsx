@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function BarChart({ data, isLoading, error }: { data?: any; isLoading?: boolean; error?: Error }) {
+  console.log('BarChart render begin');
   if (isLoading) {
     return (
       <Card>
@@ -37,6 +38,7 @@ export default function BarChart({ data, isLoading, error }: { data?: any; isLoa
     rating: p.rating,
   }));
 
+  console.log('BarChart render end');
   return (
     <Card>
       <CardHeader>
