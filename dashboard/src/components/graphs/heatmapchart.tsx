@@ -2,10 +2,12 @@
 import { useMemo } from "react";
 import { ResponsiveHeatMap } from "@nivo/heatmap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
+const isDev = process.env.NODE_ENV === "development";
+const getTimestamp = () => new Date().toISOString();
 export default function HeatmapChart() {
-  console.log('HeatmapChart render begin');
-
+  if (isDev) {
+    console.log(`[${getTimestamp()}] HeatmapChart render begin`);
+  }
   const heatmapData = useMemo(
     () =>
       Array.from({ length: 7 }, (_, i) => ({
@@ -17,8 +19,10 @@ export default function HeatmapChart() {
       })),
     []
   );
-  
-  console.log('HeatmapChart render end');
+ 
+  if (isDev) {
+    console.log(`[${getTimestamp()}] HeatmapChart render end`);
+  }
   return (
     <Card>
       <CardHeader>

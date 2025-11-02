@@ -2,11 +2,13 @@
 import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-
 const ReactECharts = dynamic(() => import("echarts-for-react"), { ssr: false });
-
+const isDev = process.env.NODE_ENV === "development";
+const getTimestamp = () => new Date().toISOString();
 export default function PieChart({ data, isLoading }: { data?: any; isLoading?: boolean }) {
-  console.log('PieChart render begin');
+  if (isDev) {
+    console.log(`[${getTimestamp()}] PieChart render begin`);
+  }
   if (isLoading) {
     return (
       <Card>
@@ -19,14 +21,12 @@ export default function PieChart({ data, isLoading }: { data?: any; isLoading?: 
       </Card>
     );
   }
-
   const products = data?.products || [];
   const pieData = products.reduce((acc: Record<string, number>, p: any) => {
     const cat = p.category;
     acc[cat] = (acc[cat] || 0) + 1;
     return acc;
   }, {});
-
   const pieOption = {
     tooltip: { trigger: "item" },
     series: [
@@ -38,7 +38,9 @@ export default function PieChart({ data, isLoading }: { data?: any; isLoading?: 
       },
     ],
   };
-  console.log('PieChart render end');
+  if (isDev) {
+    console.log(`[${getTimestamp()}] PieChart render end`);
+  }
   return (
     <Card>
       <CardHeader>

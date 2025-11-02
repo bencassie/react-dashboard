@@ -2,9 +2,12 @@
 import { ResponsiveBar } from "@nivo/bar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-
+const isDev = process.env.NODE_ENV === "development";
+const getTimestamp = () => new Date().toISOString();
 export default function BarChart({ data, isLoading, error }: { data?: any; isLoading?: boolean; error?: Error }) {
-  console.log('BarChart render begin');
+  if (isDev) {
+    console.log(`[${getTimestamp()}] BarChart render begin`);
+  }
   if (isLoading) {
     return (
       <Card>
@@ -17,7 +20,6 @@ export default function BarChart({ data, isLoading, error }: { data?: any; isLoa
       </Card>
     );
   }
-
   if (error) {
     return (
       <Card>
@@ -30,15 +32,15 @@ export default function BarChart({ data, isLoading, error }: { data?: any; isLoa
       </Card>
     );
   }
-
   const products = data?.products || [];
   const barData = products.slice(0, 10).map((p: any) => ({
     id: p.title.slice(0, 20),
     price: p.price,
     rating: p.rating,
   }));
-
-  console.log('BarChart render end');
+  if (isDev) {
+    console.log(`[${getTimestamp()}] BarChart render end`);
+  }
   return (
     <Card>
       <CardHeader>

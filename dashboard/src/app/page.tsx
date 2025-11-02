@@ -8,12 +8,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { graphs, type GraphModule } from "@/components/graphs";
 import { RefreshCw, ExternalLink } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-
 type Store = {
   selectedGraphs: string[];
   toggleGraph: (name: string) => void;
 };
-
 const useStore = create<Store>()((set) => ({
   selectedGraphs: graphs.map((g) => g.name),
   toggleGraph: (name) =>
@@ -23,17 +21,22 @@ const useStore = create<Store>()((set) => ({
         : [...state.selectedGraphs, name],
     })),
 }));
-
 const apiUrl = "https://dummyjson.com/products";
+const isDev = process.env.NODE_ENV === "development";
+const getTimestamp = () => new Date().toISOString();
 const fetchData = async (url: string) => {
-  console.log('API request begin:', url);
+  if (isDev) {
+    console.log(`[${getTimestamp()}] API request begin:`, url);
+  }
   const startTime = performance.now();
   const res = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
   if (!res.ok) throw new Error("Failed to fetch");
   const data = await res.json();
   const endTime = performance.now();
-  console.log('API request end:', url, `(${Math.round(endTime - startTime)}ms)`);
-  
+  if (isDev) {
+    console.log(`[${getTimestamp()}] API request end:`, url, `(${Math.round(endTime - startTime)}ms)`);
+  }
+ 
   return data;
 };
 export default function Page() {
@@ -42,7 +45,6 @@ export default function Page() {
     queryKey: ["data", apiUrl],
     queryFn: () => fetchData(apiUrl),
   });
-
   return (
     <div className="min-h-screen flex">
       <div className="w-64 border-r bg-muted/40 p-4 flex flex-col gap-2">
