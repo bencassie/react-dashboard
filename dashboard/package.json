@@ -6,8 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "postinstall": "npx shadcn@latest init --yes --skip-existing || exit 0"
+    "lint": "next lint"
   },
   "dependencies": {
     "@nivo/bar": "^0.99.0",
@@ -19,13 +18,12 @@
     "@tanstack/react-query": "^5.90.6",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "echarts": "^6.0.0",
     "lucide-react": "^0.477.0",
     "next": "15.0.1",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-echarts": "^0.1.1",
-    "tailwind-merge": "^2.5.2",
+    "tailwind-merge": "^2.6.0",
     "zustand": "^5.0.8"
   },
   "devDependencies": {
@@ -34,15 +32,24 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "babel-plugin-react-compiler": "1.0.0",
+    "echarts": "^6.0.0",
+    "echarts-for-react": "^3.0.2",
     "eslint": "^9",
     "eslint-config-next": "15.0.1",
     "postcss": "^8",
     "tailwindcss": "^4",
+    "tailwindcss-animate": "^1.0.7",
     "typescript": "^5"
   },
   "overrides": {
-    "@nivo/core": { "react": "$react" },
-    "@nivo/bar": { "react": "$react" },
-    "@nivo/heatmap": { "react": "$react" }
+    "@nivo/core": {
+      "react": "$react"
+    },
+    "@nivo/bar": {
+      "react": "$react"
+    },
+    "@nivo/heatmap": {
+      "react": "$react"
+    }
   }
 }

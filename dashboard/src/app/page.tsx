@@ -1,17 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { BarChart } from "@nivo/bar";
-import ReactECharts from "echarts-for-react";
-import { HeatMap } from "@nivo/heatmap";
+import { ResponsiveBar } from "@nivo/bar";
+import { ResponsiveHeatMap } from "@nivo/heatmap";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RefreshCw, ExternalLink } from "lucide-react";
+
+// ECharts must be client-only
+const ReactECharts = dynamic(() => import("echarts-for-react"), { ssr: false });
 
 // Zustand Store
 type Store = {
@@ -64,12 +67,14 @@ export default function Page() {
   const products = data?.products || [];
 
   // Nivo Bar: Price vs Rating
-  const barData = products
-    .slice(0, 10)
-    .map((p: any) => ({ id: p.title.slice(0, 20), price: p.price, rating: p.rating }));
+  const barData = products.slice(0, 10).map((p: any) => ({
+    id: p.title.slice(0, 20),
+    price: p.price,
+    rating: p.rating,
+  }));
 
   // ECharts Pie: Category Distribution
-  const pieData = products.reduce((acc: any, p: any) => {
+  const pieData = products.reduce((acc: Record<string, number>, p: any) => {
     const cat = p.category;
     acc[cat] = (acc[cat] || 0) + 1;
     return acc;
@@ -105,7 +110,7 @@ export default function Page() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => queryClient.invalidateQueries({ queryKey: ["data"] })}
+              onClick={() => queryClient.invalidateQueries({ queryKey: ["data", apiUrl] })}
             >
               <RefreshCw className="w-4 h-4 mr-2" />
               Refresh
@@ -137,21 +142,25 @@ export default function Page() {
                   <p className="text-red-500">Error loading data</p>
                 ) : (
                   <div className="h-96">
-                    <BarChart
+                    <ResponsiveBar
                       data={barData}
                       keys={["price", "rating"]}
                       indexBy="id"
-                      margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
-                      colors={{ scheme: "nivo" }}
+                      margin={{ top: 50, right: 130, bottom: 70, left: 60 }}
+                      padding={0.3}
+                      valueScale={{ type: "linear" }}
+                      indexScale={{ type: "band", round: true }}
                       axisBottom={{
                         tickSize: 5,
                         tickPadding: 5,
                         tickRotation: -45,
                         legend: "Product",
                         legendPosition: "middle",
-                        legendOffset: 40,
+                        legendOffset: 50,
                       }}
                       axisLeft={{
+                        tickSize: 5,
+                        tickPadding: 5,
                         legend: "Value",
                         legendPosition: "middle",
                         legendOffset: -40,
@@ -166,6 +175,8 @@ export default function Page() {
                           itemHeight: 20,
                         },
                       ]}
+                      role="application"
+                      ariaLabel="Bar chart of price and rating"
                     />
                   </div>
                 )}
@@ -197,15 +208,10 @@ export default function Page() {
               </CardHeader>
               <CardContent>
                 <div className="h-96">
-                  <HeatMap
+                  <ResponsiveHeatMap
                     data={heatmapData}
                     margin={{ top: 60, right: 90, bottom: 60, left: 90 }}
-                    colors={{
-                      type: "sequential",
-                      scheme: "purples",
-                      minValue: 0,
-                      maxValue: 100,
-                    }}
+                    colors={{ type: "sequential", scheme: "purples", minValue: 0, maxValue: 100 }}
                     axisTop={{
                       tickSize: 5,
                       tickPadding: 5,
