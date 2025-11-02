@@ -2,18 +2,20 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { create } from "zustand";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { graphs, type GraphModule } from "@/components/graphs";
 import { RefreshCw, ExternalLink } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useEffect } from "react";
 type Store = {
   selectedGraphs: string[];
   toggleGraph: (name: string) => void;
 };
 const useStore = create<Store>()((set) => ({
-  selectedGraphs: graphs.map((g) => g.name),
+  selectedGraphs: [], // Initialize empty; set from URL on mount
   toggleGraph: (name) =>
     set((state) => ({
       selectedGraphs: state.selectedGraphs.includes(name)
@@ -40,11 +42,42 @@ const fetchData = async (url: string) => {
   return data;
 };
 export default function Page() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const { selectedGraphs, toggleGraph } = useStore();
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["data", apiUrl],
     queryFn: () => fetchData(apiUrl),
   });
+
+  // Initialize store from URL params on mount
+  useEffect(() => {
+    const param = searchParams.get("selected");
+    let initialSelected: string[] = graphs.map((g) => g.name); // Default to all
+    if (param) {
+      const fromUrl = param
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => graphs.some((g) => g.name === s));
+      if (fromUrl.length > 0) {
+        initialSelected = fromUrl;
+      }
+    }
+    useStore.setState({ selectedGraphs: initialSelected });
+  }, []); // Run once on mount
+
+  // Sync store changes to URL
+  useEffect(() => {
+    const query = new URLSearchParams(searchParams.toString());
+    if (selectedGraphs.length === graphs.length) {
+      query.delete("selected");
+    } else {
+      query.set("selected", selectedGraphs.join(","));
+    }
+    router.replace(`${pathname}?${query.toString()}`, { scroll: false });
+  }, [selectedGraphs, router, pathname, searchParams]);
+
   return (
     <div className="min-h-screen flex">
       <div className="w-64 border-r bg-muted/40 p-4 flex flex-col gap-2">
