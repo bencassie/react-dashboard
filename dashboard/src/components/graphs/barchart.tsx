@@ -1,14 +1,25 @@
 "use client";
+import { memo, useEffect, useState } from "react";
 import { ResponsiveBar } from "@nivo/bar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 const isDev = process.env.NODE_ENV === "development";
 const getTimestamp = () => new Date().toISOString();
-export default function BarChart({ data, isLoading, error }: { data?: any; isLoading?: boolean; error?: Error }) {
+
+function BarChartInner({ data, isLoading, error }: { data?: any; isLoading?: boolean; error?: Error }) {
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    if (isDev) {
+      console.log(`[${getTimestamp()}] BarChart mounted, setting ready`);
+    }
+    setIsReady(true);
+  }, []);
+
   if (isDev) {
-    console.log(`[${getTimestamp()}] BarChart render begin`);
+    console.log(`[${getTimestamp()}] BarChart render begin (ready: ${isReady})`);
   }
-  if (isLoading) {
+  if (isLoading || !isReady) {
     return (
       <Card>
         <CardHeader>
@@ -89,3 +100,7 @@ export default function BarChart({ data, isLoading, error }: { data?: any; isLoa
     </Card>
   );
 }
+
+const BarChart = memo(BarChartInner);
+BarChart.displayName = "BarChart";
+export default BarChart;

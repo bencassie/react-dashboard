@@ -1,15 +1,26 @@
 "use client";
+import { memo, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 const ReactECharts = dynamic(() => import("echarts-for-react"), { ssr: false });
 const isDev = process.env.NODE_ENV === "development";
 const getTimestamp = () => new Date().toISOString();
-export default function PieChart({ data, isLoading }: { data?: any; isLoading?: boolean }) {
+
+function PieChartInner({ data, isLoading }: { data?: any; isLoading?: boolean }) {
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    if (isDev) {
+      console.log(`[${getTimestamp()}] PieChart mounted, setting ready`);
+    }
+    setIsReady(true);
+  }, []);
+
   if (isDev) {
-    console.log(`[${getTimestamp()}] PieChart render begin`);
+    console.log(`[${getTimestamp()}] PieChart render begin (ready: ${isReady})`);
   }
-  if (isLoading) {
+  if (isLoading || !isReady) {
     return (
       <Card>
         <CardHeader>
@@ -54,3 +65,7 @@ export default function PieChart({ data, isLoading }: { data?: any; isLoading?: 
     </Card>
   );
 }
+
+const PieChart = memo(PieChartInner);
+PieChart.displayName = "PieChart";
+export default PieChart;

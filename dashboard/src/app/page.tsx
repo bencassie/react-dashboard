@@ -1,7 +1,5 @@
 "use client";
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { create } from "zustand";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -9,20 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { graphs, type GraphModule } from "@/components/graphs";
 import { RefreshCw, ExternalLink } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect } from "react";
-type Store = {
-  selectedGraphs: string[];
-  toggleGraph: (name: string) => void;
-};
-const useStore = create<Store>()((set) => ({
-  selectedGraphs: [], // Initialize empty; set from URL on mount
-  toggleGraph: (name) =>
-    set((state) => ({
-      selectedGraphs: state.selectedGraphs.includes(name)
-        ? state.selectedGraphs.filter((g) => g !== name)
-        : [...state.selectedGraphs, name],
-    })),
-}));
+import { useEffect, startTransition, useMemo } from "react";
+import { useStore } from "@/lib/store";
 const apiUrl = "https://dummyjson.com/products";
 const isDev = process.env.NODE_ENV === "development";
 const getTimestamp = () => new Date().toISOString();
@@ -45,7 +31,7 @@ export default function Page() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { selectedGraphs, toggleGraph } = useStore();
+  const { selectedGraphs, renderKeys, toggleGraph } = useStore();
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["data", apiUrl],
     queryFn: () => fetchData(apiUrl),
@@ -78,6 +64,34 @@ export default function Page() {
     router.replace(`${pathname}?${query.toString()}`, { scroll: false });
   }, [selectedGraphs, router, pathname, searchParams]);
 
+  const handleToggle = (name: string) => {
+    startTransition(() => {
+      toggleGraph(name);
+    });
+  };
+
+  // Memoize filtered graphs + keys for stable re-renders
+  const renderedGraphs = useMemo(
+    () =>
+      graphs
+        .filter((graph) => selectedGraphs.includes(graph.name))
+        .map((graph) => ({
+          ...graph,
+          key: renderKeys[graph.name] || 0,
+        })),
+    [selectedGraphs, renderKeys]
+  );
+
+  // Dev-only timing: Robust against StrictMode doubles
+  useEffect(() => {
+    if (isDev) {
+      console.time("Page Grid Render");
+      return () => {
+        console.timeEnd("Page Grid Render");
+      };
+    }
+  }, [renderedGraphs]); // Keyed to grid changes only
+
   return (
     <div className="min-h-screen flex">
       <div className="w-64 border-r bg-muted/40 p-4 flex flex-col gap-2">
@@ -87,7 +101,7 @@ export default function Page() {
             <Checkbox
               id={graph.name}
               checked={selectedGraphs.includes(graph.name)}
-              onCheckedChange={() => toggleGraph(graph.name)}
+              onCheckedChange={() => handleToggle(graph.name)}
             />
             <label htmlFor={graph.name} className="text-sm font-medium">
               {graph.name}
@@ -112,16 +126,28 @@ export default function Page() {
             </div>
           </div>
           {isLoading ? (
-            <Skeleton className="h-96 w-full" />
+            // Show a grid of skeletons during global data load for better perceived perf
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {Array.from({ length: graphs.length }, (_, i) => (
+                <div key={i} className="h-[500px]">
+                  <Card className="h-full animate-pulse">
+                    <CardHeader>
+                      <div className="h-6 w-48 bg-muted rounded" />
+                    </CardHeader>
+                    <CardContent>
+                      <Skeleton className="h-full w-full" />
+                    </CardContent>
+                  </Card>
+                </div>
+              ))}
+            </div>
           ) : error ? (
             <p className="text-red-500">Error loading data</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {graphs
-                .filter((graph) => selectedGraphs.includes(graph.name))
-                .map((graph) => (
-                  <graph.Component key={graph.name} data={data} isLoading={isLoading} error={error} />
-                ))}
+              {renderedGraphs.map(({ Component, name, key }) => (
+                <Component key={`${name}-${key}`} data={data} isLoading={false} error={null} />
+              ))}
             </div>
           )}
         </div>
