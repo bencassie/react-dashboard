@@ -53,14 +53,10 @@ export default function Page() {
     useStore.setState({ selectedGraphs: initialSelected });
   }, []); // Run once on mount
 
-  // Sync store changes to URL
+  // Sync store changes to URL - FIXED: Always show selected graphs
   useEffect(() => {
     const query = new URLSearchParams(searchParams.toString());
-    if (selectedGraphs.length === graphs.length) {
-      query.delete("selected");
-    } else {
-      query.set("selected", selectedGraphs.join(","));
-    }
+    query.set("selected", selectedGraphs.join(","));
     router.replace(`${pathname}?${query.toString()}`, { scroll: false });
   }, [selectedGraphs, router, pathname, searchParams]);
 
