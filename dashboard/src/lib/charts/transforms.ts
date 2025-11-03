@@ -19,11 +19,14 @@ export function transformProductsForBarChart(raw: any) {
  */
 export function transformProductsForPieChart(raw: any) {
   const products = raw?.products || [];
-  const categoryCount = products.reduce((acc: Record<string, number>, p: any) => {
-    const cat = p.category;
-    acc[cat] = (acc[cat] || 0) + 1;
-    return acc;
-  }, {});
+  const categoryCount = products.reduce(
+    (acc: Record<string, number>, p: any) => {
+      const cat = p.category;
+      acc[cat] = (acc[cat] || 0) + 1;
+      return acc;
+    },
+    {}
+  );
 
   return Object.entries(categoryCount).map(([name, value]) => ({
     name,
@@ -43,20 +46,6 @@ export function transformForHeatmap(_raw?: any) {
     })),
   }));
 }
-
-/**
- * Example: Transform for a different API endpoint
- * Uncomment and modify when you add a new data source
- */
-// export function transformSalesData(raw: any) {
-//   return raw?.sales?.map((sale: any) => ({
-//     region: sale.region,
-//     amount: sale.total,
-//     date: new Date(sale.timestamp),
-//   })) || [];
-// }
-
-
 
 /*
  *
@@ -126,6 +115,7 @@ export function transformPostsForBar(raw: any) {
       reactions: (p.reactions?.likes || 0) + (p.reactions?.dislikes || 0),
     }));
 }
+
 /**
  * Transform carts data for total line chart
  */
@@ -135,4 +125,73 @@ export function transformCartsForLine(raw: any) {
     id: c.id,
     total: c.total || 0,
   }));
+}
+
+/** Open-Meteo: next 24 hours hourly temps for London (can switch lat/lon) */
+export function transformOpenMeteoForLine(raw: any) {
+  const hours = raw?.hourly?.time ?? [];
+  const temps = raw?.hourly?.temperature_2m ?? [];
+  return hours.slice(0, 24).map((t: string, i: number) => ({
+    time: t.slice(11, 16),
+    temp: temps[i],
+  }));
+}
+
+/** Open Brewery DB: count breweries per state (top 10) */
+export function transformOpenBreweryForBar(raw: any) {
+  const list = Array.isArray(raw) ? raw : [];
+  const counts: Record<string, number> = {};
+  for (const b of list) {
+    const state = b.state_province || b.state || "Unknown";
+    counts[state] = (counts[state] || 0) + 1;
+  }
+  return Object.entries(counts)
+    .map(([state, count]) => ({ state, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+}
+
+/** Open Library: collapse works by subject into {name,value} */
+export function transformOpenLibrarySubjects(raw: any) {
+  const works = raw?.works || [];
+  const buckets: Record<string, number> = {};
+  for (const w of works) {
+    const subjects: string[] = w.subject ?? [];
+    for (const s of subjects.slice(0, 1)) {
+      buckets[s] = (buckets[s] || 0) + 1;
+    }
+  }
+  return Object.entries(buckets)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 10)
+    .map(([name, value]) => ({ name, value }));
+}
+
+/** PokéAPI: first N pokemon with base_experience & id */
+export function transformPokeApiForScatter(raw: any) {
+  const results = raw?.results ?? [];
+  const enriched = raw?.enriched ?? [];
+  // When using the multi-step fetch (see registry), we stuff detail list into `enriched`.
+  const rows = (enriched.length ? enriched : results).filter(Boolean);
+  return rows.map((p: any) => ({
+    id: p.id,
+    name: p.name,
+    base_experience: p.base_experience ?? 0,
+  }));
+}
+
+/** SpaceX: count launches by year */
+export function transformSpaceXLaunches(raw: any) {
+  const launches = Array.isArray(raw) ? raw : [];
+  const counts: Record<string, number> = {};
+  for (const l of launches) {
+    const y = (l.date_utc || l.date_local || "").slice(0, 4);
+    if (y) counts[y] = (counts[y] || 0) + 1;
+  }
+  return Object.entries(counts)
+    .map(([year, count]) => ({
+      date: new Date(`${year}-01-01T00:00:00Z`),
+      count,
+    }))
+    .sort((a, b) => a.date.getTime() - b.date.getTime());
 }

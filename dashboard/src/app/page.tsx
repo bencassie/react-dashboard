@@ -11,13 +11,26 @@ import { useStore } from "@/lib/store";
 import { chartRegistry } from "@/lib/charts/registry";
 import { ChartWrapper } from "@/components/graphs/ChartWrapper";
 
-const fetchData = async (url: string) => {
-  // Skip fetch if no URL (e.g., heatmap doesn't need API data)
+const fetchData = async (url: string, options?: { multiFetch?: boolean }) => {
   if (!url) return null;
-  
   const res = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
   if (!res.ok) throw new Error("Failed to fetch");
-  return res.json();
+  const json = await res.json();
+
+
+  // Handle multi‑fetch enrichment (used by PokéAPI)
+  if (options?.multiFetch && Array.isArray(json?.results)) {
+    const detailUrls: string[] = json.results.map((r: any) => r.url).filter(Boolean).slice(0, 50);
+    const detailResponses = await Promise.all(
+      detailUrls.map((u) => fetch(`/api/proxy?url=${encodeURIComponent(u)}`))
+    );
+    const detailJson = await Promise.all(detailResponses.map((r) => (r.ok ? r.json() : null)));
+    // stitch back
+    return { ...json, enriched: detailJson.filter(Boolean) };
+  }
+
+
+  return json;
 };
 
 export default function Page() {
@@ -29,7 +42,7 @@ export default function Page() {
   // Initialize from URL on mount (once only)
   useEffect(() => {
     const param = searchParams.get("selected");
-    
+
     // If param exists (even if empty string), use it; otherwise default to all
     if (param !== null) {
       const selected = param
@@ -47,7 +60,7 @@ export default function Page() {
   useEffect(() => {
     const currentParam = searchParams.get("selected") || "";
     const newValue = selectedGraphs.join(",");
-    
+
     // Only update URL if it's actually different
     if (currentParam !== newValue) {
       const query = new URLSearchParams(searchParams.toString());
@@ -66,8 +79,8 @@ export default function Page() {
   const queries = useQueries({
     queries: selectedConfigs.map((config) => ({
       queryKey: config.apiConfig.queryKey,
-      queryFn: () => fetchData(config.apiConfig.endpoint),
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      queryFn: () => fetchData(config.apiConfig.endpoint, { multiFetch: !!config.chartOptions?.multiFetch }),
+      staleTime: 5 * 60 * 1000,
     })),
   });
 
