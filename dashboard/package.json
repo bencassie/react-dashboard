@@ -30,11 +30,8 @@
     "react-chartjs-2": "^5.2.0",
     "react-dom": "19.2.0",
     "react-plotly.js": "^2.6.0",
-    "react-vega": "^7.6.0",
     "recharts": "^2.12.7",
     "tailwind-merge": "^2.6.0",
-    "vega": "^5.33.0",
-    "vega-lite": "^5.23.0",
     "zustand": "^5.0.8"
   },
   "devDependencies": {

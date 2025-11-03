@@ -1,3 +1,4 @@
+// src/lib/charts/registry.ts
 import dynamic from "next/dynamic";
 import type { ChartConfig } from "./types";
 import {
@@ -11,7 +12,6 @@ import {
   transformCartsForLine,
   transformOpenMeteoForLine,
   transformOpenBreweryForBar,
-  // NOTE: removed transformOpenLibrarySubjects – the chart handles its own shaping
   transformPokeApiForScatter,
   transformSpaceXLaunches,
 } from "./transforms";
@@ -25,20 +25,20 @@ const GenderPieChart = dynamic(() => import("@/components/graphs/genderpiechart"
 const TodoBarChart = dynamic(() => import("@/components/graphs/todobarchart"), { ssr: false });
 const PostBarChart = dynamic(() => import("@/components/graphs/postbarchart"), { ssr: false });
 const CartLineChart = dynamic(() => import("@/components/graphs/cartlinechart"), { ssr: false });
-
 const WeatherLineChart = dynamic(() => import("@/components/graphs/weatherlinechart"), { ssr: false });
 const BreweriesBarChart = dynamic(() => import("@/components/graphs/breweriesbarchart"), { ssr: false });
-const OpenLibraryDonutChart = dynamic(() => import("@/components/graphs/openlibrarydonutchart"), { ssr: false });
+
+// Switch Open Library to ECharts version
+const OpenLibraryDonutChart = dynamic(
+  () => import("@/components/graphs/openlibrarydonutchart_echarts"),
+  { ssr: false }
+);
+
 const PokemonScatter = dynamic(() => import("@/components/graphs/pokemonscatter"), { ssr: false });
 const SpaceXLaunchesArea = dynamic(() => import("@/components/graphs/spacexlaunchesarea"), { ssr: false });
 
 /**
  * Central registry of all available charts
- *
- * To add a new chart:
- * 1. Create the chart component in /components/graphs
- * 2. Create a transform function in transforms.ts (if needed)
- * 3. Add a new ChartConfig object to this array
  */
 export const chartRegistry: ChartConfig[] = [
   {
@@ -111,7 +111,8 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PostBarChart,
   },
-  // ——— New open-source APIs + libraries ———
+
+  // Open-source APIs
   {
     name: "Weather Line Chart",
     displayName: "Open-Meteo: Temp Next 24h (London)",
@@ -137,10 +138,9 @@ export const chartRegistry: ChartConfig[] = [
     name: "Open Library Donut Chart",
     displayName: "Open Library: Works by Sub-Subject (Science)",
     apiConfig: {
-      endpoint: "https://openlibrary.org/subjects/science.json?limit=200",
+      endpoint: "https://openlibrary.org/subjects/science.json?limit=200&details=true",
       queryKey: ["openlibrary", "science"],
-      // Important: pass raw JSON; component normalizes multiple possible shapes
-      transform: (d: any) => d,
+      transform: (d: any) => d, // component normalizes
     },
     Component: OpenLibraryDonutChart,
   },
@@ -153,6 +153,7 @@ export const chartRegistry: ChartConfig[] = [
       transform: transformPokeApiForScatter,
     },
     Component: PokemonScatter,
+    chartOptions: { multiFetch: true }, // fetch each pokemon detail to get id/base_experience
   },
   {
     name: "SpaceX Launches Area",
@@ -164,7 +165,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: SpaceXLaunchesArea,
   },
-  // ——— Existing chart ———
+
   {
     name: "Cart Line Chart",
     displayName: "Cart Totals Over Time",
@@ -177,16 +178,10 @@ export const chartRegistry: ChartConfig[] = [
   },
 ];
 
-/**
- * Helper to get a chart config by name
- */
 export function getChartByName(name: string): ChartConfig | undefined {
   return chartRegistry.find((chart) => chart.name === name);
 }
 
-/**
- * Helper to get all chart names
- */
 export function getAllChartNames(): string[] {
   return chartRegistry.map((chart) => chart.name);
 }
