@@ -1,50 +1,62 @@
 import { useState, useEffect, ComponentType } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import type { ChartComponentProps } from "@/lib/charts/types";
 
-const ChartLoadingFallback = () => (
-  <Card className="animate-pulse">
-    <CardHeader>
-      <div className="h-6 w-48 bg-muted rounded" />
-    </CardHeader>
-    <CardContent>
-      <Skeleton className="h-96 w-full" />
-    </CardContent>
-  </Card>
-);
-
 /**
- * Wrapper that adds a brief skeleton delay when charts are toggled
- * (but not on initial page load)
+ * Wrapper that:
+ *  - Debounces initial "loading" so quick requests don't show skeletons.
+ *  - Preserves a tiny delay on toggle via renderKey for a smoother remount.
+ *  - Passes a *gated* isLoading to the chart, so charts control their own UI.
  */
 type ChartWrapperProps = ChartComponentProps & {
   Component: ComponentType<ChartComponentProps>;
+  debounceMs?: number; // default 150ms
+  toggleDelayMs?: number; // default 50ms
 };
 
 export function ChartWrapper({
   Component,
   renderKey,
+  isLoading,
+  debounceMs = 150,
+  toggleDelayMs = 50,
   ...props
 }: ChartWrapperProps) {
-  const [isReady, setIsReady] = useState(false);
+  const [passedDebounce, setPassedDebounce] = useState(false);
+  const [toggleReady, setToggleReady] = useState(false);
 
-  // Skip delay on initial render (renderKey 0 or undefined)
+  // Debounce initial load
+  useEffect(() => {
+    if (!isLoading) {
+      setPassedDebounce(true);
+      return;
+    }
+    setPassedDebounce(false);
+    const t = setTimeout(() => setPassedDebounce(true), debounceMs);
+    return () => clearTimeout(t);
+  }, [isLoading, debounceMs]);
+
+  // Small delay on toggle (renderKey > 0)
   const shouldDelay = renderKey && renderKey > 0;
-
   useEffect(() => {
     if (shouldDelay) {
-      const timer = setTimeout(() => setIsReady(true), 50);
-      return () => clearTimeout(timer);
+      setToggleReady(false);
+      const t = setTimeout(() => setToggleReady(true), toggleDelayMs);
+      return () => clearTimeout(t);
     } else {
-      // No delay for initial render
-      setIsReady(true);
+      setToggleReady(true);
     }
-  }, [shouldDelay]);
+  }, [shouldDelay, toggleDelayMs]);
 
-  if (shouldDelay && !isReady) {
-    return <ChartLoadingFallback />;
-  }
+  // Only show loading when:
+  // - we are past the debounce (to prevent flash on fast loads), OR
+  // - we are in the toggle-delay window (to preserve your intended UX)
+  const showLoading = (!toggleReady) || (isLoading && passedDebounce);
 
-  return <Component {...props} />;
+  return (
+    <Component
+      {...props}
+      isLoading={showLoading}
+      renderKey={renderKey}
+    />
+  );
 }

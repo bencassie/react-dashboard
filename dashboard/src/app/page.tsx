@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useEffect, useMemo } from "react";
 import { useStore } from "@/lib/store";
 import { chartRegistry } from "@/lib/charts/registry";
-import { ChartWrapper } from "@/components/graphs/ChartWrapper";
+import { ChartWrapper } from "@/components/graphs/chartwrapper";
 
 const fetchData = async (url: string, options?: { multiFetch?: boolean }) => {
   if (!url) return null;
@@ -79,8 +79,21 @@ export default function Page() {
   const queries = useQueries({
     queries: selectedConfigs.map((config) => ({
       queryKey: config.apiConfig.queryKey,
-      queryFn: () => fetchData(config.apiConfig.endpoint, { multiFetch: !!config.chartOptions?.multiFetch }),
-      staleTime: 5 * 60 * 1000,
+      queryFn: () =>
+        fetchData(config.apiConfig.endpoint, {
+          multiFetch: !!config.chartOptions?.multiFetch,
+        }),
+      staleTime: 5 * 60 * 1000,       // 5 min "fresh"
+      gcTime: 15 * 60 * 1000,         // keep in cache 15 min
+      keepPreviousData: true,         // no empty state between refetches
+      refetchOnWindowFocus: false,    // no tab-focus refetch
+      refetchOnMount: false,          // no refetch if cache fresh
+      refetchOnReconnect: false,      // no refetch on reconnect
+      retry: (failureCount, err: any) => {
+        const status = err?.status ?? err?.response?.status;
+        if (status && status >= 400 && status < 500) return false; // don’t retry 4xx
+        return failureCount < 2; // small backoff for transient errors
+      },
     })),
   });
 
@@ -165,10 +178,12 @@ export default function Page() {
                   error={error}
                   renderKey={renderKey}
                   options={config.chartOptions}
+                  debounceMs={150}  // tweak if you like
                 />
               ))}
             </div>
           )}
+
         </div>
       </div>
     </div>
