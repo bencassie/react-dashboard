@@ -151,20 +151,30 @@ export function transformOpenBreweryForBar(raw: any) {
     .slice(0, 10);
 }
 
-/** Open Library: collapse works by subject into {name,value} */
+/** Open Library: collapse works by subject into {name,value} with guards */
 export function transformOpenLibrarySubjects(raw: any) {
-  const works = raw?.works || [];
+  const works = Array.isArray(raw?.works) ? raw.works : [];
   const buckets: Record<string, number> = {};
+
   for (const w of works) {
-    const subjects: string[] = w.subject ?? [];
-    for (const s of subjects.slice(0, 1)) {
+    // Open Library sometimes uses `subject` and sometimes `subjects`
+    const subjects: string[] = Array.isArray(w?.subject)
+      ? w.subject
+      : Array.isArray(w?.subjects)
+      ? w.subjects
+      : [];
+    // keep first subject to avoid over-weighting multi-labeled rows
+    const s = subjects[0];
+    if (typeof s === "string" && s.trim()) {
       buckets[s] = (buckets[s] || 0) + 1;
     }
   }
+
   return Object.entries(buckets)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 10)
-    .map(([name, value]) => ({ name, value }));
+    .map(([name, count]) => ({ name, value: Number(count) }))
+    .filter((r) => Number.isFinite(r.value) && r.value > 0)
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 10);
 }
 
 /** PokéAPI: first N pokemon with base_experience & id */

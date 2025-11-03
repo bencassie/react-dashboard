@@ -11,7 +11,7 @@ import {
   transformCartsForLine,
   transformOpenMeteoForLine,
   transformOpenBreweryForBar,
-  transformOpenLibrarySubjects,
+  // NOTE: removed transformOpenLibrarySubjects – the chart handles its own shaping
   transformPokeApiForScatter,
   transformSpaceXLaunches,
 } from "./transforms";
@@ -37,7 +37,7 @@ const SpaceXLaunchesArea = dynamic(() => import("@/components/graphs/spacexlaunc
  *
  * To add a new chart:
  * 1. Create the chart component in /components/graphs
- * 2. Create a transform function in transforms.ts
+ * 2. Create a transform function in transforms.ts (if needed)
  * 3. Add a new ChartConfig object to this array
  */
 export const chartRegistry: ChartConfig[] = [
@@ -139,7 +139,8 @@ export const chartRegistry: ChartConfig[] = [
     apiConfig: {
       endpoint: "https://openlibrary.org/subjects/science.json?limit=200",
       queryKey: ["openlibrary", "science"],
-      transform: transformOpenLibrarySubjects,
+      // Important: pass raw JSON; component normalizes multiple possible shapes
+      transform: (d: any) => d,
     },
     Component: OpenLibraryDonutChart,
   },
