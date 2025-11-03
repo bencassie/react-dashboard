@@ -5,12 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
 
-function TodoBarChartInner({ data, isLoading, error }: ChartComponentProps) {
+function NivoBarChartInner({ data, isLoading, error, options }: ChartComponentProps) {
+  const title = options?.title || "Bar Chart";
+  const keys = options?.keys || ["value"];
+  const indexBy = options?.indexBy || "id";
+  const xAxisLabel = options?.xAxisLabel || "";
+  const yAxisLabel = options?.yAxisLabel || "";
+
   if (isLoading) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Todo Completion Status</CardTitle>
+          <CardTitle>{title}</CardTitle>
         </CardHeader>
         <CardContent>
           <Skeleton className="h-96 w-full" />
@@ -18,11 +24,12 @@ function TodoBarChartInner({ data, isLoading, error }: ChartComponentProps) {
       </Card>
     );
   }
+
   if (error) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Todo Completion Status</CardTitle>
+          <CardTitle>{title}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-red-500">Error loading data</p>
@@ -30,33 +37,36 @@ function TodoBarChartInner({ data, isLoading, error }: ChartComponentProps) {
       </Card>
     );
   }
+
   const barData = data || [];
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Todo Completion Status</CardTitle>
+        <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-96 w-full">
           <ResponsiveBar
             data={barData}
-            keys={["count"]}
-            indexBy="status"
-            margin={{ top: 50, right: 130, bottom: 50, left: 60 }}
+            keys={keys}
+            indexBy={indexBy}
+            margin={{ top: 50, right: 130, bottom: 70, left: 60 }}
             padding={0.3}
             valueScale={{ type: "linear" }}
             indexScale={{ type: "band", round: true }}
             axisBottom={{
               tickSize: 5,
               tickPadding: 5,
-              legend: "Status",
+              tickRotation: -45,
+              legend: xAxisLabel,
               legendPosition: "middle",
-              legendOffset: 40,
+              legendOffset: 50,
             }}
             axisLeft={{
               tickSize: 5,
               tickPadding: 5,
-              legend: "Count",
+              legend: yAxisLabel,
               legendPosition: "middle",
               legendOffset: -40,
             }}
@@ -71,7 +81,7 @@ function TodoBarChartInner({ data, isLoading, error }: ChartComponentProps) {
               },
             ]}
             role="application"
-            ariaLabel="Bar chart of todo completion status"
+            ariaLabel={`Bar chart: ${title}`}
           />
         </div>
       </CardContent>
@@ -79,6 +89,6 @@ function TodoBarChartInner({ data, isLoading, error }: ChartComponentProps) {
   );
 }
 
-const TodoBarChart = memo(TodoBarChartInner);
-TodoBarChart.displayName = "TodoBarChart";
-export default TodoBarChart;
+const NivoBarChart = memo(NivoBarChartInner);
+NivoBarChart.displayName = "NivoBarChart";
+export default NivoBarChart;

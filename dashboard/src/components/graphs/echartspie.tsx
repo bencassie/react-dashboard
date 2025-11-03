@@ -7,38 +7,35 @@ import type { ChartComponentProps } from "@/lib/charts/types";
 
 const ReactECharts = dynamic(() => import("echarts-for-react"), { ssr: false });
 
-function GenderPieChartInner({ data, isLoading, error }: ChartComponentProps) {
+function EchartsPieChartInner({ data, isLoading, error, options }: ChartComponentProps) {
+  const title = options?.title || "Pie Chart";
+  const radius = options?.radius || "60%";
+
   if (isLoading) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle>User Gender Distribution</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-96 w-full" />
-        </CardContent>
+        <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
+        <CardContent><Skeleton className="h-96 w-full" /></CardContent>
       </Card>
     );
   }
+
   if (error) {
     return (
       <Card>
-        <CardHeader>
-          <CardTitle>User Gender Distribution</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-red-500">Error loading data</p>
-        </CardContent>
+        <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
+        <CardContent><p className="text-red-500">Error loading data</p></CardContent>
       </Card>
     );
   }
+
   const pieData = data || [];
   const pieOption = {
     tooltip: { trigger: "item" },
     series: [
       {
         type: "pie",
-        radius: "60%",
+        radius: radius,
         data: pieData,
         emphasis: {
           itemStyle: {
@@ -50,11 +47,10 @@ function GenderPieChartInner({ data, isLoading, error }: ChartComponentProps) {
       },
     ],
   };
+
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>User Gender Distribution</CardTitle>
-      </CardHeader>
+      <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
       <CardContent>
         <div className="h-96 w-full">
           <ReactECharts option={pieOption} style={{ height: "100%", width: "100%" }} />
@@ -64,6 +60,6 @@ function GenderPieChartInner({ data, isLoading, error }: ChartComponentProps) {
   );
 }
 
-const GenderPieChart = memo(GenderPieChartInner);
-GenderPieChart.displayName = "GenderPieChart";
-export default GenderPieChart;
+const EchartsPieChart = memo(EchartsPieChartInner);
+EchartsPieChart.displayName = "EchartsPieChart";
+export default EchartsPieChart;

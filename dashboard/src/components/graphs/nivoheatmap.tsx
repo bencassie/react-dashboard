@@ -2,24 +2,19 @@
 import { useMemo, memo } from "react";
 import { ResponsiveHeatMap } from "@nivo/heatmap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { ChartComponentProps } from "@/lib/charts/types";
 
-function HeatmapChartInner() {
-  const heatmapData = useMemo(
-    () =>
-      Array.from({ length: 7 }, (_, i) => ({
-        id: `Day ${i + 1}`,
-        data: Array.from({ length: 12 }, (_, h) => ({
-          x: `${h * 2}:00`,
-          y: Math.floor(Math.random() * 100),
-        })),
-      })),
-    []
-  );
+function NivoHeatmapChartInner({ data, options }: ChartComponentProps) {
+  const title = options?.title || "Heatmap";
+  const xAxisLabel = options?.xAxisLabel || "X";
+  const yAxisLabel = options?.yAxisLabel || "Y";
+
+  const heatmapData = useMemo(() => data || [], [data]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Activity Heatmap (Sample)</CardTitle>
+        <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="h-96 w-full">
@@ -31,14 +26,14 @@ function HeatmapChartInner() {
               tickSize: 5,
               tickPadding: 5,
               tickRotation: -90,
-              legend: "Hour",
+              legend: xAxisLabel,
               legendPosition: "middle",
               legendOffset: -40,
             }}
             axisLeft={{
               tickSize: 5,
               tickPadding: 5,
-              legend: "Day",
+              legend: yAxisLabel,
               legendPosition: "middle",
               legendOffset: -60,
             }}
@@ -50,6 +45,6 @@ function HeatmapChartInner() {
   );
 }
 
-const HeatmapChart = memo(HeatmapChartInner);
-HeatmapChart.displayName = "HeatmapChart";
-export default HeatmapChart;
+const NivoHeatmapChart = memo(NivoHeatmapChartInner);
+NivoHeatmapChart.displayName = "NivoHeatmapChart";
+export default NivoHeatmapChart;

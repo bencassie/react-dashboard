@@ -9,20 +9,21 @@ type Store = {
 export const useStore = create<Store>()((set, get) => ({
   selectedGraphs: [],
   renderKeys: {},
-  toggleGraph: (name) =>
-    set((state) => {
-      const isSelected = state.selectedGraphs.includes(name);
-      if (isSelected) {
-        return {
-          selectedGraphs: state.selectedGraphs.filter((g) => g !== name),
-        };
-      } else {
-        const newKeys = { ...state.renderKeys };
-        newKeys[name] = (newKeys[name] || 0) + 1;
-        return {
-          selectedGraphs: [...state.selectedGraphs, name],
-          renderKeys: newKeys,
-        };
-      }
-    }),
+  toggleGraph: (name) => {
+    const { selectedGraphs, renderKeys } = get();
+    const isSelected = selectedGraphs.includes(name);
+    
+    if (isSelected) {
+      // Removing: just filter out
+      set({ selectedGraphs: selectedGraphs.filter((g) => g !== name) });
+    } else {
+      // Adding: increment render key and add to selection
+      const newKeys = { ...renderKeys };
+      newKeys[name] = (newKeys[name] || 0) + 1;
+      set({
+        selectedGraphs: [...selectedGraphs, name],
+        renderKeys: newKeys,
+      });
+    }
+  },
 }));

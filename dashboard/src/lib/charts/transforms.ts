@@ -1,11 +1,12 @@
 /**
  * Transform functions for converting raw API responses into chart-ready data
+ * Naming convention: transform[DataSource]For[Purpose]
  */
 
 /**
- * Transform products data for bar chart (price vs rating)
+ * Transform DummyJSON products for price vs rating bar chart
  */
-export function transformProductsForBarChart(raw: any) {
+export function transformProductsForPriceRatingBar(raw: any) {
   const products = raw?.products || [];
   return products.slice(0, 10).map((p: any) => ({
     id: p.title.slice(0, 20),
@@ -15,9 +16,9 @@ export function transformProductsForBarChart(raw: any) {
 }
 
 /**
- * Transform products data for pie chart (category distribution)
+ * Transform DummyJSON products for category distribution pie chart
  */
-export function transformProductsForPieChart(raw: any) {
+export function transformProductsForCategoryPie(raw: any) {
   const products = raw?.products || [];
   const categoryCount = products.reduce(
     (acc: Record<string, number>, p: any) => {
@@ -35,9 +36,9 @@ export function transformProductsForPieChart(raw: any) {
 }
 
 /**
- * Generate sample heatmap data (this one doesn't use API data)
+ * Generate sample heatmap data (client-side generated, no API)
  */
-export function transformForHeatmap(_raw?: any) {
+export function generateSampleHeatmapData(_raw?: any) {
   return Array.from({ length: 7 }, (_, i) => ({
     id: `Day ${i + 1}`,
     data: Array.from({ length: 12 }, (_, h) => ({
@@ -47,13 +48,10 @@ export function transformForHeatmap(_raw?: any) {
   }));
 }
 
-/*
- *
- */
 /**
- * Transform products data for brand count bar chart
+ * Transform DummyJSON products for brand count bar chart
  */
-export function transformProductsForBrandBar(raw: any) {
+export function transformProductsForBrandCountsBar(raw: any) {
   const products = raw?.products || [];
   const brandCount = products.reduce((acc: Record<string, number>, p: any) => {
     const brand = p.brand || "Unknown";
@@ -61,7 +59,7 @@ export function transformProductsForBrandBar(raw: any) {
     return acc;
   }, {});
   return Object.entries(brandCount)
-    .sort(([, a], [, b]) => b - a)
+    .sort(([, a], [, b]) => (b as number) - (a as number))
     .slice(0, 10)
     .map(([brand, count]) => ({
       brand,
@@ -70,9 +68,9 @@ export function transformProductsForBrandBar(raw: any) {
 }
 
 /**
- * Transform users data for gender pie chart
+ * Transform DummyJSON users for gender distribution pie chart
  */
-export function transformUsersForGenderPie(raw: any) {
+export function transformUsersForGenderDistributionPie(raw: any) {
   const users = raw?.users || [];
   const genderCount = users.reduce((acc: Record<string, number>, u: any) => {
     const gender = u.gender;
@@ -86,9 +84,9 @@ export function transformUsersForGenderPie(raw: any) {
 }
 
 /**
- * Transform todos data for completion bar chart
+ * Transform DummyJSON todos for completion status bar chart
  */
-export function transformTodosForBar(raw: any) {
+export function transformTodosForCompletionStatusBar(raw: any) {
   const todos = raw?.todos || [];
   const completed = todos.filter((t: any) => t.completed).length;
   const incomplete = todos.length - completed;
@@ -99,9 +97,9 @@ export function transformTodosForBar(raw: any) {
 }
 
 /**
- * Transform posts data for reactions bar chart (top 5)
+ * Transform DummyJSON posts for top reactions bar chart
  */
-export function transformPostsForBar(raw: any) {
+export function transformPostsForTopReactionsBar(raw: any) {
   const posts = raw?.posts || [];
   return posts
     .sort((a: any, b: any) => {
@@ -117,9 +115,9 @@ export function transformPostsForBar(raw: any) {
 }
 
 /**
- * Transform carts data for total line chart
+ * Transform DummyJSON carts for total value line chart
  */
-export function transformCartsForLine(raw: any) {
+export function transformCartsForTotalValueLine(raw: any) {
   const carts = raw?.carts || [];
   return carts.map((c: any) => ({
     id: c.id,
@@ -127,8 +125,10 @@ export function transformCartsForLine(raw: any) {
   }));
 }
 
-/** Open-Meteo: next 24 hours hourly temps for London (can switch lat/lon) */
-export function transformOpenMeteoForLine(raw: any) {
+/**
+ * Transform Open-Meteo API for hourly temperature line chart
+ */
+export function transformOpenMeteoForHourlyTemperatureLine(raw: any) {
   const hours = raw?.hourly?.time ?? [];
   const temps = raw?.hourly?.temperature_2m ?? [];
   return hours.slice(0, 24).map((t: string, i: number) => ({
@@ -137,8 +137,10 @@ export function transformOpenMeteoForLine(raw: any) {
   }));
 }
 
-/** Open Brewery DB: count breweries per state (top 10) */
-export function transformOpenBreweryForBar(raw: any) {
+/**
+ * Transform Open Brewery DB for breweries by state bar chart
+ */
+export function transformOpenBreweryForStateCountsBar(raw: any) {
   const list = Array.isArray(raw) ? raw : [];
   const counts: Record<string, number> = {};
   for (const b of list) {
@@ -151,37 +153,52 @@ export function transformOpenBreweryForBar(raw: any) {
     .slice(0, 10);
 }
 
-/** Open Library: collapse works by subject into {name,value} with guards */
-export function transformOpenLibrarySubjects(raw: any) {
-  const works = Array.isArray(raw?.works) ? raw.works : [];
-  const buckets: Record<string, number> = {};
+/**
+ * Transform Open Library API for subject works distribution
+ */
+export function transformOpenLibraryForSubjectWorksDonut(raw: any) {
+  if (!raw) return [];
 
-  for (const w of works) {
-    // Open Library sometimes uses `subject` and sometimes `subjects`
-    const subjects: string[] = Array.isArray(w?.subject)
-      ? w.subject
-      : Array.isArray(w?.subjects)
-      ? w.subjects
-      : [];
-    // keep first subject to avoid over-weighting multi-labeled rows
-    const s = subjects[0];
-    if (typeof s === "string" && s.trim()) {
-      buckets[s] = (buckets[s] || 0) + 1;
-    }
+  // Handle different response structures
+  if (Array.isArray(raw.subjects) && raw.subjects.length) {
+    return raw.subjects
+      .map((s: any) => ({
+        name: String(s?.name ?? s?.key ?? "").trim(),
+        value: Number(s?.work_count ?? s?.count ?? 0),
+      }))
+      .filter((d: any) => d.name && Number.isFinite(d.value) && d.value > 0)
+      .sort((a: any, b: any) => b.value - a.value)
+      .slice(0, 12);
   }
 
-  return Object.entries(buckets)
-    .map(([name, count]) => ({ name, value: Number(count) }))
-    .filter((r) => Number.isFinite(r.value) && r.value > 0)
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 10);
+  if (Array.isArray(raw.works) && raw.works.length) {
+    const counts = new Map<string, number>();
+    for (const w of raw.works) {
+      const subjects = Array.isArray(w?.subject) 
+        ? w.subject 
+        : Array.isArray(w?.subjects) 
+        ? w.subjects 
+        : [];
+      for (const s of subjects) {
+        const k = String(s ?? "").trim();
+        if (k) counts.set(k, (counts.get(k) ?? 0) + 1);
+      }
+    }
+    return Array.from(counts, ([name, value]) => ({ name, value }))
+      .filter((d) => d.name && Number.isFinite(d.value) && d.value > 0)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 12);
+  }
+
+  return [];
 }
 
-/** PokéAPI: first N pokemon with base_experience & id */
-export function transformPokeApiForScatter(raw: any) {
+/**
+ * Transform PokéAPI for base experience scatter plot
+ */
+export function transformPokeApiForBaseExperienceScatter(raw: any) {
   const results = raw?.results ?? [];
   const enriched = raw?.enriched ?? [];
-  // When using the multi-step fetch (see registry), we stuff detail list into `enriched`.
   const rows = (enriched.length ? enriched : results).filter(Boolean);
   return rows.map((p: any) => ({
     id: p.id,
@@ -190,8 +207,10 @@ export function transformPokeApiForScatter(raw: any) {
   }));
 }
 
-/** SpaceX: count launches by year */
-export function transformSpaceXLaunches(raw: any) {
+/**
+ * Transform SpaceX API for launches per year area chart
+ */
+export function transformSpaceXForLaunchesPerYearArea(raw: any) {
   const launches = Array.isArray(raw) ? raw : [];
   const counts: Record<string, number> = {};
   for (const l of launches) {

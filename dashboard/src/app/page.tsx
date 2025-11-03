@@ -2,21 +2,19 @@
 import { useQueries } from "@tanstack/react-query";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardTitle } from "@/components/ui/card";
 import { RefreshCw } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useCallback, startTransition } from "react";
 import { useStore } from "@/lib/store";
 import { chartRegistry } from "@/lib/charts/registry";
 import { ChartWrapper } from "@/components/graphs/chartwrapper";
+import { Sidebar } from "@/components/Sidebar";
 
 const fetchData = async (url: string, options?: { multiFetch?: boolean }) => {
   if (!url) return null;
   const res = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
   if (!res.ok) throw new Error("Failed to fetch");
   const json = await res.json();
-
 
   // Handle multi‑fetch enrichment (used by PokéAPI)
   if (options?.multiFetch && Array.isArray(json?.results)) {
@@ -28,7 +26,6 @@ const fetchData = async (url: string, options?: { multiFetch?: boolean }) => {
     // stitch back
     return { ...json, enriched: detailJson.filter(Boolean) };
   }
-
 
   return json;
 };
@@ -69,6 +66,19 @@ export default function Page() {
     }
   }, [selectedGraphs, router, pathname, searchParams]);
 
+  // Memoize chart registry data for sidebar
+  const chartList = useMemo(
+    () => chartRegistry.map((c) => ({ name: c.name, displayName: c.displayName })),
+    []
+  );
+
+  // Wrap toggle in startTransition for non-urgent updates
+  const handleToggle = useCallback((name: string) => {
+    startTransition(() => {
+      toggleGraph(name);
+    });
+  }, [toggleGraph]);
+
   // Get configs for selected charts
   const selectedConfigs = useMemo(
     () => chartRegistry.filter((chart) => selectedGraphs.includes(chart.name)),
@@ -85,22 +95,21 @@ export default function Page() {
         }),
       staleTime: 5 * 60 * 1000,       // 5 min "fresh"
       gcTime: 15 * 60 * 1000,         // keep in cache 15 min
-      keepPreviousData: true,         // no empty state between refetches
       refetchOnWindowFocus: false,    // no tab-focus refetch
       refetchOnMount: false,          // no refetch if cache fresh
       refetchOnReconnect: false,      // no refetch on reconnect
       retry: (failureCount, err: any) => {
         const status = err?.status ?? err?.response?.status;
-        if (status && status >= 400 && status < 500) return false; // don’t retry 4xx
+        if (status && status >= 400 && status < 500) return false; // don't retry 4xx
         return failureCount < 2; // small backoff for transient errors
       },
     })),
   });
 
   // Refetch all queries
-  const refetchAll = () => {
+  const refetchAll = useCallback(() => {
     queries.forEach((query) => query.refetch());
-  };
+  }, [queries]);
 
   // Check if any query is loading
   const isAnyLoading = queries.some((q) => q.isLoading);
@@ -110,7 +119,11 @@ export default function Page() {
     () =>
       selectedConfigs.map((config, idx) => {
         const query = queries[idx];
-        const transformedData = query.data
+        
+        // Handle client-side data generation (no endpoint)
+        const transformedData = config.apiConfig.endpoint === ""
+          ? config.apiConfig.transform(null)
+          : query.data
           ? config.apiConfig.transform(query.data)
           : null;
 
@@ -128,21 +141,11 @@ export default function Page() {
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
-      <div className="w-64 border-r bg-muted/40 p-4 flex flex-col gap-2">
-        <CardTitle className="text-lg font-bold">Graphs</CardTitle>
-        {chartRegistry.map((chart) => (
-          <div key={chart.name} className="flex items-center space-x-2">
-            <Checkbox
-              id={chart.name}
-              checked={selectedGraphs.includes(chart.name)}
-              onCheckedChange={() => toggleGraph(chart.name)}
-            />
-            <label htmlFor={chart.name} className="text-sm font-medium">
-              {chart.displayName}
-            </label>
-          </div>
-        ))}
-      </div>
+      <Sidebar 
+        charts={chartList}
+        selectedGraphs={selectedGraphs}
+        onToggle={handleToggle}
+      />
 
       {/* Main Content */}
       <div className="flex-1 p-4 md:p-8">
@@ -178,7 +181,7 @@ export default function Page() {
                   error={error}
                   renderKey={renderKey}
                   options={config.chartOptions}
-                  debounceMs={150}  // tweak if you like
+                  debounceMs={150}
                 />
               ))}
             </div>

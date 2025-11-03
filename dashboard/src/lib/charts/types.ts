@@ -42,6 +42,10 @@ export type ChartComponentProps = {
   error: Error | null;
   /** Render key for remounting */
   renderKey?: number;
-  /** Optional chart-specific options */
-  options?: Record<string, any>;
+  /** Chart configuration (title, labels, etc.) */
+  options?: {
+    title?: string;
+    description?: string;
+    [key: string]: any;
+  };
 };
