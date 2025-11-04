@@ -2,12 +2,39 @@
 import { useMemo, memo } from "react";
 import { ResponsiveHeatMap } from "@nivo/heatmap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
 
-function NivoHeatmapChartInner({ data, options }: ChartComponentProps) {
+function NivoHeatmapChartInner({ data, isLoading, error, options }: ChartComponentProps) {
   const title = options?.title || "Heatmap";
   const xAxisLabel = options?.xAxisLabel || "X";
   const yAxisLabel = options?.yAxisLabel || "Y";
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-96 w-full" />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-red-500">Error loading data</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const heatmapData = useMemo(() => data || [], [data]);
 
