@@ -8,7 +8,7 @@ import { useEffect, useMemo, useCallback, startTransition } from "react";
 import { useStore } from "@/lib/store";
 import { chartRegistry } from "@/lib/charts/registry";
 import { ChartWrapper } from "@/components/graphs/chartwrapper";
-import { Sidebar } from "@/components/Sidebar";
+import { Sidebar } from "@/components/sidebar";
 
 const fetchData = async (url: string, options?: { multiFetch?: boolean }) => {
   if (!url) return null;
