@@ -145,25 +145,11 @@ export default function Page() {
     []
   );
 
-  // Debounced toggle with refs to track timeouts
-  const toggleTimeouts = useRef<Map<string, NodeJS.Timeout>>(new Map());
-
+  // Toggle with startTransition for responsive UI
   const handleToggle = useCallback((name: string) => {
-    // Clear existing timeout for this chart
-    const existing = toggleTimeouts.current.get(name);
-    if (existing) {
-      clearTimeout(existing);
-    }
-
-    // Debounce the actual state update
-    const timeoutId = setTimeout(() => {
-      startTransition(() => {
-        toggleGraph(name);
-        toggleTimeouts.current.delete(name);
-      });
-    }, 150); // 150ms debounce
-
-    toggleTimeouts.current.set(name, timeoutId);
+    startTransition(() => {
+      toggleGraph(name);
+    });
   }, [toggleGraph]);
 
   // Wrap selectAll in startTransition for non-urgent updates
