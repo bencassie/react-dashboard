@@ -1,13 +1,13 @@
 "use client";
-import { memo, useEffect, useMemo, useRef } from "react";
+import { memo, useEffect, useMemo, useState } from "react";
 import * as d3 from "d3";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
 import { PASTEL_COLORS } from "@/lib/charts/colors";
 
-function D3BarChartInner({ data, isLoading, error, options }: ChartComponentProps) {
-  const ref = useRef<SVGSVGElement | null>(null);
+function D3BarChartInner({ data, isLoading, error, options, renderKey }: ChartComponentProps) {
+  const [svgElement, setSvgElement] = useState<SVGSVGElement | null>(null);
   const title = options?.title || "Bar Chart";
   const xKey = options?.xKey || "name";
   const yKey = options?.yKey || "value";
@@ -15,12 +15,11 @@ function D3BarChartInner({ data, isLoading, error, options }: ChartComponentProp
   const series = useMemo(() => data ?? [], [data]);
 
   useEffect(() => {
-    if (!ref.current || !series?.length) return;
-
+    if (!svgElement || !series?.length) return;
     const { width, height, margin } = dims;
     const innerW = width - margin.left - margin.right;
     const innerH = height - margin.top - margin.bottom;
-    const svg = d3.select(ref.current);
+    const svg = d3.select(svgElement);
     svg.selectAll("*").remove();
 
     const g = svg
@@ -62,7 +61,7 @@ function D3BarChartInner({ data, isLoading, error, options }: ChartComponentProp
       .attr("dy", ".15em")
       .attr("transform", "rotate(-45)");
     g.append("g").call(d3.axisLeft(y).tickSizeOuter(0));
-  }, [series, xKey, yKey]);
+  }, [series, xKey, yKey, svgElement]);
 
   if (isLoading) {
     return (
@@ -86,7 +85,7 @@ function D3BarChartInner({ data, isLoading, error, options }: ChartComponentProp
     <Card>
       <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
       <CardContent>
-        <svg ref={ref} className="w-full h-96" />
+        <svg ref={(el) => setSvgElement(el)} className="w-full h-96" />
       </CardContent>
     </Card>
   );

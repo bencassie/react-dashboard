@@ -201,17 +201,11 @@ export default function Page() {
     })),
   });
 
-  // Create a stable map of query results by chart name to prevent unnecessary re-renders
-  const queryMap = useMemo(
-    () => new Map(selectedConfigs.map((config, idx) => [config.name, queries[idx]])),
-    [selectedConfigs, queries]
-  );
-
   // Prepare chart data with transformed results
   const chartData = useMemo(
     () =>
-      selectedConfigs.map((config) => {
-        const query = queryMap.get(config.name);
+      selectedConfigs.map((config, idx) => {
+        const query = queries[idx];
         const isReady = readyToRender.has(config.name);
 
         // Handle client-side data generation (no endpoint)
@@ -230,7 +224,7 @@ export default function Page() {
           isReady,
         };
       }),
-    [selectedConfigs, queryMap, renderKeys, readyToRender]
+    [selectedConfigs, queries, renderKeys, readyToRender]
   );
 
   // Group charts by type for display
@@ -246,7 +240,7 @@ export default function Page() {
     });
 
     return groups;
-  }, [chartData]);
+  }, [chartData, selectedGraphs, readyToRender]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-muted/10">

@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
 
-function D3HeatmapChartInner({ data, isLoading, error, options }: ChartComponentProps) {
+function D3HeatmapChartInner({ data, isLoading, error, options, renderKey }: ChartComponentProps) {
   const title = options?.title || "Heatmap";
   const dims = { width: 800, height: 500, margin: { top: 40, right: 20, bottom: 60, left: 80 } };
   const series = useMemo(() => data ?? [], [data]);
@@ -80,7 +80,7 @@ function D3HeatmapChartInner({ data, isLoading, error, options }: ChartComponent
     // Add y-axis
     g.append("g")
       .call(d3.axisLeft(yScale));
-  }, [series, dims]);
+  }, [series, dims, renderKey]);
 
   if (isLoading) {
     return (

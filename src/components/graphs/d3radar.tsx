@@ -1,23 +1,23 @@
 "use client";
-import { memo, useEffect, useRef, useMemo } from "react";
+import { memo, useEffect, useState, useMemo } from "react";
 import * as d3 from "d3";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
 import { PASTEL_COLORS } from "@/lib/charts/colors";
 
-function D3RadarChartInner({ data, isLoading, error, options }: ChartComponentProps) {
-  const ref = useRef<SVGSVGElement | null>(null);
+function D3RadarChartInner({ data, isLoading, error, options, renderKey }: ChartComponentProps) {
+  const [svgElement, setSvgElement] = useState<SVGSVGElement | null>(null);
   const title = options?.title || "Radar Chart";
   const dims = { width: 600, height: 500, margin: 80 };
   const series = useMemo(() => data ?? [], [data]);
 
   useEffect(() => {
-    if (!ref.current || !series?.length) return;
+    if (!svgElement || !series?.length) return;
 
     const { width, height, margin } = dims;
     const radius = Math.min(width, height) / 2 - margin;
-    const svg = d3.select(ref.current);
+    const svg = d3.select(svgElement);
     svg.selectAll("*").remove();
 
     const g = svg
@@ -109,8 +109,7 @@ function D3RadarChartInner({ data, isLoading, error, options }: ChartComponentPr
         .attr("font-size", "12px")
         .text(metric);
     });
-
-  }, [series]);
+  }, [series, svgElement]);
 
   if (isLoading) {
     return (
@@ -134,7 +133,7 @@ function D3RadarChartInner({ data, isLoading, error, options }: ChartComponentPr
     <Card>
       <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
       <CardContent>
-        <svg ref={ref} className="w-full h-[500px]" />
+        <svg ref={(el) => setSvgElement(el)} className="w-full h-[500px]" />
       </CardContent>
     </Card>
   );

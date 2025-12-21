@@ -1,13 +1,13 @@
 "use client";
-import { memo, useEffect, useRef, useMemo } from "react";
+import { memo, useEffect, useState, useMemo } from "react";
 import * as d3 from "d3";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
 import { PASTEL_COLORS } from "@/lib/charts/colors";
 
-function D3ScatterChartInner({ data, isLoading, error, options }: ChartComponentProps) {
-  const ref = useRef<SVGSVGElement | null>(null);
+function D3ScatterChartInner({ data, isLoading, error, options, renderKey }: ChartComponentProps) {
+  const [svgElement, setSvgElement] = useState<SVGSVGElement | null>(null);
   const title = options?.title || "Scatter Chart";
   const xKey = options?.xKey || "x";
   const yKey = options?.yKey || "y";
@@ -15,12 +15,12 @@ function D3ScatterChartInner({ data, isLoading, error, options }: ChartComponent
   const series = useMemo(() => data ?? [], [data]);
 
   useEffect(() => {
-    if (!ref.current || !series?.length) return;
+    if (!svgElement || !series?.length) return;
 
     const { width, height, margin } = dims;
     const innerW = width - margin.left - margin.right;
     const innerH = height - margin.top - margin.bottom;
-    const svg = d3.select(ref.current);
+    const svg = d3.select(svgElement);
     svg.selectAll("*").remove();
 
     const g = svg
@@ -68,8 +68,7 @@ function D3ScatterChartInner({ data, isLoading, error, options }: ChartComponent
 
     g.append("g")
       .call(d3.axisLeft(yScale));
-
-  }, [series, xKey, yKey]);
+  }, [series, xKey, yKey, svgElement]);
 
   if (isLoading) {
     return (
@@ -93,7 +92,7 @@ function D3ScatterChartInner({ data, isLoading, error, options }: ChartComponent
     <Card>
       <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
       <CardContent>
-        <svg ref={ref} className="w-full h-96" />
+        <svg ref={(el) => setSvgElement(el)} className="w-full h-96" />
       </CardContent>
     </Card>
   );

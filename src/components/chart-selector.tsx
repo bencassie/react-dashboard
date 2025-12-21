@@ -183,20 +183,22 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle, onSelectA
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  const allSelected = selectedGraphs.length === charts.length;
-                  if (allSelected) {
-                    // Deselect all
-                    onSelectAll([]);
-                  } else {
-                    // Select all
-                    onSelectAll(charts.map(chart => chart.name));
-                  }
+                  onSelectAll(charts.map(chart => chart.name));
                 }}
                 className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
               >
-                {selectedGraphs.length === charts.length ? "Deselect All" : "Select All"}
+                Select All
               </button>
-              <span className="text-xs text-muted-foreground">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectAll([]);
+                }}
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md bg-muted hover:bg-muted/80 text-foreground transition-colors"
+              >
+                Deselect All
+              </button>
+              <span className="text-xs text-muted-foreground ml-auto">
                 {selectedGraphs.length} / {charts.length}
               </span>
             </div>
