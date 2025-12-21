@@ -443,3 +443,58 @@ export function transformRecipesForCookingTimeLine(raw: any) {
       time: r.cookTimeMinutes || 0,
     }));
 }
+
+/**
+ * Transform Pokemon stats for Recharts radar chart
+ * Recharts radar expects: [{name: "Pokemon1", height: 10, weight: 100, baseExp: 50}, ...]
+ */
+export function transformPokemonForRechartsRadar(raw: any) {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((p: any) => ({
+    name: p.name || "Unknown",
+    height: p.height || 0,
+    weight: Math.min(p.weight || 0, 200), // Cap weight at 200 for better visualization
+    baseExp: p.baseExp || 0,
+  }));
+}
+
+/**
+ * Transform Pokemon stats for ECharts radar chart
+ * ECharts radar expects: {indicator: [{name, max}, ...], series: [{data: [{value: [...], name: ""}]}]}
+ */
+export function transformPokemonForEchartsRadar(raw: any) {
+  if (!Array.isArray(raw)) return { indicator: [], data: [] };
+
+  // Define indicators with max values
+  const indicator = [
+    { name: "Height", max: 35 },
+    { name: "Weight", max: 200 },
+    { name: "Base XP", max: 250 },
+  ];
+
+  // Transform each pokemon into a data series
+  const data = raw.map((p: any) => ({
+    value: [
+      p.height || 0,
+      Math.min(p.weight || 0, 200), // Cap weight
+      p.baseExp || 0,
+    ],
+    name: p.name || "Unknown",
+  }));
+
+  return { indicator, data };
+}
+
+/**
+ * Transform Pokemon stats for Chart.js radar chart
+ * Chart.js radar expects: [{name: "Pokemon1", height: 10, weight: 100, baseExp: 50}, ...]
+ */
+export function transformPokemonForChartJsRadar(raw: any) {
+  if (!Array.isArray(raw)) return [];
+  return raw.map((p: any) => ({
+    name: p.name || "Unknown",
+    height: p.height || 0,
+    weight: Math.min(p.weight || 0, 200),
+    baseExp: p.baseExp || 0,
+  }));
+}

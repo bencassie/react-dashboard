@@ -29,17 +29,29 @@ function EchartsRadarChartInner({ data, isLoading, error, options }: ChartCompon
     );
   }
 
-  const radarData = useMemo(() => data || [], [data]);
+  const radarData = useMemo(() => {
+    // Check if data is in the special radar format with indicator/data
+    if (data && typeof data === 'object' && 'indicator' in data && 'data' in data) {
+      return data;
+    }
+    // Fallback to simple format
+    return { indicator: [], data: data || [] };
+  }, [data]);
 
   const option = {
     tooltip: { trigger: "item" },
+    legend: {
+      data: radarData.data?.map((item: any) => item.name) || [],
+    },
     radar: {
-      indicator: indicators.length > 0 ? indicators : radarData.map((item: any) => ({ name: item.name, max: item.max || 100 })),
+      indicator: radarData.indicator?.length > 0
+        ? radarData.indicator
+        : radarData.data?.map((item: any) => ({ name: item.name, max: item.max || 100 })) || [],
     },
     series: [
       {
         type: "radar",
-        data: radarData,
+        data: radarData.data || [],
       },
     ],
   };

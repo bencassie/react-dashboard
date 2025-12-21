@@ -6,6 +6,9 @@ import {
   passthroughWithDateTransform,
   transformDifficultyToNameValue,
   transformStatusToNameValue,
+  transformPokemonForRechartsRadar,
+  transformPokemonForEchartsRadar,
+  transformPokemonForChartJsRadar,
 } from "./transforms";
 
 // Generic chart components (provider-graphtype naming)
@@ -983,17 +986,16 @@ export const chartRegistry: ChartConfig[] = [
 
   // New ECharts Radar Charts
   {
-    name: "ECharts Product Metrics Radar",
-    displayName: "Product Metrics (Radar)",
+    name: "ECharts Pokemon Stats Radar",
+    displayName: "Pokemon Stats (ECharts Radar)",
     apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "metrics-radar"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/pokemon/stats",
+      queryKey: ["pokemon", "stats-echarts-radar"],
+      transform: transformPokemonForEchartsRadar,
     },
     Component: EchartsRadarChart,
     chartOptions: {
-      title: "Product Metrics Overview",
-      indicators: ["price", "rating"],
+      title: "Pokemon Stats Comparison",
     },
   },
 
@@ -1115,17 +1117,16 @@ export const chartRegistry: ChartConfig[] = [
 
   // New Chart.js Radar Charts
   {
-    name: "ChartJS Product Metrics Radar",
-    displayName: "Product Metrics (Chart.js Radar)",
+    name: "ChartJS Pokemon Stats Radar",
+    displayName: "Pokemon Stats (Chart.js Radar)",
     apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "metrics-chartjs-radar"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/pokemon/stats",
+      queryKey: ["pokemon", "stats-chartjs-radar"],
+      transform: transformPokemonForChartJsRadar,
     },
     Component: ChartJsRadarChart,
     chartOptions: {
-      title: "Product Metrics",
-      metrics: ["price", "rating"],
+      title: "Pokemon Stats Comparison",
     },
   },
 
@@ -1264,17 +1265,16 @@ export const chartRegistry: ChartConfig[] = [
 
   // New Recharts Radar Charts
   {
-    name: "Recharts Product Metrics Radar",
-    displayName: "Product Metrics (Recharts Radar)",
+    name: "Recharts Pokemon Stats Radar",
+    displayName: "Pokemon Stats (Recharts Radar)",
     apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "metrics-recharts-radar"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/pokemon/stats",
+      queryKey: ["pokemon", "stats-recharts-radar"],
+      transform: transformPokemonForRechartsRadar,
     },
     Component: RechartsRadarChart,
     chartOptions: {
-      title: "Product Metrics",
-      metrics: ["price", "rating"],
+      title: "Pokemon Stats Comparison",
     },
   },
 

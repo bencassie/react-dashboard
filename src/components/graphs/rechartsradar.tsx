@@ -7,7 +7,6 @@ import type { ChartComponentProps } from "@/lib/charts/types";
 
 function RechartsRadarChartInner({ data, isLoading, error, options }: ChartComponentProps) {
   const title = options?.title || "Radar Chart";
-  const dataKey = options?.dataKey || "value";
 
   if (isLoading) {
     return (
@@ -27,6 +26,11 @@ function RechartsRadarChartInner({ data, isLoading, error, options }: ChartCompo
     );
   }
 
+  // For Pokemon radar: data = [{name: "bulbasaur", height: 7, weight: 69, baseExp: 64}, ...]
+  // We need to create one Radar component per Pokemon
+  const firstItem = data?.[0] || {};
+  const metrics = Object.keys(firstItem).filter(k => k !== 'name' && typeof firstItem[k] === 'number');
+
   return (
     <Card>
       <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
@@ -37,7 +41,16 @@ function RechartsRadarChartInner({ data, isLoading, error, options }: ChartCompo
               <PolarGrid />
               <PolarAngleAxis dataKey="name" />
               <PolarRadiusAxis />
-              <Radar name="Data" dataKey={dataKey} stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+              {metrics.map((metric, idx) => (
+                <Radar
+                  key={metric}
+                  name={metric}
+                  dataKey={metric}
+                  stroke={`hsl(${idx * 120}, 70%, 50%)`}
+                  fill={`hsl(${idx * 120}, 70%, 50%)`}
+                  fillOpacity={0.3}
+                />
+              ))}
               <Tooltip />
               <Legend />
             </RadarChart>
