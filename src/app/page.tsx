@@ -8,7 +8,7 @@ import { useEffect, useMemo, useCallback, startTransition } from "react";
 import { useStore } from "@/lib/store";
 import { chartRegistry } from "@/lib/charts/registry";
 import { ChartWrapper } from "@/components/graphs/chartwrapper";
-import { Sidebar } from "@/components/sidebar";
+import { ChartSelector } from "@/components/chart-selector";
 
 const fetchData = async (url: string, options?: { multiFetch?: boolean }) => {
   if (!url) return null;
@@ -145,19 +145,12 @@ export default function Page() {
   );
 
   return (
-    <div className="min-h-screen flex">
-      {/* Sidebar */}
-      <Sidebar 
-        charts={chartList}
-        selectedGraphs={selectedGraphs}
-        onToggle={handleToggle}
-      />
-
-      {/* Main Content */}
-      <div className="flex-1 p-4 md:p-8">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold">Product Dashboard</h1>
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <div className="border-b bg-background sticky top-0 z-10 shadow-sm">
+        <div className="max-w-[1800px] mx-auto px-4 md:px-8 py-4">
+          <div className="flex justify-between items-center">
+            <h1 className="text-3xl font-bold">Chart Library Comparison</h1>
             <div className="flex gap-2">
               <Button
                 variant="outline"
@@ -166,18 +159,34 @@ export default function Page() {
                 disabled={isAnyLoading}
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${isAnyLoading ? "animate-spin" : ""}`} />
-                Refresh
+                Refresh All
               </Button>
             </div>
           </div>
+        </div>
+      </div>
 
+      {/* Chart Selector - Floating Tags */}
+      <div className="border-b bg-muted/30">
+        <div className="max-w-[1800px] mx-auto">
+          <ChartSelector
+            charts={chartList}
+            selectedGraphs={selectedGraphs}
+            onToggle={handleToggle}
+          />
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 p-4 md:p-8 bg-muted/20">
+        <div className="max-w-[1800px] mx-auto">
           {/* Chart Grid */}
           {selectedGraphs.length === 0 ? (
-            <Card className="p-8 text-center text-muted-foreground">
-              <p>No charts selected. Select charts from the sidebar to view them.</p>
+            <Card className="p-12 text-center text-muted-foreground">
+              <p className="text-lg">No charts selected. Click on the tags above to select charts for comparison.</p>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {chartData.map(({ config, data, isLoading, error, renderKey }) => (
                 <ChartWrapper
                   key={`${config.name}-${renderKey}`}
@@ -192,7 +201,6 @@ export default function Page() {
               ))}
             </div>
           )}
-
         </div>
       </div>
     </div>
