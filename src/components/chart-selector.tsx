@@ -74,6 +74,7 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle, onSelectA
   const [isPending, setIsPending] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const portalRef = useRef<HTMLDivElement>(null);
 
   // Track mounted state for portal (SSR compatibility)
   useEffect(() => {
@@ -94,7 +95,11 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle, onSelectA
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const isOutsideContainer = containerRef.current && !containerRef.current.contains(target);
+      const isOutsidePortal = portalRef.current && !portalRef.current.contains(target);
+
+      if (isOutsideContainer && isOutsidePortal) {
         setIsExpanded(false);
       }
     };
@@ -171,7 +176,7 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle, onSelectA
 
       {/* Floating Sidebar - Right Side - Rendered via Portal */}
       {isMounted && isExpanded && createPortal(
-        <div className="fixed right-4 md:right-8 top-16 bottom-4 w-[400px] z-[9999] bg-background border-2 border-border rounded-lg shadow-2xl overflow-y-auto">
+        <div ref={portalRef} className="fixed right-4 md:right-8 top-16 bottom-4 w-[400px] z-[9999] bg-background border-2 border-border rounded-lg shadow-2xl overflow-y-auto">
           <div className="p-4 space-y-3">
             {/* Select All / Deselect All */}
             <div className="flex items-center gap-3 pb-3 border-b sticky top-0 bg-background z-10">
