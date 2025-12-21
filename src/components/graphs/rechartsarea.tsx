@@ -35,9 +35,9 @@ function RechartsAreaChartInner({ data, isLoading, error, options }: ChartCompon
       <CardContent>
         <div className="h-96 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+            <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 60 }}>
               <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
-              <XAxis dataKey={xKey} />
+              <XAxis dataKey={xKey} angle={-45} textAnchor="end" height={80} />
               <YAxis />
               <Tooltip />
               <Area

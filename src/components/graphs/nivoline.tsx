@@ -37,15 +37,15 @@ function NivoLineChartInner({ data, isLoading, error, options }: ChartComponentP
         <div className="h-96 w-full">
           <ResponsiveLine
             data={lineData}
-            margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+            margin={{ top: 50, right: 110, bottom: 80, left: 60 }}
             xScale={{ type: "point" }}
             yScale={{ type: "linear", min: "auto", max: "auto", stacked: false, reverse: false }}
             axisBottom={{
               tickSize: 5,
               tickPadding: 5,
-              tickRotation: 0,
+              tickRotation: -45,
               legend: xAxisLabel,
-              legendOffset: 36,
+              legendOffset: 70,
               legendPosition: "middle",
             }}
             axisLeft={{

@@ -10,7 +10,7 @@ function D3LineChartInner({ data, isLoading, error, options }: ChartComponentPro
   const title = options?.title || "Line Chart";
   const xKey = options?.xKey || "name";
   const yKey = options?.yKey || "value";
-  const dims = { width: 800, height: 360, margin: { top: 20, right: 20, bottom: 30, left: 40 } };
+  const dims = { width: 800, height: 360, margin: { top: 20, right: 20, bottom: 70, left: 40 } };
   const series = useMemo(() => data ?? [], [data]);
 
   useEffect(() => {
@@ -50,7 +50,14 @@ function D3LineChartInner({ data, isLoading, error, options }: ChartComponentPro
       .attr("stroke-width", 2)
       .attr("d", line as any);
 
-    g.append("g").attr("transform", `translate(0,${innerH})`).call(d3.axisBottom(x));
+    g.append("g")
+      .attr("transform", `translate(0,${innerH})`)
+      .call(d3.axisBottom(x))
+      .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", ".15em")
+      .attr("transform", "rotate(-45)");
     g.append("g").call(d3.axisLeft(y));
   }, [series, xKey, yKey]);
 

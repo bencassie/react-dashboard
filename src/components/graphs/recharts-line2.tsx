@@ -34,9 +34,9 @@ function RechartsLine2ChartInner({ data, isLoading, error, options }: ChartCompo
       <CardContent>
         <div className="h-96 w-full">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+            <LineChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 60 }}>
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey={xKey} />
+              <XAxis dataKey={xKey} angle={-45} textAnchor="end" height={80} />
               <YAxis />
               <Tooltip />
               <Line type="monotone" dataKey={yKey} stroke="#8884d8" activeDot={{ r: 8 }} />

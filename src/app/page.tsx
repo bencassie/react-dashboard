@@ -5,8 +5,18 @@ import { Card, CardTitle } from "@/components/ui/card";
 import { useEffect, useMemo, useCallback, startTransition, useState, useRef } from "react";
 import { useStore } from "@/lib/store";
 import { chartRegistry } from "@/lib/charts/registry";
+import type { ChartConfig } from "@/lib/charts/types";
 import { ChartWrapper } from "@/components/graphs/chartwrapper";
 import { ChartSelector } from "@/components/chart-selector";
+
+const VENDORS = ["Nivo", "ECharts", "Recharts", "Chart.js", "ChartJS", "D3", "Plotly"];
+const CHART_TYPES = ["Bar", "Line", "Pie", "Doughnut", "Area", "Scatter", "Radar", "Heatmap", "Bump"];
+
+function extractVendorAndType(displayName: string): { vendor: string; type: string } {
+  const vendor = VENDORS.find(v => displayName.includes(v)) || "Other";
+  const type = CHART_TYPES.find(t => displayName.toLowerCase().includes(t.toLowerCase())) || "Other";
+  return { vendor: vendor === "ChartJS" ? "Chart.js" : vendor, type };
+}
 
 const fetchData = async (url: string, options?: { multiFetch?: boolean }) => {
   if (!url) return null;
@@ -135,11 +145,9 @@ export default function Page() {
     });
   }, [setSelectedGraphs]);
 
-  // Get configs for selected charts in the order they were selected
+  // Get configs for selected charts in registry order (not selection order)
   const selectedConfigs = useMemo(
-    () => selectedGraphs
-      .map(name => chartRegistry.find(chart => chart.name === name))
-      .filter((config): config is NonNullable<typeof config> => config !== undefined),
+    () => chartRegistry.filter(chart => selectedGraphs.includes(chart.name)),
     [selectedGraphs]
   );
 
@@ -190,6 +198,21 @@ export default function Page() {
     [selectedConfigs, queries, renderKeys, readyToRender]
   );
 
+  // Group charts by type for display
+  const groupedChartData = useMemo(() => {
+    const groups: Record<string, typeof chartData> = {};
+
+    chartData.forEach(item => {
+      const { type } = extractVendorAndType(item.config.displayName);
+      if (!groups[type]) {
+        groups[type] = [];
+      }
+      groups[type].push(item);
+    });
+
+    return groups;
+  }, [chartData]);
+
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-background via-background to-muted/10">
       {/* Compact Header with Filters */}
@@ -227,19 +250,38 @@ export default function Page() {
                   Loading charts: {readyToRender.size} / {selectedGraphs.length}
                 </div>
               )}
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-              {chartData.map(({ config, data, isLoading, error, renderKey }) => (
-                <ChartWrapper
-                  key={`${config.name}-${renderKey}`}
-                  Component={config.Component}
-                  data={data}
-                  isLoading={isLoading}
-                  error={error}
-                  renderKey={renderKey}
-                  options={config.chartOptions}
-                  debounceMs={150}
-                />
-              ))}
+
+              {/* Grouped Charts Display */}
+              <div className="space-y-12">
+                {CHART_TYPES.filter(type => groupedChartData[type]?.length > 0).map(type => (
+                  <div key={type} className="space-y-4">
+                    {/* Group Header */}
+                    <div className="border-b-2 border-primary/20 pb-2">
+                      <h2 className="text-2xl font-bold text-foreground">
+                        {type} Charts
+                        <span className="ml-3 text-sm font-normal text-muted-foreground">
+                          ({groupedChartData[type].length})
+                        </span>
+                      </h2>
+                    </div>
+
+                    {/* Charts in this group */}
+                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                      {groupedChartData[type].map(({ config, data, isLoading, error, renderKey }) => (
+                        <ChartWrapper
+                          key={`${config.name}-${renderKey}`}
+                          Component={config.Component}
+                          data={data}
+                          isLoading={isLoading}
+                          error={error}
+                          renderKey={renderKey}
+                          options={config.chartOptions}
+                          debounceMs={150}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </div>
             </>
           )}

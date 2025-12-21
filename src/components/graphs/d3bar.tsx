@@ -11,7 +11,7 @@ function D3BarChartInner({ data, isLoading, error, options }: ChartComponentProp
   const title = options?.title || "Bar Chart";
   const xKey = options?.xKey || "name";
   const yKey = options?.yKey || "value";
-  const dims = { width: 800, height: 360, margin: { top: 20, right: 20, bottom: 30, left: 40 } };
+  const dims = { width: 800, height: 360, margin: { top: 20, right: 20, bottom: 70, left: 40 } };
   const series = useMemo(() => data ?? [], [data]);
 
   useEffect(() => {
@@ -55,7 +55,12 @@ function D3BarChartInner({ data, isLoading, error, options }: ChartComponentProp
 
     g.append("g")
       .attr("transform", `translate(0,${innerH})`)
-      .call(d3.axisBottom(x).tickSizeOuter(0));
+      .call(d3.axisBottom(x).tickSizeOuter(0))
+      .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", ".15em")
+      .attr("transform", "rotate(-45)");
     g.append("g").call(d3.axisLeft(y).tickSizeOuter(0));
   }, [series, xKey, yKey]);
 

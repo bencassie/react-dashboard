@@ -11,7 +11,7 @@ function D3ScatterChartInner({ data, isLoading, error, options }: ChartComponent
   const title = options?.title || "Scatter Chart";
   const xKey = options?.xKey || "x";
   const yKey = options?.yKey || "y";
-  const dims = { width: 800, height: 360, margin: { top: 20, right: 20, bottom: 40, left: 50 } };
+  const dims = { width: 800, height: 360, margin: { top: 20, right: 20, bottom: 70, left: 50 } };
   const series = useMemo(() => data ?? [], [data]);
 
   useEffect(() => {
@@ -59,7 +59,12 @@ function D3ScatterChartInner({ data, isLoading, error, options }: ChartComponent
     // Add axes
     g.append("g")
       .attr("transform", `translate(0,${innerH})`)
-      .call(d3.axisBottom(xScale));
+      .call(d3.axisBottom(xScale))
+      .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", ".15em")
+      .attr("transform", "rotate(-45)");
 
     g.append("g")
       .call(d3.axisLeft(yScale));

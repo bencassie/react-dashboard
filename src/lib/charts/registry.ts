@@ -82,7 +82,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoBarChart,
     chartOptions: {
-      title: "Price vs Rating (Top 10)",
+      title: "Bar - Nivo - Price vs Rating",
       keys: ["price", "rating"],
       indexBy: "id",
       xAxisLabel: "Product",
@@ -99,7 +99,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsPieChart,
     chartOptions: {
-      title: "Product Category Distribution",
+      title: "Pie - ECharts - Category Distribution",
       radius: "60%",
     },
   },
@@ -113,7 +113,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsDonutChart,
     chartOptions: {
-      title: "Product Categories (Donut)",
+      title: "Doughnut - ECharts - Category Donut Chart",
       innerRadius: "45%",
       outerRadius: "70%",
     },
@@ -128,7 +128,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoBarChart,
     chartOptions: {
-      title: "Top Brands by Product Count",
+      title: "Bar - Nivo - Top Brands",
       keys: ["count"],
       indexBy: "brand",
       xAxisLabel: "Brand",
@@ -145,7 +145,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsBarChart,
     chartOptions: {
-      title: "Brand Product Counts",
+      title: "Bar - Recharts - Brand Count",
       dataKey: "count",
       xKey: "brand",
     },
@@ -160,7 +160,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsBarChart,
     chartOptions: {
-      title: "Low Stock Products (Top 10)",
+      title: "Bar - Recharts - Low Stock Alert",
       dataKey: "stock",
       xKey: "product",
     },
@@ -175,7 +175,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsLineChart,
     chartOptions: {
-      title: "Product Discount Percentages",
+      title: "Line - Recharts - Product Discounts",
       labelKey: "product",
       dataKey: "discountPercentage",
       datasetLabel: "Discount %",
@@ -191,7 +191,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsLineChart,
     chartOptions: {
-      title: "Product Discount Trend",
+      title: "Line - ECharts - Discounts",
       xKey: "product",
       yKey: "discountPercentage",
       xLabel: "Product ${product}",
@@ -207,7 +207,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: D3AreaChart,
     chartOptions: {
-      title: "Product Price Distribution by Range",
+      title: "Area - D3 - Price Distribution",
       xKey: "date",
       yKey: "count",
     },
@@ -224,7 +224,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsPieChart,
     chartOptions: {
-      title: "User Gender Distribution",
+      title: "Pie - ECharts - Gender Distribution",
       radius: "60%",
     },
   },
@@ -238,7 +238,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsDonutChart,
     chartOptions: {
-      title: "User Gender Split",
+      title: "Doughnut - ECharts - Gender Donut",
       innerRadius: "50%",
       outerRadius: "75%",
     },
@@ -253,7 +253,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsDonutChart,
     chartOptions: {
-      title: "User Age Distribution",
+      title: "Doughnut - ECharts - Age Distribution",
       innerRadius: "50%",
       outerRadius: "75%",
     },
@@ -268,7 +268,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsPieChart,
     chartOptions: {
-      title: "Age Group Distribution",
+      title: "Pie - ECharts - Age Groups",
       radius: "65%",
     },
   },
@@ -282,7 +282,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsDonutChart,
     chartOptions: {
-      title: "User Blood Type Distribution",
+      title: "Doughnut - ECharts - Blood Type Distribution",
       innerRadius: "50%",
       outerRadius: "75%",
     },
@@ -297,7 +297,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsPieChart,
     chartOptions: {
-      title: "Blood Type Breakdown",
+      title: "Pie - ECharts - Blood Types",
       radius: "60%",
     },
   },
@@ -313,7 +313,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyScatterChart,
     chartOptions: {
-      title: "Recipe Ratings Distribution",
+      title: "Scatter - Plotly - Recipe Ratings",
       xKey: "id",
       yKey: "rating",
       textKey: "name",
@@ -329,7 +329,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoBarChart,
     chartOptions: {
-      title: "Recipe Difficulty Distribution",
+      title: "Bar - Nivo - Recipe Difficulty",
       keys: ["count"],
       indexBy: "difficulty",
       xAxisLabel: "Difficulty",
@@ -346,7 +346,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsBarChart,
     chartOptions: {
-      title: "Recipe Difficulty Counts",
+      title: "Bar - Recharts - Difficulty Levels",
       dataKey: "count",
       xKey: "difficulty",
     },
@@ -361,7 +361,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsPieChart,
     chartOptions: {
-      title: "Recipe Difficulty Split",
+      title: "Pie - ECharts - Difficulty Split",
       radius: "60%",
     },
   },
@@ -375,7 +375,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsLineChart,
     chartOptions: {
-      title: "Recipe Cooking Times",
+      title: "Line - ECharts - Cooking Time",
       xKey: "name",
       yKey: "cookTimeMinutes",
       xLabel: "Recipe ${name}",
@@ -391,7 +391,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsLineChart,
     chartOptions: {
-      title: "Recipe Preparation Time",
+      title: "Line - Recharts - Cook Time",
       labelKey: "name",
       dataKey: "cookTimeMinutes",
       datasetLabel: "Minutes",
@@ -409,7 +409,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoBarChart,
     chartOptions: {
-      title: "Todo Completion Status",
+      title: "Bar - Nivo - Todo Completion",
       keys: ["count"],
       indexBy: "status",
       xAxisLabel: "Status",
@@ -426,7 +426,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsBarChart,
     chartOptions: {
-      title: "Todo Status Breakdown",
+      title: "Bar - Recharts - Todo Stats",
       dataKey: "count",
       xKey: "status",
     },
@@ -441,7 +441,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsPieChart,
     chartOptions: {
-      title: "Todo Completion Split",
+      title: "Pie - ECharts - Todo Status Split",
       radius: "60%",
     },
   },
@@ -455,7 +455,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoBarChart,
     chartOptions: {
-      title: "Top Posts by Reactions (Top 5)",
+      title: "Bar - Nivo - Top Posts",
       keys: ["reactions"],
       indexBy: "title",
       xAxisLabel: "Post Title",
@@ -472,7 +472,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsBarChart,
     chartOptions: {
-      title: "Post Reaction Counts",
+      title: "Bar - Recharts - Post Engagement",
       dataKey: "reactions",
       xKey: "title",
     },
@@ -487,7 +487,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsLineChart,
     chartOptions: {
-      title: "Cart Totals Over Time",
+      title: "Line - ECharts - Cart Totals",
       xKey: "userId",
       yKey: "total",
       xLabel: "Cart ${userId}",
@@ -503,7 +503,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsLineChart,
     chartOptions: {
-      title: "Shopping Cart Values",
+      title: "Line - Recharts - Cart Values",
       labelKey: "userId",
       dataKey: "total",
       datasetLabel: "Total $",
@@ -519,7 +519,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsPieChart,
     chartOptions: {
-      title: "Top Quote Authors",
+      title: "Pie - ECharts - Top Authors",
       radius: "60%",
     },
   },
@@ -533,7 +533,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsDonutChart,
     chartOptions: {
-      title: "Quote Author Distribution",
+      title: "Doughnut - ECharts - Author Distribution",
       innerRadius: "50%",
       outerRadius: "75%",
     },
@@ -550,7 +550,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoHeatmapChart,
     chartOptions: {
-      title: "Activity Heatmap (Sample)",
+      title: "Heatmap - Nivo - Activity",
       xAxisLabel: "Hour",
       yAxisLabel: "Day",
     },
@@ -567,7 +567,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsLineChart,
     chartOptions: {
-      title: "Temperature (°C) Next 24h - London",
+      title: "Line - Recharts - London Temperature",
       labelKey: "date",
       dataKey: "temperature",
       datasetLabel: "Temp °C",
@@ -583,7 +583,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsLineChart,
     chartOptions: {
-      title: "24h Temperature Forecast",
+      title: "Line - ECharts - Weather Forecast",
       xKey: "date",
       yKey: "temperature",
       xLabel: "Time",
@@ -599,7 +599,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsBarChart,
     chartOptions: {
-      title: "Breweries by State (Top 10)",
+      title: "Bar - Recharts - Breweries by State",
       dataKey: "count",
       xKey: "state",
     },
@@ -614,7 +614,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoBarChart,
     chartOptions: {
-      title: "State Brewery Counts",
+      title: "Bar - Nivo - Brewery Distribution",
       keys: ["count"],
       indexBy: "state",
       xAxisLabel: "State",
@@ -631,7 +631,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsDonutChart,
     chartOptions: {
-      title: "Open Library: Works by Subject",
+      title: "Doughnut - ECharts - Library Subjects",
       innerRadius: "50%",
       outerRadius: "75%",
     },
@@ -646,7 +646,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsPieChart,
     chartOptions: {
-      title: "Science Subject Distribution",
+      title: "Pie - ECharts - Science Topics",
       radius: "65%",
     },
   },
@@ -660,7 +660,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyScatterChart,
     chartOptions: {
-      title: "Pokemon: Base Experience vs ID",
+      title: "Scatter - Plotly - Pokemon Base XP",
       xKey: "id",
       yKey: "base_experience",
       textKey: "name",
@@ -676,7 +676,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyScatterChart,
     chartOptions: {
-      title: "Pokemon: Height vs Weight",
+      title: "Scatter - Plotly - Pokemon Size",
       xKey: "height",
       yKey: "weight",
       textKey: "name",
@@ -692,7 +692,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: D3AreaChart,
     chartOptions: {
-      title: "SpaceX: Launches per Year",
+      title: "Area - D3 - SpaceX Launches",
       xKey: "date",
       yKey: "count",
     },
@@ -709,7 +709,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsBarChart,
     chartOptions: {
-      title: "Product Prices",
+      title: "Bar - Recharts - Product Prices",
       dataKey: "price",
       xKey: "id",
     },
@@ -724,7 +724,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsBarChart,
     chartOptions: {
-      title: "Product Ratings",
+      title: "Bar - Recharts - Product Ratings",
       dataKey: "rating",
       xKey: "id",
     },
@@ -739,7 +739,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoBarChart,
     chartOptions: {
-      title: "Low Stock Alert",
+      title: "Bar - Nivo - Stock Alert",
       keys: ["stock"],
       indexBy: "product",
       xAxisLabel: "Product",
@@ -756,7 +756,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsDonutChart,
     chartOptions: {
-      title: "User Demographics Overview",
+      title: "Doughnut - ECharts - User Demographics",
       innerRadius: "40%",
       outerRadius: "70%",
     },
@@ -771,7 +771,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsDonutChart,
     chartOptions: {
-      title: "Recipe Statistics",
+      title: "Doughnut - ECharts - Recipe Overview",
       innerRadius: "45%",
       outerRadius: "75%",
     },
@@ -786,7 +786,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsLineChart,
     chartOptions: {
-      title: "Product Stock Levels",
+      title: "Line - ECharts - Stock Levels",
       xKey: "product",
       yKey: "stock",
       xLabel: "Product",
@@ -804,7 +804,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoLineChart,
     chartOptions: {
-      title: "Product Price vs Rating",
+      title: "Line - Nivo - Price vs Rating",
       xKey: "price",
       yKey: "rating",
     },
@@ -819,7 +819,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoLineChart,
     chartOptions: {
-      title: "Recipe Cooking Times",
+      title: "Line - Nivo - Cooking Times",
       xKey: "name",
       yKey: "cookTimeMinutes",
     },
@@ -834,7 +834,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoLineChart,
     chartOptions: {
-      title: "Temperature Over Time",
+      title: "Line - Nivo - Temperature Trend",
       xKey: "date",
       yKey: "temperature",
     },
@@ -851,7 +851,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoPieChart,
     chartOptions: {
-      title: "Product Categories Distribution",
+      title: "Pie - Nivo - Categories",
     },
   },
   {
@@ -864,7 +864,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoPieChart,
     chartOptions: {
-      title: "User Gender Distribution",
+      title: "Pie - Nivo - Gender Split",
     },
   },
   {
@@ -877,7 +877,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoPieChart,
     chartOptions: {
-      title: "Blood Type Distribution",
+      title: "Pie - Nivo - Blood Types",
     },
   },
   {
@@ -890,7 +890,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoPieChart,
     chartOptions: {
-      title: "Recipe Difficulty Levels",
+      title: "Pie - Nivo - Recipe Difficulty",
     },
   },
   {
@@ -903,7 +903,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoPieChart,
     chartOptions: {
-      title: "Todo Completion Status",
+      title: "Pie - Nivo - Todo Status",
     },
   },
 
@@ -918,7 +918,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsBarChart,
     chartOptions: {
-      title: "Products by Brand",
+      title: "Bar - ECharts - Brand Counts",
       xKey: "brand",
       yKey: "count",
     },
@@ -933,7 +933,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsBarChart,
     chartOptions: {
-      title: "User Age Distribution",
+      title: "Bar - ECharts - Age Groups",
       xKey: "range",
       yKey: "count",
     },
@@ -948,7 +948,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsBarChart,
     chartOptions: {
-      title: "Recipe Ratings",
+      title: "Bar - ECharts - Recipe Ratings",
       xKey: "name",
       yKey: "rating",
     },
@@ -963,7 +963,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsBarChart,
     chartOptions: {
-      title: "Top Posts by Reactions",
+      title: "Bar - ECharts - Post Reactions",
       xKey: "title",
       yKey: "reactions",
     },
@@ -980,7 +980,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsScatterChart,
     chartOptions: {
-      title: "Product Price vs Rating Scatter",
+      title: "Scatter - ECharts - Price vs Rating",
       xKey: "price",
       yKey: "rating",
     },
@@ -995,7 +995,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsScatterChart,
     chartOptions: {
-      title: "Pokemon Height vs Weight",
+      title: "Scatter - ECharts - Pokemon Height/Weight",
       xKey: "height",
       yKey: "weight",
     },
@@ -1012,7 +1012,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsRadarChart,
     chartOptions: {
-      title: "Pokemon Stats Comparison",
+      title: "Radar - ECharts - Pokemon Stats",
     },
   },
 
@@ -1027,7 +1027,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: ChartJsBarChart,
     chartOptions: {
-      title: "Products by Brand",
+      title: "Bar - Chart.js - Brands",
       xKey: "brand",
       yKey: "count",
     },
@@ -1042,7 +1042,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: ChartJsBarChart,
     chartOptions: {
-      title: "Breweries by State",
+      title: "Bar - Chart.js - Breweries by State",
       xKey: "state",
       yKey: "count",
     },
@@ -1057,7 +1057,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: ChartJsBarChart,
     chartOptions: {
-      title: "Top Quote Authors",
+      title: "Bar - Chart.js - Quote Authors",
       xKey: "name",
       yKey: "value",
     },
@@ -1074,7 +1074,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: ChartJsDoughnutChart,
     chartOptions: {
-      title: "Product Categories",
+      title: "Doughnut - Chart.js - Categories",
     },
   },
   {
@@ -1087,7 +1087,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: ChartJsDoughnutChart,
     chartOptions: {
-      title: "User Gender Split",
+      title: "Doughnut - Chart.js - Gender",
     },
   },
   {
@@ -1100,7 +1100,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: ChartJsDoughnutChart,
     chartOptions: {
-      title: "Todo Status",
+      title: "Doughnut - Chart.js - Todos",
     },
   },
 
@@ -1115,7 +1115,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: ChartJsPieChart,
     chartOptions: {
-      title: "Blood Type Distribution",
+      title: "Pie - Chart.js - Blood Types",
     },
   },
   {
@@ -1128,7 +1128,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: ChartJsPieChart,
     chartOptions: {
-      title: "Recipe Difficulty",
+      title: "Pie - Chart.js - Difficulty",
     },
   },
 
@@ -1143,7 +1143,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: ChartJsRadarChart,
     chartOptions: {
-      title: "Pokemon Stats Comparison",
+      title: "Radar - Chart.js - Pokemon Stats",
     },
   },
 
@@ -1158,7 +1158,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsLine2Chart,
     chartOptions: {
-      title: "Recipe Cooking Times",
+      title: "Line - Recharts - Cooking Times",
       xKey: "name",
       yKey: "cookTimeMinutes",
     },
@@ -1173,7 +1173,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsLine2Chart,
     chartOptions: {
-      title: "Post Reactions Trend",
+      title: "Line - Recharts - Post Reactions",
       xKey: "title",
       yKey: "reactions",
     },
@@ -1188,7 +1188,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsLine2Chart,
     chartOptions: {
-      title: "SpaceX Launches per Year",
+      title: "Line - Recharts - SpaceX Launches",
       xKey: "date",
       yKey: "count",
     },
@@ -1205,7 +1205,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsAreaChart,
     chartOptions: {
-      title: "Product Price Distribution",
+      title: "Area - Recharts - Price Distribution",
       xKey: "date",
       dataKey: "count",
     },
@@ -1220,7 +1220,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsAreaChart,
     chartOptions: {
-      title: "Temperature Trends",
+      title: "Area - Recharts - Temperature",
       xKey: "date",
       dataKey: "temperature",
     },
@@ -1237,7 +1237,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsPieChart,
     chartOptions: {
-      title: "Product Categories",
+      title: "Pie - Recharts - Categories",
     },
   },
   {
@@ -1250,7 +1250,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsPieChart,
     chartOptions: {
-      title: "Gender Distribution",
+      title: "Pie - Recharts - Gender",
     },
   },
   {
@@ -1263,7 +1263,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsPieChart,
     chartOptions: {
-      title: "Blood Type Distribution",
+      title: "Pie - Recharts - Blood Types",
     },
   },
   {
@@ -1276,7 +1276,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsPieChart,
     chartOptions: {
-      title: "Todo Status",
+      title: "Pie - Recharts - Todos",
     },
   },
 
@@ -1291,7 +1291,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsRadarChart,
     chartOptions: {
-      title: "Pokemon Stats Comparison",
+      title: "Radar - Recharts - Pokemon Stats",
     },
   },
 
@@ -1306,7 +1306,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: D3LineChart,
     chartOptions: {
-      title: "Recipe Cooking Times",
+      title: "Line - D3 - Cooking Times",
       xKey: "name",
       yKey: "cookTimeMinutes",
     },
@@ -1321,7 +1321,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: D3LineChart,
     chartOptions: {
-      title: "Recipe Ratings",
+      title: "Line - D3 - Recipe Ratings",
       xKey: "name",
       yKey: "rating",
     },
@@ -1336,7 +1336,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: D3LineChart,
     chartOptions: {
-      title: "Product Discounts",
+      title: "Line - D3 - Discounts",
       xKey: "product",
       yKey: "discountPercentage",
     },
@@ -1353,7 +1353,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: D3BarChart,
     chartOptions: {
-      title: "Products by Brand",
+      title: "Bar - D3 - Brands",
       xKey: "brand",
       yKey: "count",
     },
@@ -1368,7 +1368,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: D3BarChart,
     chartOptions: {
-      title: "User Age Distribution",
+      title: "Bar - D3 - Age Groups",
       xKey: "range",
       yKey: "count",
     },
@@ -1383,7 +1383,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: D3BarChart,
     chartOptions: {
-      title: "Top Quote Authors",
+      title: "Bar - D3 - Quote Authors",
       xKey: "name",
       yKey: "value",
     },
@@ -1398,7 +1398,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: D3BarChart,
     chartOptions: {
-      title: "Pokemon Base Experience",
+      title: "Bar - D3 - Pokemon XP",
       xKey: "name",
       yKey: "base_experience",
     },
@@ -1415,7 +1415,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyLineChart,
     chartOptions: {
-      title: "Recipe Cooking Times",
+      title: "Line - Plotly - Cooking Times",
       xKey: "name",
       yKey: "cookTimeMinutes",
     },
@@ -1430,7 +1430,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyLineChart,
     chartOptions: {
-      title: "Recipe Ratings",
+      title: "Line - Plotly - Recipe Ratings",
       xKey: "name",
       yKey: "rating",
     },
@@ -1445,7 +1445,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyLineChart,
     chartOptions: {
-      title: "Temperature Trends",
+      title: "Line - Plotly - Temperature",
       xKey: "date",
       yKey: "temperature",
     },
@@ -1460,7 +1460,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyLineChart,
     chartOptions: {
-      title: "Shopping Cart Totals",
+      title: "Line - Plotly - Cart Totals",
       xKey: "userId",
       yKey: "total",
     },
@@ -1477,7 +1477,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyBarChart,
     chartOptions: {
-      title: "Products by Brand",
+      title: "Bar - Plotly - Brands",
       xKey: "brand",
       yKey: "count",
     },
@@ -1492,7 +1492,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyBarChart,
     chartOptions: {
-      title: "User Age Distribution",
+      title: "Bar - Plotly - Age Groups",
       xKey: "range",
       yKey: "count",
     },
@@ -1507,7 +1507,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyBarChart,
     chartOptions: {
-      title: "Library Works by Subject",
+      title: "Bar - Plotly - Library Works",
       xKey: "name",
       yKey: "value",
     },
@@ -1524,7 +1524,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyPieChart,
     chartOptions: {
-      title: "Product Categories",
+      title: "Pie - Plotly - Categories",
     },
   },
   {
@@ -1537,7 +1537,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyPieChart,
     chartOptions: {
-      title: "Gender Distribution",
+      title: "Pie - Plotly - Gender",
     },
   },
   {
@@ -1550,7 +1550,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyPieChart,
     chartOptions: {
-      title: "Blood Type Distribution",
+      title: "Pie - Plotly - Blood Types",
     },
   },
   {
@@ -1563,7 +1563,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyPieChart,
     chartOptions: {
-      title: "Recipe Difficulty Levels",
+      title: "Pie - Plotly - Difficulty",
     },
   },
   {
@@ -1576,7 +1576,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyPieChart,
     chartOptions: {
-      title: "Todo Status",
+      title: "Pie - Plotly - Todos",
     },
   },
 
@@ -1591,7 +1591,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyAreaChart,
     chartOptions: {
-      title: "Temperature Trends (Plotly)",
+      title: "Area - Plotly - Temperature",
       xKey: "date",
       yKey: "temperature",
     },
@@ -1608,7 +1608,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsHeatmapChart,
     chartOptions: {
-      title: "Activity Heatmap (ECharts)",
+      title: "Heatmap - ECharts - Activity",
     },
   },
   {
@@ -1621,7 +1621,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyHeatmapChart,
     chartOptions: {
-      title: "Activity Heatmap (Plotly)",
+      title: "Heatmap - Plotly - Activity",
     },
   },
   {
@@ -1634,7 +1634,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: D3HeatmapChart,
     chartOptions: {
-      title: "Activity Heatmap (D3)",
+      title: "Heatmap - D3 - Activity",
     },
   },
   {
@@ -1647,7 +1647,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoHeatmap2Chart,
     chartOptions: {
-      title: "Activity Heatmap (Nivo Alternative)",
+      title: "Heatmap - Nivo - Activity",
       xAxisLabel: "Hour",
       yAxisLabel: "Day",
     },
@@ -1664,7 +1664,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: PlotlyRadarChart,
     chartOptions: {
-      title: "Pokemon Stats (Plotly)",
+      title: "Radar - Plotly - Pokemon Stats",
     },
   },
   {
@@ -1677,7 +1677,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: D3RadarChart,
     chartOptions: {
-      title: "Pokemon Stats (D3)",
+      title: "Radar - D3 - Pokemon Stats",
     },
   },
 
@@ -1692,7 +1692,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsScatterChart,
     chartOptions: {
-      title: "Product Price vs Rating (Recharts)",
+      title: "Scatter - Recharts - Price vs Rating",
       xKey: "price",
       yKey: "rating",
     },
@@ -1707,7 +1707,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: NivoScatterChart,
     chartOptions: {
-      title: "Product Price vs Rating (Nivo)",
+      title: "Scatter - Nivo - Price vs Rating",
       xKey: "price",
       yKey: "rating",
     },
@@ -1722,7 +1722,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: ChartJsScatterChart,
     chartOptions: {
-      title: "Product Price vs Rating (Chart.js)",
+      title: "Scatter - Chart.js - Price vs Rating",
       xKey: "price",
       yKey: "rating",
     },
@@ -1737,7 +1737,7 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: D3ScatterChart,
     chartOptions: {
-      title: "Product Price vs Rating (D3)",
+      title: "Scatter - D3 - Price vs Rating",
       xKey: "price",
       yKey: "rating",
     },
