@@ -166,15 +166,13 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Chart Selector - Floating Tags */}
-      <div className="border-b bg-muted/30">
-        <div className="max-w-[1800px] mx-auto">
-          <ChartSelector
-            charts={chartList}
-            selectedGraphs={selectedGraphs}
-            onToggle={handleToggle}
-          />
-        </div>
+      {/* Chart Selector - Collapsible Overlay */}
+      <div className="sticky top-[73px] z-20">
+        <ChartSelector
+          charts={chartList}
+          selectedGraphs={selectedGraphs}
+          onToggle={handleToggle}
+        />
       </div>
 
       {/* Main Content */}

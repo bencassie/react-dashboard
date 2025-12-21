@@ -1,8 +1,9 @@
 "use client";
-import { memo, useMemo } from "react";
+import { memo, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { X, ChevronDown, ChevronUp, Filter } from "lucide-react";
 
 type ChartSelectorProps = {
   charts: Array<{ name: string; displayName: string }>;
@@ -31,6 +32,8 @@ function extractVendorAndType(displayName: string): { vendor: string; type: stri
 }
 
 export const ChartSelector = memo(({ charts, selectedGraphs, onToggle }: ChartSelectorProps) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const groupedCharts = useMemo(() => {
     // Group charts by type and vendor
     const groups: Record<string, GroupedChart[]> = {};
@@ -78,37 +81,67 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle }: ChartSe
   };
 
   return (
-    <div className="w-full space-y-6 p-6 bg-background">
-      {chartTypeOrder.map(type => (
-        <Card key={type} className="shadow-sm">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold">{type} Charts</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-2">
-              {groupedCharts[type]?.map(chart => {
-                const isSelected = selectedGraphs.includes(chart.name);
-                return (
-                  <Badge
-                    key={chart.name}
-                    variant={isSelected ? "default" : "outline"}
-                    className={`cursor-pointer transition-all px-3 py-1.5 text-sm ${
-                      isSelected
-                        ? getVendorColor(chart.vendor) + " font-medium"
-                        : "hover:bg-muted"
-                    }`}
-                    onClick={() => onToggle(chart.name)}
-                  >
-                    <span className="font-semibold mr-1">{chart.vendor}</span>
-                    <span className="opacity-75">· {chart.displayName.replace(chart.vendor, '').replace(/\(.*?\)/g, '').trim()}</span>
-                    {isSelected && <X className="ml-2 h-3 w-3" />}
-                  </Badge>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+    <div className="w-full">
+      {/* Compact Header - Always Visible */}
+      <div
+        className="px-6 py-3 bg-background border-b flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-colors"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center gap-3">
+          <Filter className="w-5 h-5 text-muted-foreground" />
+          <div>
+            <h2 className="text-sm font-semibold">Chart Selection</h2>
+            <p className="text-xs text-muted-foreground">
+              {selectedGraphs.length} of {charts.length} charts selected
+            </p>
+          </div>
+        </div>
+        <Button variant="ghost" size="sm">
+          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          <span className="ml-2 text-sm">{isExpanded ? "Hide" : "Show"} Filters</span>
+        </Button>
+      </div>
+
+      {/* Expandable Chart Grid - Overlay */}
+      {isExpanded && (
+        <div className="absolute left-0 right-0 z-20 bg-background/95 backdrop-blur-sm border-b shadow-lg max-h-[70vh] overflow-y-auto">
+          <div className="max-w-[1800px] mx-auto space-y-4 p-6">
+            {chartTypeOrder.map(type => (
+              <Card key={type} className="shadow-sm">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base font-semibold">{type} Charts</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-wrap gap-2">
+                    {groupedCharts[type]?.map(chart => {
+                      const isSelected = selectedGraphs.includes(chart.name);
+                      return (
+                        <Badge
+                          key={chart.name}
+                          variant={isSelected ? "default" : "outline"}
+                          className={`cursor-pointer transition-all px-3 py-1.5 text-sm ${
+                            isSelected
+                              ? getVendorColor(chart.vendor) + " font-medium"
+                              : "hover:bg-muted"
+                          }`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggle(chart.name);
+                          }}
+                        >
+                          <span className="font-semibold mr-1">{chart.vendor}</span>
+                          <span className="opacity-75">· {chart.displayName.replace(chart.vendor, '').replace(/\(.*?\)/g, '').trim()}</span>
+                          {isSelected && <X className="ml-2 h-3 w-3" />}
+                        </Badge>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 });
