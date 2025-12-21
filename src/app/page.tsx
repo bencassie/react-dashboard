@@ -64,8 +64,8 @@ export default function Page() {
         : []; // Empty string = no charts selected
       useStore.setState({ selectedGraphs: selected });
     } else {
-      // No param = first visit, default to first 10 charts for better performance
-      useStore.setState({ selectedGraphs: chartRegistry.slice(0, 10).map((g) => g.name) });
+      // No param = first visit, default to first 3 charts for better performance
+      useStore.setState({ selectedGraphs: chartRegistry.slice(0, 3).map((g) => g.name) });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount
@@ -108,16 +108,16 @@ export default function Page() {
     }
 
     // Preserve ready state for charts that are still selected and add new ones
-    const immediate = newCharts.slice(0, 3);
+    const immediate = newCharts.slice(0, 2);
     setReadyToRender((prev) => {
       const updated = new Set([...prev].filter(name => currentSet.has(name)));
-      // Add first 3 new charts immediately
+      // Add first 2 new charts immediately
       immediate.forEach(name => updated.add(name));
       return updated;
     });
 
     // Queue remaining new charts with staggered delays
-    const rest = newCharts.slice(3);
+    const rest = newCharts.slice(2);
     if (rest.length === 0) {
       prevSelectedGraphsRef.current = selectedGraphs;
       return;
@@ -127,7 +127,7 @@ export default function Page() {
     rest.forEach((name, index) => {
       const delay = setTimeout(() => {
         setReadyToRender((current) => new Set([...current, name]));
-      }, (index + 1) * 50); // 50ms between each chart
+      }, (index + 1) * 150); // 150ms between each chart for better performance
 
       delays.push(delay);
     });
