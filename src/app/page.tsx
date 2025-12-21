@@ -206,6 +206,9 @@ export default function Page() {
   });
 
   // Prepare chart data with transformed results
+  // Use ref to maintain stable references for unchanged charts
+  const chartDataCache = useRef<Map<string, any>>(new Map());
+
   const chartData = useMemo(
     () =>
       selectedConfigs.map((config, idx) => {
@@ -219,14 +222,35 @@ export default function Page() {
           ? config.apiConfig.transform(query.data)
           : null;
 
-        return {
+        // Check if data actually changed by comparing with cached version
+        const cached = chartDataCache.current.get(config.name);
+        const currentIsLoading = query?.isLoading || !isReady;
+        const currentRenderKey = renderKeys[config.name] || 0;
+
+        // Only create new object if something actually changed
+        if (
+          cached &&
+          cached.data === transformedData &&
+          cached.isLoading === currentIsLoading &&
+          cached.error === query?.error &&
+          cached.renderKey === currentRenderKey &&
+          cached.isReady === isReady
+        ) {
+          return cached;
+        }
+
+        // Data changed, create new object
+        const newData = {
           config,
           data: transformedData,
-          isLoading: query?.isLoading || !isReady, // Show loading if not ready to render
+          isLoading: currentIsLoading,
           error: (query?.error as Error | null) ?? null,
-          renderKey: renderKeys[config.name] || 0,
+          renderKey: currentRenderKey,
           isReady,
         };
+
+        chartDataCache.current.set(config.name, newData);
+        return newData;
       }),
     [selectedConfigs, queries, renderKeys, readyToRender]
   );
