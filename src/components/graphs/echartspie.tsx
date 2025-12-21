@@ -43,12 +43,7 @@ function EchartsPieChartInner({ data, isLoading, error, options }: ChartComponen
       formatter: "{b}: {c} ({d}%)"
     },
     legend: {
-      orient: "vertical",
-      left: "left",
-      top: "middle",
-      textStyle: {
-        color: "#333"
-      }
+      show: false
     },
     series: [
       {

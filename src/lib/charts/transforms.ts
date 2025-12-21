@@ -248,6 +248,22 @@ export function transformPokeApiForBaseExperienceScatter(raw: any) {
 }
 
 /**
+ * Transform PokéAPI for base experience bar chart (top 15)
+ */
+export function transformPokeApiForBaseExperienceBar(raw: any) {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((p: any) => p.base_experience && p.base_experience > 0)
+    .sort((a: any, b: any) => (b.base_experience || 0) - (a.base_experience || 0))
+    .slice(0, 15)
+    .map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      base_experience: p.base_experience,
+    }));
+}
+
+/**
  * Transform SpaceX API for launches per year area chart
  */
 export function transformSpaceXForLaunchesPerYearArea(raw: any) {

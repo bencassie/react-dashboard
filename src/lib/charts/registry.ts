@@ -11,6 +11,7 @@ import {
   transformPokemonForChartJsRadar,
   transformForNivoLine,
   transformUsersForAgeDistributionDonut,
+  transformPokeApiForBaseExperienceBar,
 } from "./transforms";
 
 // Generic chart components (provider-graphtype naming)
@@ -1394,7 +1395,7 @@ export const chartRegistry: ChartConfig[] = [
     apiConfig: {
       endpoint: "/api/charts/pokemon/base-xp",
       queryKey: ["pokemon", "base-xp-d3"],
-      transform: passthroughTransform,
+      transform: transformPokeApiForBaseExperienceBar,
     },
     Component: D3BarChart,
     chartOptions: {
