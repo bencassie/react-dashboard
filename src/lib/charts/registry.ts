@@ -1188,9 +1188,9 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: RechartsLine2Chart,
     chartOptions: {
-      title: "SpaceX Launch Success Rate",
+      title: "SpaceX Launches per Year",
       xKey: "date",
-      yKey: "success",
+      yKey: "count",
     },
   },
 
@@ -1384,8 +1384,8 @@ export const chartRegistry: ChartConfig[] = [
     Component: D3BarChart,
     chartOptions: {
       title: "Top Quote Authors",
-      xKey: "author",
-      yKey: "count",
+      xKey: "name",
+      yKey: "value",
     },
   },
   {
@@ -1508,8 +1508,8 @@ export const chartRegistry: ChartConfig[] = [
     Component: PlotlyBarChart,
     chartOptions: {
       title: "Library Works by Subject",
-      xKey: "subject",
-      yKey: "work_count",
+      xKey: "name",
+      yKey: "value",
     },
   },
 
