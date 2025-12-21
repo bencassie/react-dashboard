@@ -28,8 +28,8 @@ export async function GET() {
       .sort(([, a], [, b]) => (b as number) - (a as number))
       .slice(0, 8)
       .map(([author, count]) => ({
-        author: author.slice(0, 15),
-        count,
+        name: author.slice(0, 15),
+        value: count,
       }));
 
     return NextResponse.json(transformed);

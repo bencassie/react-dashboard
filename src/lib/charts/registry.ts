@@ -9,6 +9,7 @@ import {
   transformPokemonForRechartsRadar,
   transformPokemonForEchartsRadar,
   transformPokemonForChartJsRadar,
+  transformForNivoLine,
 } from "./transforms";
 
 // Generic chart components (provider-graphtype naming)
@@ -798,7 +799,7 @@ export const chartRegistry: ChartConfig[] = [
     apiConfig: {
       endpoint: "/api/charts/products/price-rating",
       queryKey: ["products", "price-rating-nivo"],
-      transform: passthroughTransform,
+      transform: transformForNivoLine("price", "rating", "Products"),
     },
     Component: NivoLineChart,
     chartOptions: {
@@ -813,7 +814,7 @@ export const chartRegistry: ChartConfig[] = [
     apiConfig: {
       endpoint: "/api/charts/recipes/cooking-time",
       queryKey: ["recipes", "cooking-time-nivo"],
-      transform: passthroughTransform,
+      transform: transformForNivoLine("name", "cookTimeMinutes", "Recipes"),
     },
     Component: NivoLineChart,
     chartOptions: {
@@ -828,7 +829,7 @@ export const chartRegistry: ChartConfig[] = [
     apiConfig: {
       endpoint: "/api/charts/weather/temperature",
       queryKey: ["weather", "temperature-nivo"],
-      transform: passthroughTransform,
+      transform: transformForNivoLine("date", "temperature", "Temperature"),
     },
     Component: NivoLineChart,
     chartOptions: {
@@ -1056,8 +1057,8 @@ export const chartRegistry: ChartConfig[] = [
     Component: ChartJsBarChart,
     chartOptions: {
       title: "Top Quote Authors",
-      xKey: "author",
-      yKey: "count",
+      xKey: "name",
+      yKey: "value",
     },
   },
 

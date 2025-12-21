@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
+import { PASTEL_COLORS } from "@/lib/charts/colors";
 
 function RechartsBarChartInner({ data, isLoading, error, options }: ChartComponentProps) {
   const title = options?.title || "Bar Chart";
@@ -39,7 +40,7 @@ function RechartsBarChartInner({ data, isLoading, error, options }: ChartCompone
               <XAxis dataKey={xKey} angle={-30} textAnchor="end" interval={0} height={60} />
               <YAxis />
               <Tooltip />
-              <Bar dataKey={dataKey} />
+              <Bar dataKey={dataKey} fill={PASTEL_COLORS[0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>

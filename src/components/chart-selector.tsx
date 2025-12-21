@@ -1,5 +1,6 @@
 "use client";
-import { memo, useMemo, useState, useEffect, useRef } from "react";
+import { memo, useMemo, useState, useEffect, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,42 @@ type GroupedChart = {
   type: string;
 };
 
+// Memoized individual badge component for performance
+const ChartBadge = memo(({
+  chart,
+  isSelected,
+  vendorColor,
+  onToggle
+}: {
+  chart: GroupedChart;
+  isSelected: boolean;
+  vendorColor: string;
+  onToggle: (name: string) => void;
+}) => {
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggle(chart.name);
+  }, [chart.name, onToggle]);
+
+  return (
+    <Badge
+      variant={isSelected ? "default" : "outline"}
+      className={`cursor-pointer transition-all px-3 py-1.5 text-xs ${
+        isSelected ? vendorColor + " font-medium" : "hover:bg-muted"
+      }`}
+      onClick={handleClick}
+    >
+      <span className="font-semibold mr-1">{chart.vendor}</span>
+      <span className="opacity-75">
+        · {chart.displayName.replace(chart.vendor, '').replace(/\(.*?\)/g, '').trim()}
+      </span>
+      {isSelected && <X className="ml-2 h-3 w-3" />}
+    </Badge>
+  );
+});
+
+ChartBadge.displayName = "ChartBadge";
+
 const VENDORS = ["Nivo", "ECharts", "Recharts", "Chart.js", "ChartJS", "D3", "Plotly"];
 const CHART_TYPES = ["Bar", "Line", "Pie", "Doughnut", "Area", "Scatter", "Radar", "Heatmap", "Bump"];
 
@@ -33,7 +70,25 @@ function extractVendorAndType(displayName: string): { vendor: string; type: stri
 
 export const ChartSelector = memo(({ charts, selectedGraphs, onToggle }: ChartSelectorProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Track mounted state for portal (SSR compatibility)
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Memoize selected graphs as a Set for O(1) lookup
+  const selectedSet = useMemo(() => new Set(selectedGraphs), [selectedGraphs]);
+
+  // Wrap onToggle to add pending state feedback
+  const handleToggle = useCallback((name: string) => {
+    setIsPending(true);
+    onToggle(name);
+    // Reset pending after a short delay
+    setTimeout(() => setIsPending(false), 300);
+  }, [onToggle]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -85,7 +140,7 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle }: ChartSe
     return CHART_TYPES.filter(type => groupedCharts[type]?.length > 0);
   }, [groupedCharts]);
 
-  const getVendorColor = (vendor: string) => {
+  const getVendorColor = useCallback((vendor: string) => {
     const colors: Record<string, string> = {
       "Nivo": "bg-blue-500/10 text-blue-700 border-blue-500/20 hover:bg-blue-500/20",
       "ECharts": "bg-purple-500/10 text-purple-700 border-purple-500/20 hover:bg-purple-500/20",
@@ -95,65 +150,80 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle }: ChartSe
       "Plotly": "bg-pink-500/10 text-pink-700 border-pink-500/20 hover:bg-pink-500/20",
     };
     return colors[vendor] || "bg-gray-500/10 text-gray-700 border-gray-500/20 hover:bg-gray-500/20";
-  };
+  }, []);
 
   return (
-    <div className="w-full" ref={containerRef}>
-      {/* Compact Header - Always Visible */}
+    <div className="relative" ref={containerRef}>
+      {/* Filter Button */}
       <div
-        className="px-6 py-3 bg-background border-b flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-colors"
+        className={`inline-flex items-center gap-2 px-3 py-2 bg-muted/40 hover:bg-muted/60 rounded-full cursor-pointer transition-all shadow-sm hover:shadow-md border border-border/30 ${
+          isPending ? "opacity-60" : ""
+        }`}
         onClick={() => setIsExpanded(!isExpanded)}
       >
-        <div className="flex items-center gap-3">
-          <Filter className="w-5 h-5 text-muted-foreground" />
-          <div>
-            <h2 className="text-sm font-semibold">Chart Selection</h2>
-            <p className="text-xs text-muted-foreground">
-              {selectedGraphs.length} of {charts.length} charts selected
-            </p>
-          </div>
-        </div>
-        <Button variant="ghost" size="sm">
-          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-          <span className="ml-2 text-sm">{isExpanded ? "Hide" : "Show"} Filters</span>
-        </Button>
+        <Filter className={`w-4 h-4 text-muted-foreground ${isPending ? "animate-pulse" : ""}`} />
+        <span className="text-sm font-medium">
+          {selectedGraphs.length} / {charts.length}
+        </span>
+        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
       </div>
 
-      {/* Expandable Chart List - Overlay */}
-      {isExpanded && (
-        <div className="absolute left-0 right-0 z-20 bg-background/95 backdrop-blur-sm border-b shadow-lg max-h-[70vh] overflow-y-auto">
-          <div className="max-w-[1800px] mx-auto p-6 space-y-3">
+      {/* Floating Sidebar - Right Side - Rendered via Portal */}
+      {isMounted && isExpanded && createPortal(
+        <div className="fixed right-4 md:right-8 top-16 bottom-4 w-[400px] z-[9999] bg-background border-2 border-border rounded-lg shadow-2xl overflow-y-auto">
+          <div className="p-4 space-y-3">
+            {/* Select All / Deselect All */}
+            <div className="flex items-center gap-3 pb-3 border-b sticky top-0 bg-background z-10">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const allSelected = selectedGraphs.length === charts.length;
+                  if (allSelected) {
+                    // Deselect all
+                    charts.forEach(chart => {
+                      if (selectedGraphs.includes(chart.name)) {
+                        handleToggle(chart.name);
+                      }
+                    });
+                  } else {
+                    // Select all
+                    charts.forEach(chart => {
+                      if (!selectedGraphs.includes(chart.name)) {
+                        handleToggle(chart.name);
+                      }
+                    });
+                  }
+                }}
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+              >
+                {selectedGraphs.length === charts.length ? "Deselect All" : "Select All"}
+              </button>
+              <span className="text-xs text-muted-foreground">
+                {selectedGraphs.length} / {charts.length}
+              </span>
+            </div>
+
             {chartTypeOrder.map(type => (
-              <div key={type} className="flex flex-wrap items-start gap-2">
-                <h3 className="font-bold text-sm whitespace-nowrap pt-1.5">{type} Charts -</h3>
-                <div className="flex flex-wrap gap-2 flex-1">
-                  {groupedCharts[type]?.map(chart => {
-                    const isSelected = selectedGraphs.includes(chart.name);
-                    return (
-                      <Badge
-                        key={chart.name}
-                        variant={isSelected ? "default" : "outline"}
-                        className={`cursor-pointer transition-all px-3 py-1.5 text-sm ${
-                          isSelected
-                            ? getVendorColor(chart.vendor) + " font-medium"
-                            : "hover:bg-muted"
-                        }`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onToggle(chart.name);
-                        }}
-                      >
-                        <span className="font-semibold mr-1">{chart.vendor}</span>
-                        <span className="opacity-75">· {chart.displayName.replace(chart.vendor, '').replace(/\(.*?\)/g, '').trim()}</span>
-                        {isSelected && <X className="ml-2 h-3 w-3" />}
-                      </Badge>
-                    );
-                  })}
+              <div key={type} className="space-y-2">
+                <h3 className="font-bold text-sm text-foreground sticky top-0 bg-background py-1 border-b">
+                  {type} Charts ({groupedCharts[type]?.length})
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {groupedCharts[type]?.map(chart => (
+                    <ChartBadge
+                      key={chart.name}
+                      chart={chart}
+                      isSelected={selectedSet.has(chart.name)}
+                      vendorColor={getVendorColor(chart.vendor)}
+                      onToggle={handleToggle}
+                    />
+                  ))}
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

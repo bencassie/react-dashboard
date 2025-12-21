@@ -498,3 +498,20 @@ export function transformPokemonForChartJsRadar(raw: any) {
     baseExp: p.baseExp || 0,
   }));
 }
+
+/**
+ * Transform flat array data to Nivo line chart format
+ * Nivo line expects: [{id: "series", data: [{x: val, y: val}, ...]}]
+ */
+export function transformForNivoLine(xKey: string, yKey: string, seriesName = "Data") {
+  return (raw: any) => {
+    if (!Array.isArray(raw)) return [];
+    return [{
+      id: seriesName,
+      data: raw.map((item: any) => ({
+        x: item[xKey],
+        y: item[yKey],
+      })),
+    }];
+  };
+}

@@ -1,23 +1,25 @@
 "use client";
-import { memo, useEffect, useRef, useMemo } from "react";
+import { memo, useEffect, useCallback, useMemo } from "react";
 import * as d3 from "d3";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
 
 function D3HeatmapChartInner({ data, isLoading, error, options }: ChartComponentProps) {
-  const ref = useRef<SVGSVGElement | null>(null);
   const title = options?.title || "Heatmap";
-  const dims = { width: 800, height: 360, margin: { top: 60, right: 20, bottom: 60, left: 80 } };
+  const dims = { width: 800, height: 500, margin: { top: 40, right: 20, bottom: 60, left: 80 } };
   const series = useMemo(() => data ?? [], [data]);
 
-  useEffect(() => {
-    if (!ref.current || !series?.length) return;
+  const renderChart = useCallback((svgElement: SVGSVGElement | null) => {
+    if (!svgElement) return;
+    if (!series || !Array.isArray(series) || series.length === 0) return;
 
     const { width, height, margin } = dims;
     const innerW = width - margin.left - margin.right;
     const innerH = height - margin.top - margin.bottom;
-    const svg = d3.select(ref.current);
+    const svg = d3.select(svgElement);
+
+    // Clear previous content
     svg.selectAll("*").remove();
 
     const g = svg
@@ -78,8 +80,7 @@ function D3HeatmapChartInner({ data, isLoading, error, options }: ChartComponent
     // Add y-axis
     g.append("g")
       .call(d3.axisLeft(yScale));
-
-  }, [series]);
+  }, [series, dims]);
 
   if (isLoading) {
     return (
@@ -99,11 +100,20 @@ function D3HeatmapChartInner({ data, isLoading, error, options }: ChartComponent
     );
   }
 
+  if (!series || series.length === 0) {
+    return (
+      <Card>
+        <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
+        <CardContent><p className="text-muted-foreground">No data available</p></CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader><CardTitle>{title}</CardTitle></CardHeader>
       <CardContent>
-        <svg ref={ref} className="w-full h-96" />
+        <svg ref={renderChart} className="w-full h-96" />
       </CardContent>
     </Card>
   );

@@ -10,6 +10,27 @@ function NivoHeatmapChartInner({ data, isLoading, error, options }: ChartCompone
   const xAxisLabel = options?.xAxisLabel || "X";
   const yAxisLabel = options?.yAxisLabel || "Y";
 
+  const heatmapData = useMemo(() => data || [], [data]);
+
+  const margin = useMemo(() => ({ top: 60, right: 90, bottom: 60, left: 90 }), []);
+
+  const axisTop = useMemo(() => ({
+    tickSize: 5,
+    tickPadding: 5,
+    tickRotation: -90,
+    legend: xAxisLabel,
+    legendPosition: "middle" as const,
+    legendOffset: -40,
+  }), [xAxisLabel]);
+
+  const axisLeft = useMemo(() => ({
+    tickSize: 5,
+    tickPadding: 5,
+    legend: yAxisLabel,
+    legendPosition: "middle" as const,
+    legendOffset: -60,
+  }), [yAxisLabel]);
+
   if (isLoading) {
     return (
       <Card>
@@ -36,8 +57,6 @@ function NivoHeatmapChartInner({ data, isLoading, error, options }: ChartCompone
     );
   }
 
-  const heatmapData = useMemo(() => data || [], [data]);
-
   return (
     <Card>
       <CardHeader>
@@ -47,24 +66,13 @@ function NivoHeatmapChartInner({ data, isLoading, error, options }: ChartCompone
         <div className="h-96 w-full">
           <ResponsiveHeatMap
             data={heatmapData}
-            margin={{ top: 60, right: 90, bottom: 60, left: 90 }}
+            margin={margin}
             colors={{ type: "sequential", scheme: "purples", minValue: 0, maxValue: 100 }}
-            axisTop={{
-              tickSize: 5,
-              tickPadding: 5,
-              tickRotation: -90,
-              legend: xAxisLabel,
-              legendPosition: "middle",
-              legendOffset: -40,
-            }}
-            axisLeft={{
-              tickSize: 5,
-              tickPadding: 5,
-              legend: yAxisLabel,
-              legendPosition: "middle",
-              legendOffset: -60,
-            }}
+            axisTop={axisTop}
+            axisLeft={axisLeft}
             pixelRatio={1}
+            animate={false}
+            enableLabels={false}
           />
         </div>
       </CardContent>
