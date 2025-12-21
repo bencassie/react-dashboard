@@ -9,16 +9,28 @@ This project serves as both a functional dashboard and a demonstration of integr
 ## Features
 
 ### Chart Libraries Integrated
-- **[Nivo](https://nivo.rocks/)** - Bar charts, Heatmaps
-- **[ECharts](https://echarts.apache.org/)** - Pie charts, Donut charts, Line charts
-- **[Recharts](https://recharts.org/)** - Line charts, Bar charts
-- **[Chart.js](https://www.chartjs.org/)** - General charting capabilities
-- **[Plotly.js](https://plotly.com/javascript/)** - Scatter plots
-- **[D3.js](https://d3js.org/)** - Area charts
+- **[Nivo](https://nivo.rocks/)** - Bar, Heatmap, Line, Pie, and Area (Bump) charts
+- **[ECharts](https://echarts.apache.org/)** - Pie, Donut, Line, Bar, Scatter, and Radar charts
+- **[Recharts](https://recharts.org/)** - Line, Bar, Area, Pie, and Radar charts
+- **[Chart.js](https://www.chartjs.org/)** - Bar, Pie, Doughnut, and Radar charts
+- **[Plotly.js](https://plotly.com/javascript/)** - Line, Bar, Pie, and Scatter charts
+- **[D3.js](https://d3js.org/)** - Area, Line, and Bar charts
 
 ### Data Sources
-The dashboard pulls data from multiple public APIs:
-- **[DummyJSON](https://dummyjson.com/)** - Products, users, todos, posts, and shopping carts
+The dashboard uses a hybrid data architecture combining internal API routes and external APIs:
+
+**Internal API Routes** (Next.js API routes under `/api/charts/`):
+- **Products** - Price/rating, categories, brand counts, low stock, discounts, price distribution
+- **Users** - Gender distribution, age distribution, blood type distribution
+- **Recipes** - Ratings, difficulty levels, cooking times
+- **Todos** - Completion status
+- **Posts** - Reaction counts
+- **Carts** - Shopping cart totals
+- **Quotes** - Author distribution
+- **Heatmap** - Server-generated sample data
+
+**External APIs** (proxied for CORS):
+- **[DummyJSON](https://dummyjson.com/)** - Products, users, recipes, todos, posts, carts, quotes
 - **[Open-Meteo](https://open-meteo.com/)** - Weather forecasts (London)
 - **[OpenBrewery DB](https://www.openbrewerydb.org/)** - Brewery information by state
 - **[Open Library](https://openlibrary.org/developers/api)** - Book and subject data
@@ -54,12 +66,12 @@ The dashboard pulls data from multiple public APIs:
 - **[tailwindcss-animate](https://github.com/jamiebuilds/tailwindcss-animate)** - Animation utilities
 
 ### Charting Libraries
-- **[@nivo/bar & @nivo/heatmap](https://nivo.rocks/)** - Data visualization components
-- **[echarts](https://echarts.apache.org/) & [echarts-for-react](https://github.com/hustcc/echarts-for-react)** - Apache ECharts integration
-- **[recharts](https://recharts.org/)** - Composable charting library
-- **[chart.js](https://www.chartjs.org/) & [react-chartjs-2](https://react-chartjs-2.js.org/)** - Chart.js React wrapper
-- **[plotly.js](https://plotly.com/javascript/) & [react-plotly.js](https://plotly.com/javascript/react/)** - Plotly integration
-- **[d3](https://d3js.org/)** - Low-level visualization library
+- **[@nivo/*](https://nivo.rocks/)** - Bar (@nivo/bar), Heatmap (@nivo/heatmap), Line (@nivo/line), Pie (@nivo/pie), Area Bump (@nivo/bump), and Core (@nivo/core)
+- **[echarts](https://echarts.apache.org/) & [echarts-for-react](https://github.com/hustcc/echarts-for-react)** - Apache ECharts integration with React wrapper
+- **[recharts](https://recharts.org/)** - Composable charting library built on D3
+- **[chart.js](https://www.chartjs.org/) & [react-chartjs-2](https://react-chartjs-2.js.org/)** - Chart.js with React wrapper
+- **[plotly.js-dist-min](https://plotly.com/javascript/) & [react-plotly.js](https://plotly.com/javascript/react/)** - Plotly.js with React integration
+- **[d3](https://d3js.org/)** - Low-level data visualization library for custom SVG charts
 
 ### Development Tools
 - **[ESLint](https://eslint.org/) 9** - Code linting
@@ -72,21 +84,78 @@ The dashboard pulls data from multiple public APIs:
 dashboard/
 ├── src/
 │   ├── app/
-│   │   ├── api/proxy/route.ts      # API proxy for CORS handling
+│   │   ├── api/
+│   │   │   ├── charts/             # Internal API routes
+│   │   │   │   ├── products/       # Product-related endpoints
+│   │   │   │   │   ├── price-rating/route.ts
+│   │   │   │   │   ├── categories/route.ts
+│   │   │   │   │   ├── brand-counts/route.ts
+│   │   │   │   │   ├── low-stock/route.ts
+│   │   │   │   │   ├── discounts/route.ts
+│   │   │   │   │   └── price-distribution/route.ts
+│   │   │   │   ├── users/          # User demographics endpoints
+│   │   │   │   │   ├── gender/route.ts
+│   │   │   │   │   ├── age-distribution/route.ts
+│   │   │   │   │   └── blood-type/route.ts
+│   │   │   │   ├── recipes/        # Recipe data endpoints
+│   │   │   │   │   ├── ratings/route.ts
+│   │   │   │   │   ├── difficulty/route.ts
+│   │   │   │   │   └── cooking-time/route.ts
+│   │   │   │   ├── todos/          # Todo completion stats
+│   │   │   │   │   └── status/route.ts
+│   │   │   │   ├── posts/          # Social post metrics
+│   │   │   │   │   └── reactions/route.ts
+│   │   │   │   ├── carts/          # Shopping cart analytics
+│   │   │   │   │   └── totals/route.ts
+│   │   │   │   ├── quotes/         # Quote statistics
+│   │   │   │   │   └── authors/route.ts
+│   │   │   │   ├── heatmap/        # Heatmap sample data
+│   │   │   │   │   └── sample/route.ts
+│   │   │   │   ├── weather/        # Weather proxy
+│   │   │   │   │   └── temperature/route.ts
+│   │   │   │   ├── breweries/      # Brewery data proxy
+│   │   │   │   │   └── states/route.ts
+│   │   │   │   ├── library/        # Library data proxy
+│   │   │   │   │   └── subject-works/route.ts
+│   │   │   │   ├── pokemon/        # Pokemon stats proxy
+│   │   │   │   │   ├── base-xp/route.ts
+│   │   │   │   │   └── height-weight/route.ts
+│   │   │   │   └── spacex/         # SpaceX data proxy
+│   │   │   │       └── launches/route.ts
+│   │   │   └── proxy/route.ts      # General CORS proxy
 │   │   ├── layout.tsx               # Root layout with providers
 │   │   └── page.tsx                 # Main dashboard page
 │   ├── components/
-│   │   ├── graphs/
-│   │   │   ├── chartwrapper.tsx    # Generic chart wrapper with loading/error states
-│   │   │   ├── d3area.tsx          # D3 area chart component
+│   │   ├── graphs/                  # Chart components (20+ files)
+│   │   │   ├── chartwrapper.tsx    # Generic chart wrapper
+│   │   │   ├── d3area.tsx          # D3 area chart
+│   │   │   ├── d3line.tsx          # D3 line chart
+│   │   │   ├── d3bar.tsx           # D3 bar chart
 │   │   │   ├── echartsdonut.tsx    # ECharts donut chart
 │   │   │   ├── echartsline.tsx     # ECharts line chart
 │   │   │   ├── echartspie.tsx      # ECharts pie chart
+│   │   │   ├── echartsbar.tsx      # ECharts bar chart
+│   │   │   ├── echartsscatter.tsx  # ECharts scatter chart
+│   │   │   ├── echartsradar.tsx    # ECharts radar chart
 │   │   │   ├── nivobar.tsx         # Nivo bar chart
 │   │   │   ├── nivoheatmap.tsx     # Nivo heatmap
+│   │   │   ├── nivoline.tsx        # Nivo line chart
+│   │   │   ├── nivopie.tsx         # Nivo pie chart
+│   │   │   ├── nivoarea.tsx        # Nivo area (bump) chart
 │   │   │   ├── plotlyscatter.tsx   # Plotly scatter plot
+│   │   │   ├── plotlyline.tsx      # Plotly line chart
+│   │   │   ├── plotlybar.tsx       # Plotly bar chart
+│   │   │   ├── plotlypie.tsx       # Plotly pie chart
 │   │   │   ├── rechartsbar.tsx     # Recharts bar chart
-│   │   │   └── rechartsline.tsx    # Recharts line chart
+│   │   │   ├── rechartsline.tsx    # Recharts line chart
+│   │   │   ├── recharts-line2.tsx  # Recharts line (alt)
+│   │   │   ├── rechartsarea.tsx    # Recharts area chart
+│   │   │   ├── rechartspie.tsx     # Recharts pie chart
+│   │   │   ├── rechartsradar.tsx   # Recharts radar chart
+│   │   │   ├── chartjsbar.tsx      # Chart.js bar chart
+│   │   │   ├── chartjsdoughnut.tsx # Chart.js doughnut chart
+│   │   │   ├── chartjspie.tsx      # Chart.js pie chart
+│   │   │   └── chartjsradar.tsx    # Chart.js radar chart
 │   │   ├── ui/
 │   │   │   ├── button.tsx          # Button component
 │   │   │   ├── card.tsx            # Card component
@@ -97,7 +166,7 @@ dashboard/
 │   │   └── sidebar.tsx             # Chart selection sidebar
 │   └── lib/
 │       ├── charts/
-│       │   ├── registry.ts         # Central chart configuration registry
+│       │   ├── registry.ts         # Chart registry (106 configurations)
 │       │   ├── transforms.ts       # Data transformation functions
 │       │   └── types.ts            # Chart type definitions
 │       ├── store.ts                # Zustand store configuration
@@ -429,21 +498,27 @@ This pattern scales elegantly from 1 chart to 100+ while keeping the codebase ma
 
 ## Chart Examples
 
-The dashboard includes 13 different chart visualizations:
+The dashboard includes **106 chart visualizations** across 6 charting libraries, showcasing:
 
-1. **Product Price Rating** (Nivo Bar) - Top 10 products by price and rating
-2. **Product Categories** (ECharts Pie) - Distribution of product categories
-3. **Activity Heatmap** (Nivo Heatmap) - Sample activity pattern visualization
-4. **Brand Counts** (Nivo Bar) - Top brands by product count
-5. **User Gender Distribution** (ECharts Pie) - User demographics
-6. **Todo Status** (Nivo Bar) - Completion statistics
-7. **Post Reactions** (Nivo Bar) - Top 5 posts by engagement
-8. **Cart Totals** (ECharts Line) - Shopping cart values over time
-9. **Weather Temperature** (Recharts Line) - 24-hour forecast for London
-10. **Breweries by State** (Recharts Bar) - Top 10 states by brewery count
-11. **Library Subject Works** (ECharts Donut) - Science subject distribution
-12. **Pokemon Base XP** (Plotly Scatter) - Experience vs ID for first 50 Pokemon
-13. **SpaceX Launches** (D3 Area) - Launch frequency by year
+### Data Categories
+- **Product Analytics** - Price/rating comparisons, category distributions, brand counts, stock levels, discounts, price distributions
+- **User Demographics** - Gender splits, age distributions, blood type breakdowns
+- **Recipe Metrics** - Ratings, difficulty levels, cooking times
+- **Social Engagement** - Post reactions, todo completion status, quote authorship
+- **E-commerce** - Shopping cart totals
+- **External APIs** - Weather temperatures, brewery counts, library works, Pokemon stats, SpaceX launches
+
+### Chart Type Coverage
+Each data source is visualized using multiple chart types across different libraries:
+- **Line Charts** - Trends and time series (Nivo, Recharts, D3, Plotly, ECharts)
+- **Bar Charts** - Categorical comparisons (Nivo, Recharts, D3, Plotly, ECharts, Chart.js)
+- **Pie/Doughnut Charts** - Proportional data (Nivo, Recharts, Plotly, ECharts, Chart.js)
+- **Area Charts** - Filled trends (Nivo, Recharts, D3)
+- **Scatter Charts** - Two-variable correlations (Plotly, ECharts)
+- **Radar Charts** - Multi-dimensional metrics (Recharts, ECharts, Chart.js)
+- **Heatmaps** - Matrix visualizations (Nivo)
+
+This comprehensive coverage enables side-by-side comparison of how different libraries render the same data.
 
 ## Performance Optimizations
 

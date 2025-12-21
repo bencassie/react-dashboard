@@ -12,7 +12,13 @@ import { Sidebar } from "@/components/sidebar";
 
 const fetchData = async (url: string, options?: { multiFetch?: boolean }) => {
   if (!url) return null;
-  const res = await fetch(`/api/proxy?url=${encodeURIComponent(url)}`);
+
+  // Direct API routes don't need proxy, external URLs do
+  const fetchUrl = url.startsWith('/api/')
+    ? url
+    : `/api/proxy?url=${encodeURIComponent(url)}`;
+
+  const res = await fetch(fetchUrl);
   if (!res.ok) throw new Error("Failed to fetch");
   const json = await res.json();
 

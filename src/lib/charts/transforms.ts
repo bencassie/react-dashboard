@@ -4,6 +4,46 @@
  */
 
 /**
+ * Passthrough transform for API endpoints that already return transformed data
+ */
+export function passthroughTransform(raw: any) {
+  return raw;
+}
+
+/**
+ * Passthrough transform that converts date strings to Date objects for D3
+ */
+export function passthroughWithDateTransform(raw: any) {
+  if (!Array.isArray(raw)) return raw;
+  return raw.map((item: any) => ({
+    ...item,
+    date: item.date ? new Date(item.date) : item.date,
+  }));
+}
+
+/**
+ * Transform difficulty/count to name/value for pie charts
+ */
+export function transformDifficultyToNameValue(raw: any) {
+  if (!Array.isArray(raw)) return raw;
+  return raw.map((item: any) => ({
+    name: item.difficulty || item.name,
+    value: item.count || item.value,
+  }));
+}
+
+/**
+ * Transform status/count to name/value for pie charts
+ */
+export function transformStatusToNameValue(raw: any) {
+  if (!Array.isArray(raw)) return raw;
+  return raw.map((item: any) => ({
+    name: item.status || item.name,
+    value: item.count || item.value,
+  }));
+}
+
+/**
  * Transform DummyJSON products for price vs rating bar chart
  */
 export function transformProductsForPriceRatingBar(raw: any) {
