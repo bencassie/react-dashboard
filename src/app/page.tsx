@@ -10,6 +10,7 @@ import { ChartSelector } from "@/components/chart-selector";
 
 const VENDORS = ["Nivo", "ECharts", "Recharts", "Chart.js", "ChartJS", "D3", "Plotly"];
 const CHART_TYPES = ["Bar", "Line", "Pie", "Doughnut", "Area", "Scatter", "Radar", "Heatmap", "Bump"];
+const MAX_CHARTS = 20; // Limit for performance
 
 function extractVendorAndType(displayName: string): { vendor: string; type: string } {
   const vendor = VENDORS.find(v => displayName.includes(v)) || "Other";
@@ -147,15 +148,25 @@ export default function Page() {
 
   // Toggle with startTransition for responsive UI
   const handleToggle = useCallback((name: string) => {
+    // Check if adding would exceed limit
+    if (!selectedGraphs.includes(name) && selectedGraphs.length >= MAX_CHARTS) {
+      alert(`Performance limit: Maximum ${MAX_CHARTS} charts can be displayed at once.`);
+      return;
+    }
     startTransition(() => {
       toggleGraph(name);
     });
-  }, [toggleGraph]);
+  }, [toggleGraph, selectedGraphs]);
 
   // Wrap selectAll in startTransition for non-urgent updates
   const handleSelectAll = useCallback((names: string[]) => {
+    // Limit to MAX_CHARTS for performance
+    const limitedNames = names.slice(0, MAX_CHARTS);
+    if (names.length > MAX_CHARTS) {
+      alert(`Performance limit: Selecting first ${MAX_CHARTS} of ${names.length} charts.`);
+    }
     startTransition(() => {
-      setSelectedGraphs(names);
+      setSelectedGraphs(limitedNames);
     });
   }, [setSelectedGraphs]);
 
@@ -274,15 +285,23 @@ export default function Page() {
           {selectedGraphs.length === 0 ? (
             <Card className="p-12 text-center text-muted-foreground">
               <p className="text-lg">No charts selected. Click on the tags above to select charts for comparison.</p>
+              <p className="text-sm mt-2">Maximum {MAX_CHARTS} charts for optimal performance.</p>
             </Card>
           ) : (
             <>
               {/* Progressive loading indicator */}
-              {readyToRender.size < selectedGraphs.length && (
-                <div className="mb-4 text-sm text-muted-foreground">
-                  Loading charts: {readyToRender.size} / {selectedGraphs.length}
-                </div>
-              )}
+              <div className="mb-4 flex items-center justify-between text-sm">
+                {readyToRender.size < selectedGraphs.length && (
+                  <div className="text-muted-foreground">
+                    Loading charts: {readyToRender.size} / {selectedGraphs.length}
+                  </div>
+                )}
+                {selectedGraphs.length >= MAX_CHARTS && (
+                  <div className="text-orange-600 font-medium ml-auto">
+                    Performance limit reached ({selectedGraphs.length}/{MAX_CHARTS} charts)
+                  </div>
+                )}
+              </div>
 
               {/* Grouped Charts Display */}
               <div className="space-y-12">
