@@ -21,8 +21,8 @@ export async function GET() {
     const transformed = products
       .slice(0, 20)
       .map((p: any) => ({
-        id: p.id,
-        discount: p.discountPercentage || 0,
+        product: p.title || `Product ${p.id}`,
+        discountPercentage: p.discountPercentage || 0,
       }));
 
     return NextResponse.json(transformed);

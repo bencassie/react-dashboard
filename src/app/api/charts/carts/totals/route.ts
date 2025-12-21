@@ -19,7 +19,7 @@ export async function GET() {
     const carts = data?.carts || [];
 
     const transformed = carts.map((c: any) => ({
-      id: c.id,
+      userId: c.userId || c.id,
       total: c.total || 0,
     }));
 

@@ -21,8 +21,8 @@ export async function GET() {
     const transformed = recipes
       .slice(0, 15)
       .map((r: any) => ({
-        id: r.id,
-        time: r.cookTimeMinutes || 0,
+        name: r.name || `Recipe ${r.id}`,
+        cookTimeMinutes: r.cookTimeMinutes || 0,
       }));
 
     return NextResponse.json(transformed);

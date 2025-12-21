@@ -23,8 +23,8 @@ export async function GET() {
     const temps = data?.hourly?.temperature_2m ?? [];
 
     const transformed = hours.slice(0, 24).map((t: string, i: number) => ({
-      time: t.slice(11, 16),
-      temp: temps[i],
+      date: t.slice(11, 16),
+      temperature: temps[i],
     }));
 
     return NextResponse.json(transformed);

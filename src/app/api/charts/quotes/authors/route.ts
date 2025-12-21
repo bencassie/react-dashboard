@@ -27,9 +27,9 @@ export async function GET() {
     const transformed = Object.entries(categoryCount)
       .sort(([, a], [, b]) => (b as number) - (a as number))
       .slice(0, 8)
-      .map(([name, value]) => ({
-        name: name.slice(0, 15),
-        value,
+      .map(([author, count]) => ({
+        author: author.slice(0, 15),
+        count,
       }));
 
     return NextResponse.json(transformed);
