@@ -1,9 +1,7 @@
 "use client";
 import { useQueries } from "@tanstack/react-query";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
-import { RefreshCw } from "lucide-react";
 import { useEffect, useMemo, useCallback, startTransition } from "react";
 import { useStore } from "@/lib/store";
 import { chartRegistry } from "@/lib/charts/registry";
@@ -121,14 +119,6 @@ export default function Page() {
     })),
   });
 
-  // Refetch all queries
-  const refetchAll = useCallback(() => {
-    queries.forEach((query) => query.refetch());
-  }, [queries]);
-
-  // Check if any query is loading
-  const isAnyLoading = queries.some((q) => q.isLoading);
-
   // Prepare chart data with transformed results
   const chartData = useMemo(
     () =>
@@ -169,16 +159,6 @@ export default function Page() {
                 onToggle={handleToggle}
                 onSelectAll={handleSelectAll}
               />
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={refetchAll}
-                disabled={isAnyLoading}
-                className="rounded-full"
-              >
-                <RefreshCw className={`w-4 h-4 mr-2 ${isAnyLoading ? "animate-spin" : ""}`} />
-                Refresh
-              </Button>
             </div>
           </div>
         </div>
