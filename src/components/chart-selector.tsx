@@ -102,42 +102,38 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle }: ChartSe
         </Button>
       </div>
 
-      {/* Expandable Chart Grid - Overlay */}
+      {/* Expandable Chart List - Overlay */}
       {isExpanded && (
         <div className="absolute left-0 right-0 z-20 bg-background/95 backdrop-blur-sm border-b shadow-lg max-h-[70vh] overflow-y-auto">
-          <div className="max-w-[1800px] mx-auto space-y-4 p-6">
+          <div className="max-w-[1800px] mx-auto p-6 space-y-3">
             {chartTypeOrder.map(type => (
-              <Card key={type} className="shadow-sm">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base font-semibold">{type} Charts</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {groupedCharts[type]?.map(chart => {
-                      const isSelected = selectedGraphs.includes(chart.name);
-                      return (
-                        <Badge
-                          key={chart.name}
-                          variant={isSelected ? "default" : "outline"}
-                          className={`cursor-pointer transition-all px-3 py-1.5 text-sm ${
-                            isSelected
-                              ? getVendorColor(chart.vendor) + " font-medium"
-                              : "hover:bg-muted"
-                          }`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onToggle(chart.name);
-                          }}
-                        >
-                          <span className="font-semibold mr-1">{chart.vendor}</span>
-                          <span className="opacity-75">· {chart.displayName.replace(chart.vendor, '').replace(/\(.*?\)/g, '').trim()}</span>
-                          {isSelected && <X className="ml-2 h-3 w-3" />}
-                        </Badge>
-                      );
-                    })}
-                  </div>
-                </CardContent>
-              </Card>
+              <div key={type} className="flex flex-wrap items-start gap-2">
+                <h3 className="font-bold text-sm whitespace-nowrap pt-1.5">{type} Charts -</h3>
+                <div className="flex flex-wrap gap-2 flex-1">
+                  {groupedCharts[type]?.map(chart => {
+                    const isSelected = selectedGraphs.includes(chart.name);
+                    return (
+                      <Badge
+                        key={chart.name}
+                        variant={isSelected ? "default" : "outline"}
+                        className={`cursor-pointer transition-all px-3 py-1.5 text-sm ${
+                          isSelected
+                            ? getVendorColor(chart.vendor) + " font-medium"
+                            : "hover:bg-muted"
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onToggle(chart.name);
+                        }}
+                      >
+                        <span className="font-semibold mr-1">{chart.vendor}</span>
+                        <span className="opacity-75">· {chart.displayName.replace(chart.vendor, '').replace(/\(.*?\)/g, '').trim()}</span>
+                        {isSelected && <X className="ml-2 h-3 w-3" />}
+                      </Badge>
+                    );
+                  })}
+                </div>
+              </div>
             ))}
           </div>
         </div>
