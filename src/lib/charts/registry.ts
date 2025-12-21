@@ -10,6 +10,7 @@ import {
   transformPokemonForEchartsRadar,
   transformPokemonForChartJsRadar,
   transformForNivoLine,
+  transformUsersForAgeDistributionDonut,
 } from "./transforms";
 
 // Generic chart components (provider-graphtype naming)
@@ -175,8 +176,8 @@ export const chartRegistry: ChartConfig[] = [
     Component: RechartsLineChart,
     chartOptions: {
       title: "Product Discount Percentages",
-      labelKey: "id",
-      dataKey: "discount",
+      labelKey: "product",
+      dataKey: "discountPercentage",
       datasetLabel: "Discount %",
     },
   },
@@ -191,9 +192,9 @@ export const chartRegistry: ChartConfig[] = [
     Component: EchartsLineChart,
     chartOptions: {
       title: "Product Discount Trend",
-      xKey: "id",
-      yKey: "discount",
-      xLabel: "Product ${id}",
+      xKey: "product",
+      yKey: "discountPercentage",
+      xLabel: "Product ${product}",
     },
   },
   {
@@ -248,7 +249,7 @@ export const chartRegistry: ChartConfig[] = [
     apiConfig: {
       endpoint: "/api/charts/users/age-distribution",
       queryKey: ["users", "age-distribution"],
-      transform: passthroughTransform,
+      transform: transformUsersForAgeDistributionDonut,
     },
     Component: EchartsDonutChart,
     chartOptions: {
@@ -263,7 +264,7 @@ export const chartRegistry: ChartConfig[] = [
     apiConfig: {
       endpoint: "/api/charts/users/age-distribution",
       queryKey: ["users", "age-distribution", "pie"],
-      transform: passthroughTransform,
+      transform: transformUsersForAgeDistributionDonut,
     },
     Component: EchartsPieChart,
     chartOptions: {
@@ -375,9 +376,9 @@ export const chartRegistry: ChartConfig[] = [
     Component: EchartsLineChart,
     chartOptions: {
       title: "Recipe Cooking Times",
-      xKey: "id",
-      yKey: "time",
-      xLabel: "Recipe ${id}",
+      xKey: "name",
+      yKey: "cookTimeMinutes",
+      xLabel: "Recipe ${name}",
     },
   },
   {
@@ -391,8 +392,8 @@ export const chartRegistry: ChartConfig[] = [
     Component: RechartsLineChart,
     chartOptions: {
       title: "Recipe Preparation Time",
-      labelKey: "id",
-      dataKey: "time",
+      labelKey: "name",
+      dataKey: "cookTimeMinutes",
       datasetLabel: "Minutes",
     },
   },
@@ -487,9 +488,9 @@ export const chartRegistry: ChartConfig[] = [
     Component: EchartsLineChart,
     chartOptions: {
       title: "Cart Totals Over Time",
-      xKey: "id",
+      xKey: "userId",
       yKey: "total",
-      xLabel: "Cart ${id}",
+      xLabel: "Cart ${userId}",
     },
   },
   {
@@ -503,7 +504,7 @@ export const chartRegistry: ChartConfig[] = [
     Component: RechartsLineChart,
     chartOptions: {
       title: "Shopping Cart Values",
-      labelKey: "id",
+      labelKey: "userId",
       dataKey: "total",
       datasetLabel: "Total $",
     },
@@ -567,8 +568,8 @@ export const chartRegistry: ChartConfig[] = [
     Component: RechartsLineChart,
     chartOptions: {
       title: "Temperature (°C) Next 24h - London",
-      labelKey: "time",
-      dataKey: "temp",
+      labelKey: "date",
+      dataKey: "temperature",
       datasetLabel: "Temp °C",
     },
   },
@@ -583,8 +584,8 @@ export const chartRegistry: ChartConfig[] = [
     Component: EchartsLineChart,
     chartOptions: {
       title: "24h Temperature Forecast",
-      xKey: "time",
-      yKey: "temp",
+      xKey: "date",
+      yKey: "temperature",
       xLabel: "Time",
     },
   },
@@ -751,7 +752,7 @@ export const chartRegistry: ChartConfig[] = [
     apiConfig: {
       endpoint: "/api/charts/users/age-distribution",
       queryKey: ["users", "demographics"],
-      transform: passthroughTransform,
+      transform: transformUsersForAgeDistributionDonut,
     },
     Component: EchartsDonutChart,
     chartOptions: {

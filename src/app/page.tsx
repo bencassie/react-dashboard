@@ -40,7 +40,7 @@ export default function Page() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { selectedGraphs, renderKeys, toggleGraph } = useStore();
+  const { selectedGraphs, renderKeys, toggleGraph, setSelectedGraphs } = useStore();
 
   // Initialize from URL on mount (once only)
   useEffect(() => {
@@ -84,6 +84,13 @@ export default function Page() {
       toggleGraph(name);
     });
   }, [toggleGraph]);
+
+  // Wrap selectAll in startTransition for non-urgent updates
+  const handleSelectAll = useCallback((names: string[]) => {
+    startTransition(() => {
+      setSelectedGraphs(names);
+    });
+  }, [setSelectedGraphs]);
 
   // Get configs for selected charts in the order they were selected
   const selectedConfigs = useMemo(
@@ -160,6 +167,7 @@ export default function Page() {
                 charts={chartList}
                 selectedGraphs={selectedGraphs}
                 onToggle={handleToggle}
+                onSelectAll={handleSelectAll}
               />
               <Button
                 variant="outline"

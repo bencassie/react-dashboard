@@ -4,6 +4,7 @@ type Store = {
   selectedGraphs: string[];
   renderKeys: Record<string, number>;
   toggleGraph: (name: string) => void;
+  setSelectedGraphs: (names: string[]) => void;
 };
 
 export const useStore = create<Store>()((set, get) => ({
@@ -12,7 +13,7 @@ export const useStore = create<Store>()((set, get) => ({
   toggleGraph: (name) => {
     const { selectedGraphs, renderKeys } = get();
     const isSelected = selectedGraphs.includes(name);
-    
+
     if (isSelected) {
       // Removing: just filter out
       set({ selectedGraphs: selectedGraphs.filter((g) => g !== name) });
@@ -25,5 +26,17 @@ export const useStore = create<Store>()((set, get) => ({
         renderKeys: newKeys,
       });
     }
+  },
+  setSelectedGraphs: (names) => {
+    const { renderKeys } = get();
+    const newKeys = { ...renderKeys };
+    // Increment render key for newly selected charts
+    names.forEach((name) => {
+      newKeys[name] = (newKeys[name] || 0) + 1;
+    });
+    set({
+      selectedGraphs: names,
+      renderKeys: newKeys,
+    });
   },
 }));

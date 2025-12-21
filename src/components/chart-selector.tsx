@@ -10,6 +10,7 @@ type ChartSelectorProps = {
   charts: Array<{ name: string; displayName: string }>;
   selectedGraphs: string[];
   onToggle: (name: string) => void;
+  onSelectAll: (names: string[]) => void;
 };
 
 type GroupedChart = {
@@ -68,7 +69,7 @@ function extractVendorAndType(displayName: string): { vendor: string; type: stri
   return { vendor: vendor === "ChartJS" ? "Chart.js" : vendor, type };
 }
 
-export const ChartSelector = memo(({ charts, selectedGraphs, onToggle }: ChartSelectorProps) => {
+export const ChartSelector = memo(({ charts, selectedGraphs, onToggle, onSelectAll }: ChartSelectorProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -180,18 +181,10 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle }: ChartSe
                   const allSelected = selectedGraphs.length === charts.length;
                   if (allSelected) {
                     // Deselect all
-                    charts.forEach(chart => {
-                      if (selectedGraphs.includes(chart.name)) {
-                        handleToggle(chart.name);
-                      }
-                    });
+                    onSelectAll([]);
                   } else {
                     // Select all
-                    charts.forEach(chart => {
-                      if (!selectedGraphs.includes(chart.name)) {
-                        handleToggle(chart.name);
-                      }
-                    });
+                    onSelectAll(charts.map(chart => chart.name));
                   }
                 }}
                 className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
