@@ -159,11 +159,28 @@ export default function Page() {
     });
   }, [setSelectedGraphs]);
 
-  // Get configs for selected charts in selection order
+  // Get configs for selected charts, sorted by type and vendor (matching selector list order)
   const selectedConfigs = useMemo(
     () => selectedGraphs
       .map(name => chartRegistry.find(chart => chart.name === name))
-      .filter((chart): chart is typeof chartRegistry[number] => chart !== undefined),
+      .filter((chart): chart is typeof chartRegistry[number] => chart !== undefined)
+      .sort((a, b) => {
+        const aInfo = extractVendorAndType(a.displayName);
+        const bInfo = extractVendorAndType(b.displayName);
+
+        // Sort by type first
+        const typeA = CHART_TYPES.indexOf(aInfo.type);
+        const typeB = CHART_TYPES.indexOf(bInfo.type);
+        if (typeA !== typeB) return typeA - typeB;
+
+        // Then by vendor
+        const vendorA = VENDORS.indexOf(aInfo.vendor);
+        const vendorB = VENDORS.indexOf(bInfo.vendor);
+        if (vendorA !== vendorB) return vendorA - vendorB;
+
+        // Finally by display name as tiebreaker
+        return a.displayName.localeCompare(b.displayName);
+      }),
     [selectedGraphs]
   );
 
