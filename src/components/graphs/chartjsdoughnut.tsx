@@ -10,6 +10,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
+import { PASTEL_COLORS_RGBA, PASTEL_COLORS_BORDER } from "@/lib/charts/colors";
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -43,22 +44,8 @@ function ChartJsDoughnutChartInner({ data, isLoading, error, options }: ChartCom
     datasets: [
       {
         data: values,
-        backgroundColor: [
-          "rgba(255, 99, 132, 0.2)",
-          "rgba(54, 162, 235, 0.2)",
-          "rgba(255, 206, 86, 0.2)",
-          "rgba(75, 192, 192, 0.2)",
-          "rgba(153, 102, 255, 0.2)",
-          "rgba(255, 159, 64, 0.2)",
-        ],
-        borderColor: [
-          "rgba(255, 99, 132, 1)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(255, 206, 86, 1)",
-          "rgba(75, 192, 192, 1)",
-          "rgba(153, 102, 255, 1)",
-          "rgba(255, 159, 64, 1)",
-        ],
+        backgroundColor: PASTEL_COLORS_RGBA,
+        borderColor: PASTEL_COLORS_BORDER,
         borderWidth: 1,
       },
     ],

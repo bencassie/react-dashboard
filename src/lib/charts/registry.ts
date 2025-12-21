@@ -26,32 +26,43 @@ const D3AreaChart = dynamic(() => import("@/components/graphs/d3area"), { ssr: f
 // New Nivo components
 const NivoLineChart = dynamic(() => import("@/components/graphs/nivoline"), { ssr: false });
 const NivoPieChart = dynamic(() => import("@/components/graphs/nivopie"), { ssr: false });
+const NivoHeatmap2Chart = dynamic(() => import("@/components/graphs/nivoheatmap2"), { ssr: false });
+const NivoScatterChart = dynamic(() => import("@/components/graphs/nivoscatter"), { ssr: false });
 
 // New ECharts components
 const EchartsBarChart = dynamic(() => import("@/components/graphs/echartsbar"), { ssr: false });
 const EchartsScatterChart = dynamic(() => import("@/components/graphs/echartsscatter"), { ssr: false });
 const EchartsRadarChart = dynamic(() => import("@/components/graphs/echartsradar"), { ssr: false });
+const EchartsHeatmapChart = dynamic(() => import("@/components/graphs/echartsheatmap"), { ssr: false });
 
 // New Chart.js components
 const ChartJsBarChart = dynamic(() => import("@/components/graphs/chartjsbar"), { ssr: false });
 const ChartJsDoughnutChart = dynamic(() => import("@/components/graphs/chartjsdoughnut"), { ssr: false });
 const ChartJsPieChart = dynamic(() => import("@/components/graphs/chartjspie"), { ssr: false });
 const ChartJsRadarChart = dynamic(() => import("@/components/graphs/chartjsradar"), { ssr: false });
+const ChartJsScatterChart = dynamic(() => import("@/components/graphs/chartjsscatter"), { ssr: false });
 
 // New Recharts components
 const RechartsLine2Chart = dynamic(() => import("@/components/graphs/recharts-line2"), { ssr: false });
 const RechartsAreaChart = dynamic(() => import("@/components/graphs/rechartsarea"), { ssr: false });
 const RechartsPieChart = dynamic(() => import("@/components/graphs/rechartspie"), { ssr: false });
 const RechartsRadarChart = dynamic(() => import("@/components/graphs/rechartsradar"), { ssr: false });
+const RechartsScatterChart = dynamic(() => import("@/components/graphs/rechartsscatter"), { ssr: false });
 
 // New D3 components
 const D3LineChart = dynamic(() => import("@/components/graphs/d3line"), { ssr: false });
 const D3BarChart = dynamic(() => import("@/components/graphs/d3bar"), { ssr: false });
+const D3HeatmapChart = dynamic(() => import("@/components/graphs/d3heatmap"), { ssr: false });
+const D3RadarChart = dynamic(() => import("@/components/graphs/d3radar"), { ssr: false });
+const D3ScatterChart = dynamic(() => import("@/components/graphs/d3scatter"), { ssr: false });
 
 // New Plotly components
 const PlotlyLineChart = dynamic(() => import("@/components/graphs/plotlyline"), { ssr: false });
 const PlotlyBarChart = dynamic(() => import("@/components/graphs/plotlybar"), { ssr: false });
 const PlotlyPieChart = dynamic(() => import("@/components/graphs/plotlypie"), { ssr: false });
+const PlotlyAreaChart = dynamic(() => import("@/components/graphs/plotlyarea"), { ssr: false });
+const PlotlyHeatmapChart = dynamic(() => import("@/components/graphs/plotlyheatmap"), { ssr: false });
+const PlotlyRadarChart = dynamic(() => import("@/components/graphs/plotlyradar"), { ssr: false });
 
 /**
  * Central registry of all available charts
@@ -61,7 +72,7 @@ export const chartRegistry: ChartConfig[] = [
   // Products Charts (6 variations)
   {
     name: "Product Price Rating",
-    displayName: "Price vs Rating (Top 10)",
+    displayName: "Bar - Nivo - Price vs Rating",
     apiConfig: {
       endpoint: "/api/charts/products/price-rating",
       queryKey: ["products", "price-rating"],
@@ -78,7 +89,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Product Categories Pie",
-    displayName: "Category Distribution",
+    displayName: "Pie - ECharts - Category Distribution",
     apiConfig: {
       endpoint: "/api/charts/products/categories",
       queryKey: ["products", "categories"],
@@ -92,7 +103,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Product Categories Donut",
-    displayName: "Category Donut Chart",
+    displayName: "Doughnut - ECharts - Category Donut Chart",
     apiConfig: {
       endpoint: "/api/charts/products/categories",
       queryKey: ["products", "categories", "donut"],
@@ -107,7 +118,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Brand Counts Bar",
-    displayName: "Top Brands",
+    displayName: "Bar - Nivo - Top Brands",
     apiConfig: {
       endpoint: "/api/charts/products/brand-counts",
       queryKey: ["products", "brand-counts"],
@@ -124,7 +135,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Brand Counts Recharts",
-    displayName: "Brand Count (Alt)",
+    displayName: "Bar - Recharts - Brand Count",
     apiConfig: {
       endpoint: "/api/charts/products/brand-counts",
       queryKey: ["products", "brand-counts", "alt"],
@@ -139,7 +150,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Low Stock Products",
-    displayName: "Low Stock Alert",
+    displayName: "Bar - Recharts - Low Stock Alert",
     apiConfig: {
       endpoint: "/api/charts/products/low-stock",
       queryKey: ["products", "low-stock"],
@@ -154,7 +165,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Product Discounts Line",
-    displayName: "Product Discounts",
+    displayName: "Line - Recharts - Product Discounts",
     apiConfig: {
       endpoint: "/api/charts/products/discounts",
       queryKey: ["products", "discounts"],
@@ -170,7 +181,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Product Discounts ECharts",
-    displayName: "Discounts (ECharts)",
+    displayName: "Line - ECharts - Discounts",
     apiConfig: {
       endpoint: "/api/charts/products/discounts",
       queryKey: ["products", "discounts", "echarts"],
@@ -186,7 +197,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Price Distribution Area",
-    displayName: "Price Distribution",
+    displayName: "Area - D3 - Price Distribution",
     apiConfig: {
       endpoint: "/api/charts/products/price-distribution",
       queryKey: ["products", "price-distribution"],
@@ -195,13 +206,15 @@ export const chartRegistry: ChartConfig[] = [
     Component: D3AreaChart,
     chartOptions: {
       title: "Product Price Distribution by Range",
+      xKey: "date",
+      yKey: "count",
     },
   },
 
   // Users Charts (6 variations)
   {
     name: "User Gender Pie",
-    displayName: "Gender Distribution",
+    displayName: "Pie - ECharts - Gender Distribution",
     apiConfig: {
       endpoint: "/api/charts/users/gender",
       queryKey: ["users", "gender"],
@@ -215,7 +228,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "User Gender Donut",
-    displayName: "Gender Donut",
+    displayName: "Doughnut - ECharts - Gender Donut",
     apiConfig: {
       endpoint: "/api/charts/users/gender",
       queryKey: ["users", "gender", "donut"],
@@ -230,7 +243,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "User Age Distribution",
-    displayName: "Age Distribution",
+    displayName: "Doughnut - ECharts - Age Distribution",
     apiConfig: {
       endpoint: "/api/charts/users/age-distribution",
       queryKey: ["users", "age-distribution"],
@@ -245,7 +258,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "User Age Pie",
-    displayName: "Age Groups",
+    displayName: "Pie - ECharts - Age Groups",
     apiConfig: {
       endpoint: "/api/charts/users/age-distribution",
       queryKey: ["users", "age-distribution", "pie"],
@@ -259,7 +272,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "User Blood Type Donut",
-    displayName: "Blood Type Distribution",
+    displayName: "Doughnut - ECharts - Blood Type Distribution",
     apiConfig: {
       endpoint: "/api/charts/users/blood-type",
       queryKey: ["users", "blood-type"],
@@ -274,7 +287,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "User Blood Type Pie",
-    displayName: "Blood Types",
+    displayName: "Pie - ECharts - Blood Types",
     apiConfig: {
       endpoint: "/api/charts/users/blood-type",
       queryKey: ["users", "blood-type", "pie"],
@@ -290,7 +303,7 @@ export const chartRegistry: ChartConfig[] = [
   // Recipes Charts (6 variations)
   {
     name: "Recipe Ratings Scatter",
-    displayName: "Recipe Ratings",
+    displayName: "Scatter - Plotly - Recipe Ratings",
     apiConfig: {
       endpoint: "/api/charts/recipes/ratings",
       queryKey: ["recipes", "ratings"],
@@ -306,7 +319,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Recipe Difficulty Bar",
-    displayName: "Recipe Difficulty",
+    displayName: "Bar - Nivo - Recipe Difficulty",
     apiConfig: {
       endpoint: "/api/charts/recipes/difficulty",
       queryKey: ["recipes", "difficulty"],
@@ -323,7 +336,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Recipe Difficulty Recharts",
-    displayName: "Difficulty Levels",
+    displayName: "Bar - Recharts - Difficulty Levels",
     apiConfig: {
       endpoint: "/api/charts/recipes/difficulty",
       queryKey: ["recipes", "difficulty", "alt"],
@@ -338,7 +351,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Recipe Difficulty Pie",
-    displayName: "Difficulty Split",
+    displayName: "Pie - ECharts - Difficulty Split",
     apiConfig: {
       endpoint: "/api/charts/recipes/difficulty",
       queryKey: ["recipes", "difficulty", "pie"],
@@ -352,7 +365,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Recipe Cooking Time Line",
-    displayName: "Cooking Time",
+    displayName: "Line - ECharts - Cooking Time",
     apiConfig: {
       endpoint: "/api/charts/recipes/cooking-time",
       queryKey: ["recipes", "cooking-time"],
@@ -368,7 +381,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Recipe Cooking Time Recharts",
-    displayName: "Cook Time (Alt)",
+    displayName: "Line - Recharts - Cook Time",
     apiConfig: {
       endpoint: "/api/charts/recipes/cooking-time",
       queryKey: ["recipes", "cooking-time", "alt"],
@@ -386,7 +399,7 @@ export const chartRegistry: ChartConfig[] = [
   // Todos, Posts, Carts, Quotes (8 variations)
   {
     name: "Todo Status Bar",
-    displayName: "Todo Completion",
+    displayName: "Bar - Nivo - Todo Completion",
     apiConfig: {
       endpoint: "/api/charts/todos/status",
       queryKey: ["todos", "status"],
@@ -403,7 +416,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Todo Status Recharts",
-    displayName: "Todo Stats",
+    displayName: "Bar - Recharts - Todo Stats",
     apiConfig: {
       endpoint: "/api/charts/todos/status",
       queryKey: ["todos", "status", "alt"],
@@ -418,7 +431,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Todo Status Pie",
-    displayName: "Todo Status Split",
+    displayName: "Pie - ECharts - Todo Status Split",
     apiConfig: {
       endpoint: "/api/charts/todos/status",
       queryKey: ["todos", "status", "pie"],
@@ -432,7 +445,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Post Reactions Bar",
-    displayName: "Top Posts",
+    displayName: "Bar - Nivo - Top Posts",
     apiConfig: {
       endpoint: "/api/charts/posts/reactions",
       queryKey: ["posts", "reactions"],
@@ -449,7 +462,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Post Reactions Recharts",
-    displayName: "Post Engagement",
+    displayName: "Bar - Recharts - Post Engagement",
     apiConfig: {
       endpoint: "/api/charts/posts/reactions",
       queryKey: ["posts", "reactions", "alt"],
@@ -464,7 +477,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Cart Totals Line",
-    displayName: "Cart Totals",
+    displayName: "Line - ECharts - Cart Totals",
     apiConfig: {
       endpoint: "/api/charts/carts/totals",
       queryKey: ["carts", "totals"],
@@ -480,7 +493,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Cart Totals Recharts",
-    displayName: "Cart Values",
+    displayName: "Line - Recharts - Cart Values",
     apiConfig: {
       endpoint: "/api/charts/carts/totals",
       queryKey: ["carts", "totals", "alt"],
@@ -496,7 +509,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Quote Authors Pie",
-    displayName: "Top Authors",
+    displayName: "Pie - ECharts - Top Authors",
     apiConfig: {
       endpoint: "/api/charts/quotes/authors",
       queryKey: ["quotes", "authors"],
@@ -510,7 +523,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Quote Authors Donut",
-    displayName: "Author Distribution",
+    displayName: "Doughnut - ECharts - Author Distribution",
     apiConfig: {
       endpoint: "/api/charts/quotes/authors",
       queryKey: ["quotes", "authors", "donut"],
@@ -527,7 +540,7 @@ export const chartRegistry: ChartConfig[] = [
   // Heatmap (1 chart)
   {
     name: "Activity Heatmap",
-    displayName: "Activity Heatmap",
+    displayName: "Heatmap - Nivo - Activity",
     apiConfig: {
       endpoint: "/api/charts/heatmap/sample",
       queryKey: ["heatmap", "sample"],
@@ -544,7 +557,7 @@ export const chartRegistry: ChartConfig[] = [
   // External APIs (12 variations)
   {
     name: "Weather Temperature Line",
-    displayName: "London Temperature",
+    displayName: "Line - Recharts - London Temperature",
     apiConfig: {
       endpoint: "/api/charts/weather/temperature",
       queryKey: ["weather", "temperature"],
@@ -560,7 +573,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Weather Temperature ECharts",
-    displayName: "Weather Forecast",
+    displayName: "Line - ECharts - Weather Forecast",
     apiConfig: {
       endpoint: "/api/charts/weather/temperature",
       queryKey: ["weather", "temperature", "echarts"],
@@ -576,7 +589,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Breweries By State Bar",
-    displayName: "Breweries by State",
+    displayName: "Bar - Recharts - Breweries by State",
     apiConfig: {
       endpoint: "/api/charts/breweries/states",
       queryKey: ["breweries", "states"],
@@ -591,7 +604,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Breweries By State Nivo",
-    displayName: "Brewery Distribution",
+    displayName: "Bar - Nivo - Brewery Distribution",
     apiConfig: {
       endpoint: "/api/charts/breweries/states",
       queryKey: ["breweries", "states", "nivo"],
@@ -608,7 +621,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Library Subject Works Donut",
-    displayName: "Library Subjects",
+    displayName: "Doughnut - ECharts - Library Subjects",
     apiConfig: {
       endpoint: "/api/charts/library/subject-works",
       queryKey: ["library", "subject-works"],
@@ -623,7 +636,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Library Subject Works Pie",
-    displayName: "Science Topics",
+    displayName: "Pie - ECharts - Science Topics",
     apiConfig: {
       endpoint: "/api/charts/library/subject-works",
       queryKey: ["library", "subject-works", "pie"],
@@ -637,7 +650,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Pokemon Base XP Scatter",
-    displayName: "Pokemon Base XP",
+    displayName: "Scatter - Plotly - Pokemon Base XP",
     apiConfig: {
       endpoint: "/api/charts/pokemon/base-xp",
       queryKey: ["pokemon", "base-xp"],
@@ -653,7 +666,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Pokemon Height Weight Scatter",
-    displayName: "Pokemon Size",
+    displayName: "Scatter - Plotly - Pokemon Size",
     apiConfig: {
       endpoint: "/api/charts/pokemon/height-weight",
       queryKey: ["pokemon", "height-weight"],
@@ -669,7 +682,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "SpaceX Launches Area",
-    displayName: "SpaceX Launches",
+    displayName: "Area - D3 - SpaceX Launches",
     apiConfig: {
       endpoint: "/api/charts/spacex/launches",
       queryKey: ["spacex", "launches"],
@@ -678,13 +691,15 @@ export const chartRegistry: ChartConfig[] = [
     Component: D3AreaChart,
     chartOptions: {
       title: "SpaceX: Launches per Year",
+      xKey: "date",
+      yKey: "count",
     },
   },
 
   // Additional variations for more charts (6 more)
   {
     name: "Product Price Bar",
-    displayName: "Product Prices",
+    displayName: "Bar - Recharts - Product Prices",
     apiConfig: {
       endpoint: "/api/charts/products/price-rating",
       queryKey: ["products", "price-only"],
@@ -699,7 +714,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Product Rating Bar",
-    displayName: "Product Ratings",
+    displayName: "Bar - Recharts - Product Ratings",
     apiConfig: {
       endpoint: "/api/charts/products/price-rating",
       queryKey: ["products", "rating-only"],
@@ -714,7 +729,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Low Stock Alert Nivo",
-    displayName: "Stock Alert (Nivo)",
+    displayName: "Bar - Nivo - Stock Alert",
     apiConfig: {
       endpoint: "/api/charts/products/low-stock",
       queryKey: ["products", "low-stock", "nivo"],
@@ -731,7 +746,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "User Demographics Summary",
-    displayName: "User Demographics",
+    displayName: "Doughnut - ECharts - User Demographics",
     apiConfig: {
       endpoint: "/api/charts/users/age-distribution",
       queryKey: ["users", "demographics"],
@@ -746,7 +761,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Recipe Stats Overview",
-    displayName: "Recipe Overview",
+    displayName: "Doughnut - ECharts - Recipe Overview",
     apiConfig: {
       endpoint: "/api/charts/recipes/difficulty",
       queryKey: ["recipes", "overview"],
@@ -761,7 +776,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Product Stock Status",
-    displayName: "Stock Levels",
+    displayName: "Line - ECharts - Stock Levels",
     apiConfig: {
       endpoint: "/api/charts/products/low-stock",
       queryKey: ["products", "stock-status"],
@@ -779,7 +794,7 @@ export const chartRegistry: ChartConfig[] = [
   // New Nivo Line Charts
   {
     name: "Nivo Product Price-Rating Line",
-    displayName: "Price vs Rating (Nivo)",
+    displayName: "Line - Nivo - Price vs Rating",
     apiConfig: {
       endpoint: "/api/charts/products/price-rating",
       queryKey: ["products", "price-rating-nivo"],
@@ -794,7 +809,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Nivo Recipe Cooking Time Line",
-    displayName: "Cooking Times (Nivo)",
+    displayName: "Line - Nivo - Cooking Times",
     apiConfig: {
       endpoint: "/api/charts/recipes/cooking-time",
       queryKey: ["recipes", "cooking-time-nivo"],
@@ -809,7 +824,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Nivo Weather Temperature Line",
-    displayName: "Temperature Trend (Nivo)",
+    displayName: "Line - Nivo - Temperature Trend",
     apiConfig: {
       endpoint: "/api/charts/weather/temperature",
       queryKey: ["weather", "temperature-nivo"],
@@ -826,7 +841,7 @@ export const chartRegistry: ChartConfig[] = [
   // New Nivo Pie Charts
   {
     name: "Nivo Category Distribution Pie",
-    displayName: "Categories (Nivo Pie)",
+    displayName: "Pie - Nivo - Categories",
     apiConfig: {
       endpoint: "/api/charts/products/categories",
       queryKey: ["products", "categories-nivo-pie"],
@@ -839,7 +854,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Nivo Gender Distribution Pie",
-    displayName: "Gender Split (Nivo Pie)",
+    displayName: "Pie - Nivo - Gender Split",
     apiConfig: {
       endpoint: "/api/charts/users/gender",
       queryKey: ["users", "gender-nivo-pie"],
@@ -852,7 +867,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Nivo Blood Type Pie",
-    displayName: "Blood Types (Nivo Pie)",
+    displayName: "Pie - Nivo - Blood Types",
     apiConfig: {
       endpoint: "/api/charts/users/blood-type",
       queryKey: ["users", "blood-type-nivo-pie"],
@@ -865,7 +880,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Nivo Recipe Difficulty Pie",
-    displayName: "Recipe Difficulty (Nivo Pie)",
+    displayName: "Pie - Nivo - Recipe Difficulty",
     apiConfig: {
       endpoint: "/api/charts/recipes/difficulty",
       queryKey: ["recipes", "difficulty-nivo-pie"],
@@ -878,7 +893,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Nivo Todo Status Pie",
-    displayName: "Todo Status (Nivo Pie)",
+    displayName: "Pie - Nivo - Todo Status",
     apiConfig: {
       endpoint: "/api/charts/todos/status",
       queryKey: ["todos", "status-nivo-pie"],
@@ -893,7 +908,7 @@ export const chartRegistry: ChartConfig[] = [
   // New ECharts Bar Charts
   {
     name: "ECharts Brand Counts Bar",
-    displayName: "Brand Counts (ECharts)",
+    displayName: "Bar - ECharts - Brand Counts",
     apiConfig: {
       endpoint: "/api/charts/products/brand-counts",
       queryKey: ["products", "brand-counts-echarts"],
@@ -908,7 +923,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "ECharts Age Distribution Bar",
-    displayName: "Age Groups (ECharts)",
+    displayName: "Bar - ECharts - Age Groups",
     apiConfig: {
       endpoint: "/api/charts/users/age-distribution",
       queryKey: ["users", "age-distribution-echarts"],
@@ -923,7 +938,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "ECharts Recipe Ratings Bar",
-    displayName: "Recipe Ratings (ECharts)",
+    displayName: "Bar - ECharts - Recipe Ratings",
     apiConfig: {
       endpoint: "/api/charts/recipes/ratings",
       queryKey: ["recipes", "ratings-echarts"],
@@ -938,7 +953,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "ECharts Post Reactions Bar",
-    displayName: "Post Reactions (ECharts)",
+    displayName: "Bar - ECharts - Post Reactions",
     apiConfig: {
       endpoint: "/api/charts/posts/reactions",
       queryKey: ["posts", "reactions-echarts"],
@@ -955,7 +970,7 @@ export const chartRegistry: ChartConfig[] = [
   // New ECharts Scatter Charts
   {
     name: "ECharts Price-Rating Scatter",
-    displayName: "Price vs Rating (Scatter)",
+    displayName: "Scatter - ECharts - Price vs Rating",
     apiConfig: {
       endpoint: "/api/charts/products/price-rating",
       queryKey: ["products", "price-rating-scatter"],
@@ -970,7 +985,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "ECharts Pokemon Stats Scatter",
-    displayName: "Pokemon Height/Weight",
+    displayName: "Scatter - ECharts - Pokemon Height/Weight",
     apiConfig: {
       endpoint: "/api/charts/pokemon/height-weight",
       queryKey: ["pokemon", "height-weight-scatter"],
@@ -987,7 +1002,7 @@ export const chartRegistry: ChartConfig[] = [
   // New ECharts Radar Charts
   {
     name: "ECharts Pokemon Stats Radar",
-    displayName: "Pokemon Stats (ECharts Radar)",
+    displayName: "Radar - ECharts - Pokemon Stats",
     apiConfig: {
       endpoint: "/api/charts/pokemon/stats",
       queryKey: ["pokemon", "stats-echarts-radar"],
@@ -1002,7 +1017,7 @@ export const chartRegistry: ChartConfig[] = [
   // New Chart.js Bar Charts
   {
     name: "ChartJS Brand Counts Bar",
-    displayName: "Brands (Chart.js Bar)",
+    displayName: "Bar - Chart.js - Brands",
     apiConfig: {
       endpoint: "/api/charts/products/brand-counts",
       queryKey: ["products", "brand-counts-chartjs"],
@@ -1017,7 +1032,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "ChartJS Brewery States Bar",
-    displayName: "Breweries by State (Chart.js)",
+    displayName: "Bar - Chart.js - Breweries by State",
     apiConfig: {
       endpoint: "/api/charts/breweries/states",
       queryKey: ["breweries", "states-chartjs"],
@@ -1032,7 +1047,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "ChartJS Quote Authors Bar",
-    displayName: "Quote Authors (Chart.js)",
+    displayName: "Bar - Chart.js - Quote Authors",
     apiConfig: {
       endpoint: "/api/charts/quotes/authors",
       queryKey: ["quotes", "authors-chartjs"],
@@ -1049,7 +1064,7 @@ export const chartRegistry: ChartConfig[] = [
   // New Chart.js Doughnut Charts
   {
     name: "ChartJS Category Doughnut",
-    displayName: "Categories (Doughnut)",
+    displayName: "Doughnut - Chart.js - Categories",
     apiConfig: {
       endpoint: "/api/charts/products/categories",
       queryKey: ["products", "categories-doughnut"],
@@ -1062,7 +1077,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "ChartJS Gender Doughnut",
-    displayName: "Gender (Doughnut)",
+    displayName: "Doughnut - Chart.js - Gender",
     apiConfig: {
       endpoint: "/api/charts/users/gender",
       queryKey: ["users", "gender-doughnut"],
@@ -1075,7 +1090,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "ChartJS Todo Status Doughnut",
-    displayName: "Todos (Doughnut)",
+    displayName: "Doughnut - Chart.js - Todos",
     apiConfig: {
       endpoint: "/api/charts/todos/status",
       queryKey: ["todos", "status-doughnut"],
@@ -1090,7 +1105,7 @@ export const chartRegistry: ChartConfig[] = [
   // New Chart.js Pie Charts
   {
     name: "ChartJS Blood Type Pie",
-    displayName: "Blood Types (Chart.js Pie)",
+    displayName: "Pie - Chart.js - Blood Types",
     apiConfig: {
       endpoint: "/api/charts/users/blood-type",
       queryKey: ["users", "blood-type-chartjs-pie"],
@@ -1103,7 +1118,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "ChartJS Recipe Difficulty Pie",
-    displayName: "Difficulty (Chart.js Pie)",
+    displayName: "Pie - Chart.js - Difficulty",
     apiConfig: {
       endpoint: "/api/charts/recipes/difficulty",
       queryKey: ["recipes", "difficulty-chartjs-pie"],
@@ -1118,7 +1133,7 @@ export const chartRegistry: ChartConfig[] = [
   // New Chart.js Radar Charts
   {
     name: "ChartJS Pokemon Stats Radar",
-    displayName: "Pokemon Stats (Chart.js Radar)",
+    displayName: "Radar - Chart.js - Pokemon Stats",
     apiConfig: {
       endpoint: "/api/charts/pokemon/stats",
       queryKey: ["pokemon", "stats-chartjs-radar"],
@@ -1133,7 +1148,7 @@ export const chartRegistry: ChartConfig[] = [
   // New Recharts Line Charts
   {
     name: "Recharts Recipe Cooking Time Line",
-    displayName: "Cooking Times (Recharts Line)",
+    displayName: "Line - Recharts - Cooking Times",
     apiConfig: {
       endpoint: "/api/charts/recipes/cooking-time",
       queryKey: ["recipes", "cooking-time-recharts-line"],
@@ -1148,7 +1163,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Recharts Post Reactions Line",
-    displayName: "Post Reactions (Recharts Line)",
+    displayName: "Line - Recharts - Post Reactions",
     apiConfig: {
       endpoint: "/api/charts/posts/reactions",
       queryKey: ["posts", "reactions-recharts-line"],
@@ -1163,7 +1178,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Recharts SpaceX Launches Line",
-    displayName: "SpaceX Launches (Recharts)",
+    displayName: "Line - Recharts - SpaceX Launches",
     apiConfig: {
       endpoint: "/api/charts/spacex/launches",
       queryKey: ["spacex", "launches-recharts-line"],
@@ -1180,7 +1195,7 @@ export const chartRegistry: ChartConfig[] = [
   // New Recharts Area Charts
   {
     name: "Recharts Price Distribution Area",
-    displayName: "Price Distribution (Area)",
+    displayName: "Area - Recharts - Price Distribution",
     apiConfig: {
       endpoint: "/api/charts/products/price-distribution",
       queryKey: ["products", "price-distribution-area"],
@@ -1189,13 +1204,13 @@ export const chartRegistry: ChartConfig[] = [
     Component: RechartsAreaChart,
     chartOptions: {
       title: "Product Price Distribution",
-      xKey: "range",
-      yKey: "count",
+      xKey: "date",
+      dataKey: "count",
     },
   },
   {
     name: "Recharts Weather Temperature Area",
-    displayName: "Temperature (Area)",
+    displayName: "Area - Recharts - Temperature",
     apiConfig: {
       endpoint: "/api/charts/weather/temperature",
       queryKey: ["weather", "temperature-area"],
@@ -1205,14 +1220,14 @@ export const chartRegistry: ChartConfig[] = [
     chartOptions: {
       title: "Temperature Trends",
       xKey: "date",
-      yKey: "temperature",
+      dataKey: "temperature",
     },
   },
 
   // New Recharts Pie Charts
   {
     name: "Recharts Category Pie",
-    displayName: "Categories (Recharts Pie)",
+    displayName: "Pie - Recharts - Categories",
     apiConfig: {
       endpoint: "/api/charts/products/categories",
       queryKey: ["products", "categories-recharts-pie"],
@@ -1225,7 +1240,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Recharts Gender Pie",
-    displayName: "Gender (Recharts Pie)",
+    displayName: "Pie - Recharts - Gender",
     apiConfig: {
       endpoint: "/api/charts/users/gender",
       queryKey: ["users", "gender-recharts-pie"],
@@ -1238,7 +1253,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Recharts Blood Type Pie",
-    displayName: "Blood Types (Recharts Pie)",
+    displayName: "Pie - Recharts - Blood Types",
     apiConfig: {
       endpoint: "/api/charts/users/blood-type",
       queryKey: ["users", "blood-type-recharts-pie"],
@@ -1251,7 +1266,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Recharts Todo Status Pie",
-    displayName: "Todos (Recharts Pie)",
+    displayName: "Pie - Recharts - Todos",
     apiConfig: {
       endpoint: "/api/charts/todos/status",
       queryKey: ["todos", "status-recharts-pie"],
@@ -1266,7 +1281,7 @@ export const chartRegistry: ChartConfig[] = [
   // New Recharts Radar Charts
   {
     name: "Recharts Pokemon Stats Radar",
-    displayName: "Pokemon Stats (Recharts Radar)",
+    displayName: "Radar - Recharts - Pokemon Stats",
     apiConfig: {
       endpoint: "/api/charts/pokemon/stats",
       queryKey: ["pokemon", "stats-recharts-radar"],
@@ -1281,7 +1296,7 @@ export const chartRegistry: ChartConfig[] = [
   // New D3 Line Charts
   {
     name: "D3 Recipe Cooking Time Line",
-    displayName: "Cooking Times (D3)",
+    displayName: "Line - D3 - Cooking Times",
     apiConfig: {
       endpoint: "/api/charts/recipes/cooking-time",
       queryKey: ["recipes", "cooking-time-d3"],
@@ -1296,7 +1311,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "D3 Recipe Ratings Line",
-    displayName: "Recipe Ratings (D3)",
+    displayName: "Line - D3 - Recipe Ratings",
     apiConfig: {
       endpoint: "/api/charts/recipes/ratings",
       queryKey: ["recipes", "ratings-d3-line"],
@@ -1311,7 +1326,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "D3 Product Discounts Line",
-    displayName: "Discounts (D3 Line)",
+    displayName: "Line - D3 - Discounts",
     apiConfig: {
       endpoint: "/api/charts/products/discounts",
       queryKey: ["products", "discounts-d3-line"],
@@ -1328,7 +1343,7 @@ export const chartRegistry: ChartConfig[] = [
   // New D3 Bar Charts
   {
     name: "D3 Brand Counts Bar",
-    displayName: "Brands (D3 Bar)",
+    displayName: "Bar - D3 - Brands",
     apiConfig: {
       endpoint: "/api/charts/products/brand-counts",
       queryKey: ["products", "brand-counts-d3"],
@@ -1343,7 +1358,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "D3 Age Distribution Bar",
-    displayName: "Age Groups (D3)",
+    displayName: "Bar - D3 - Age Groups",
     apiConfig: {
       endpoint: "/api/charts/users/age-distribution",
       queryKey: ["users", "age-distribution-d3"],
@@ -1358,7 +1373,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "D3 Quote Authors Bar",
-    displayName: "Quote Authors (D3)",
+    displayName: "Bar - D3 - Quote Authors",
     apiConfig: {
       endpoint: "/api/charts/quotes/authors",
       queryKey: ["quotes", "authors-d3"],
@@ -1373,7 +1388,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "D3 Pokemon Base XP Bar",
-    displayName: "Pokemon XP (D3)",
+    displayName: "Bar - D3 - Pokemon XP",
     apiConfig: {
       endpoint: "/api/charts/pokemon/base-xp",
       queryKey: ["pokemon", "base-xp-d3"],
@@ -1390,7 +1405,7 @@ export const chartRegistry: ChartConfig[] = [
   // New Plotly Line Charts
   {
     name: "Plotly Recipe Cooking Time Line",
-    displayName: "Cooking Times (Plotly)",
+    displayName: "Line - Plotly - Cooking Times",
     apiConfig: {
       endpoint: "/api/charts/recipes/cooking-time",
       queryKey: ["recipes", "cooking-time-plotly"],
@@ -1405,7 +1420,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Plotly Recipe Ratings Line",
-    displayName: "Recipe Ratings (Plotly)",
+    displayName: "Line - Plotly - Recipe Ratings",
     apiConfig: {
       endpoint: "/api/charts/recipes/ratings",
       queryKey: ["recipes", "ratings-plotly"],
@@ -1420,7 +1435,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Plotly Weather Temperature Line",
-    displayName: "Temperature (Plotly)",
+    displayName: "Line - Plotly - Temperature",
     apiConfig: {
       endpoint: "/api/charts/weather/temperature",
       queryKey: ["weather", "temperature-plotly"],
@@ -1435,7 +1450,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Plotly Cart Totals Line",
-    displayName: "Cart Totals (Plotly)",
+    displayName: "Line - Plotly - Cart Totals",
     apiConfig: {
       endpoint: "/api/charts/carts/totals",
       queryKey: ["carts", "totals-plotly"],
@@ -1452,7 +1467,7 @@ export const chartRegistry: ChartConfig[] = [
   // New Plotly Bar Charts
   {
     name: "Plotly Brand Counts Bar",
-    displayName: "Brands (Plotly Bar)",
+    displayName: "Bar - Plotly - Brands",
     apiConfig: {
       endpoint: "/api/charts/products/brand-counts",
       queryKey: ["products", "brand-counts-plotly"],
@@ -1467,7 +1482,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Plotly Age Distribution Bar",
-    displayName: "Age Groups (Plotly)",
+    displayName: "Bar - Plotly - Age Groups",
     apiConfig: {
       endpoint: "/api/charts/users/age-distribution",
       queryKey: ["users", "age-distribution-plotly"],
@@ -1482,7 +1497,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Plotly Library Subject Works Bar",
-    displayName: "Library Works (Plotly)",
+    displayName: "Bar - Plotly - Library Works",
     apiConfig: {
       endpoint: "/api/charts/library/subject-works",
       queryKey: ["library", "subject-works-plotly"],
@@ -1499,7 +1514,7 @@ export const chartRegistry: ChartConfig[] = [
   // New Plotly Pie Charts
   {
     name: "Plotly Category Pie",
-    displayName: "Categories (Plotly Pie)",
+    displayName: "Pie - Plotly - Categories",
     apiConfig: {
       endpoint: "/api/charts/products/categories",
       queryKey: ["products", "categories-plotly-pie"],
@@ -1512,7 +1527,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Plotly Gender Pie",
-    displayName: "Gender (Plotly Pie)",
+    displayName: "Pie - Plotly - Gender",
     apiConfig: {
       endpoint: "/api/charts/users/gender",
       queryKey: ["users", "gender-plotly-pie"],
@@ -1525,7 +1540,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Plotly Blood Type Pie",
-    displayName: "Blood Types (Plotly Pie)",
+    displayName: "Pie - Plotly - Blood Types",
     apiConfig: {
       endpoint: "/api/charts/users/blood-type",
       queryKey: ["users", "blood-type-plotly-pie"],
@@ -1538,7 +1553,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Plotly Recipe Difficulty Pie",
-    displayName: "Difficulty (Plotly Pie)",
+    displayName: "Pie - Plotly - Difficulty",
     apiConfig: {
       endpoint: "/api/charts/recipes/difficulty",
       queryKey: ["recipes", "difficulty-plotly-pie"],
@@ -1551,7 +1566,7 @@ export const chartRegistry: ChartConfig[] = [
   },
   {
     name: "Plotly Todo Status Pie",
-    displayName: "Todos (Plotly Pie)",
+    displayName: "Pie - Plotly - Todos",
     apiConfig: {
       endpoint: "/api/charts/todos/status",
       queryKey: ["todos", "status-plotly-pie"],
@@ -1560,6 +1575,169 @@ export const chartRegistry: ChartConfig[] = [
     Component: PlotlyPieChart,
     chartOptions: {
       title: "Todo Status",
+    },
+  },
+
+  // New Area Charts
+  {
+    name: "Plotly Weather Temperature Area",
+    displayName: "Area - Plotly - Temperature",
+    apiConfig: {
+      endpoint: "/api/charts/weather/temperature",
+      queryKey: ["weather", "temperature-plotly-area"],
+      transform: passthroughTransform,
+    },
+    Component: PlotlyAreaChart,
+    chartOptions: {
+      title: "Temperature Trends (Plotly)",
+      xKey: "date",
+      yKey: "temperature",
+    },
+  },
+
+  // New Heatmap Charts
+  {
+    name: "ECharts Activity Heatmap",
+    displayName: "Heatmap - ECharts - Activity",
+    apiConfig: {
+      endpoint: "/api/charts/heatmap/sample",
+      queryKey: ["heatmap", "sample-echarts"],
+      transform: passthroughTransform,
+    },
+    Component: EchartsHeatmapChart,
+    chartOptions: {
+      title: "Activity Heatmap (ECharts)",
+    },
+  },
+  {
+    name: "Plotly Activity Heatmap",
+    displayName: "Heatmap - Plotly - Activity",
+    apiConfig: {
+      endpoint: "/api/charts/heatmap/sample",
+      queryKey: ["heatmap", "sample-plotly"],
+      transform: passthroughTransform,
+    },
+    Component: PlotlyHeatmapChart,
+    chartOptions: {
+      title: "Activity Heatmap (Plotly)",
+    },
+  },
+  {
+    name: "D3 Activity Heatmap",
+    displayName: "Heatmap - D3 - Activity",
+    apiConfig: {
+      endpoint: "/api/charts/heatmap/sample",
+      queryKey: ["heatmap", "sample-d3"],
+      transform: passthroughTransform,
+    },
+    Component: D3HeatmapChart,
+    chartOptions: {
+      title: "Activity Heatmap (D3)",
+    },
+  },
+  {
+    name: "Nivo Activity Heatmap 2",
+    displayName: "Heatmap - Nivo - Activity",
+    apiConfig: {
+      endpoint: "/api/charts/heatmap/sample",
+      queryKey: ["heatmap", "sample-nivo2"],
+      transform: passthroughTransform,
+    },
+    Component: NivoHeatmap2Chart,
+    chartOptions: {
+      title: "Activity Heatmap (Nivo Alternative)",
+      xAxisLabel: "Hour",
+      yAxisLabel: "Day",
+    },
+  },
+
+  // New Radar Charts
+  {
+    name: "Plotly Pokemon Stats Radar",
+    displayName: "Radar - Plotly - Pokemon Stats",
+    apiConfig: {
+      endpoint: "/api/charts/pokemon/stats",
+      queryKey: ["pokemon", "stats-plotly-radar"],
+      transform: transformPokemonForChartJsRadar,
+    },
+    Component: PlotlyRadarChart,
+    chartOptions: {
+      title: "Pokemon Stats (Plotly)",
+    },
+  },
+  {
+    name: "D3 Pokemon Stats Radar",
+    displayName: "Radar - D3 - Pokemon Stats",
+    apiConfig: {
+      endpoint: "/api/charts/pokemon/stats",
+      queryKey: ["pokemon", "stats-d3-radar"],
+      transform: transformPokemonForChartJsRadar,
+    },
+    Component: D3RadarChart,
+    chartOptions: {
+      title: "Pokemon Stats (D3)",
+    },
+  },
+
+  // New Scatter Charts
+  {
+    name: "Recharts Product Price-Rating Scatter",
+    displayName: "Scatter - Recharts - Price vs Rating",
+    apiConfig: {
+      endpoint: "/api/charts/products/price-rating",
+      queryKey: ["products", "price-rating-recharts-scatter"],
+      transform: passthroughTransform,
+    },
+    Component: RechartsScatterChart,
+    chartOptions: {
+      title: "Product Price vs Rating (Recharts)",
+      xKey: "price",
+      yKey: "rating",
+    },
+  },
+  {
+    name: "Nivo Product Price-Rating Scatter",
+    displayName: "Scatter - Nivo - Price vs Rating",
+    apiConfig: {
+      endpoint: "/api/charts/products/price-rating",
+      queryKey: ["products", "price-rating-nivo-scatter"],
+      transform: passthroughTransform,
+    },
+    Component: NivoScatterChart,
+    chartOptions: {
+      title: "Product Price vs Rating (Nivo)",
+      xKey: "price",
+      yKey: "rating",
+    },
+  },
+  {
+    name: "ChartJS Product Price-Rating Scatter",
+    displayName: "Scatter - Chart.js - Price vs Rating",
+    apiConfig: {
+      endpoint: "/api/charts/products/price-rating",
+      queryKey: ["products", "price-rating-chartjs-scatter"],
+      transform: passthroughTransform,
+    },
+    Component: ChartJsScatterChart,
+    chartOptions: {
+      title: "Product Price vs Rating (Chart.js)",
+      xKey: "price",
+      yKey: "rating",
+    },
+  },
+  {
+    name: "D3 Product Price-Rating Scatter",
+    displayName: "Scatter - D3 - Price vs Rating",
+    apiConfig: {
+      endpoint: "/api/charts/products/price-rating",
+      queryKey: ["products", "price-rating-d3-scatter"],
+      transform: passthroughTransform,
+    },
+    Component: D3ScatterChart,
+    chartOptions: {
+      title: "Product Price vs Rating (D3)",
+      xKey: "price",
+      yKey: "rating",
     },
   },
 ];

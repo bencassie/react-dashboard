@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
+import { PASTEL_COLORS } from "@/lib/charts/colors";
 
 const ReactECharts = dynamic(() => import("echarts-for-react"), { ssr: false });
 
@@ -29,14 +30,36 @@ function EchartsPieChartInner({ data, isLoading, error, options }: ChartComponen
     );
   }
 
-  const pieData = data || [];
+  const pieData = (data || []).map((item: any, index: number) => ({
+    ...item,
+    itemStyle: {
+      color: PASTEL_COLORS[index % PASTEL_COLORS.length]
+    }
+  }));
+
   const pieOption = {
-    tooltip: { trigger: "item" },
+    tooltip: {
+      trigger: "item",
+      formatter: "{b}: {c} ({d}%)"
+    },
+    legend: {
+      orient: "vertical",
+      left: "left",
+      top: "middle",
+      textStyle: {
+        color: "#333"
+      }
+    },
     series: [
       {
         type: "pie",
         radius: radius,
         data: pieData,
+        label: {
+          show: true,
+          formatter: "{b}: {d}%",
+          color: "#000"
+        },
         emphasis: {
           itemStyle: {
             shadowBlur: 10,

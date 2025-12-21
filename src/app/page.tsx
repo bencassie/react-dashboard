@@ -85,9 +85,11 @@ export default function Page() {
     });
   }, [toggleGraph]);
 
-  // Get configs for selected charts
+  // Get configs for selected charts in the order they were selected
   const selectedConfigs = useMemo(
-    () => chartRegistry.filter((chart) => selectedGraphs.includes(chart.name)),
+    () => selectedGraphs
+      .map(name => chartRegistry.find(chart => chart.name === name))
+      .filter((config): config is NonNullable<typeof config> => config !== undefined),
     [selectedGraphs]
   );
 

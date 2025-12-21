@@ -7,7 +7,7 @@ import type { ChartComponentProps } from "@/lib/charts/types";
 
 function RechartsLine2ChartInner({ data, isLoading, error, options }: ChartComponentProps) {
   const title = options?.title || "Line Chart";
-  const dataKey = options?.dataKey || "value";
+  const yKey = options?.yKey || options?.dataKey || "value";
   const xKey = options?.xKey || "name";
 
   if (isLoading) {
@@ -39,7 +39,7 @@ function RechartsLine2ChartInner({ data, isLoading, error, options }: ChartCompo
               <XAxis dataKey={xKey} />
               <YAxis />
               <Tooltip />
-              <Line type="monotone" dataKey={dataKey} stroke="#8884d8" activeDot={{ r: 8 }} />
+              <Line type="monotone" dataKey={yKey} stroke="#8884d8" activeDot={{ r: 8 }} />
             </LineChart>
           </ResponsiveContainer>
         </div>

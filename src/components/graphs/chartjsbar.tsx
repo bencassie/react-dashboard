@@ -13,13 +13,14 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
+import { PASTEL_COLORS_RGBA, PASTEL_COLORS_BORDER } from "@/lib/charts/colors";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 function ChartJsBarChartInner({ data, isLoading, error, options }: ChartComponentProps) {
   const title = options?.title || "Bar Chart";
-  const labelKey = options?.labelKey || "name";
-  const dataKey = options?.dataKey || "value";
+  const xKey = options?.xKey || options?.labelKey || "name";
+  const yKey = options?.yKey || options?.dataKey || "value";
   const datasetLabel = options?.datasetLabel || "Data";
 
   if (isLoading) {
@@ -40,8 +41,8 @@ function ChartJsBarChartInner({ data, isLoading, error, options }: ChartComponen
     );
   }
 
-  const labels = data?.map((d: any) => d[labelKey]) ?? [];
-  const values = data?.map((d: any) => d[dataKey]) ?? [];
+  const labels = data?.map((d: any) => d[xKey]) ?? [];
+  const values = data?.map((d: any) => d[yKey]) ?? [];
 
   const ds = {
     labels,
@@ -49,8 +50,8 @@ function ChartJsBarChartInner({ data, isLoading, error, options }: ChartComponen
       {
         label: datasetLabel,
         data: values,
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        borderColor: "rgba(75, 192, 192, 1)",
+        backgroundColor: values.map((_, i) => PASTEL_COLORS_RGBA[i % PASTEL_COLORS_RGBA.length]),
+        borderColor: values.map((_, i) => PASTEL_COLORS_BORDER[i % PASTEL_COLORS_BORDER.length]),
         borderWidth: 1,
       },
     ],

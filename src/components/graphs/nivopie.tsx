@@ -4,6 +4,7 @@ import { ResponsivePie } from "@nivo/pie";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
+import { PASTEL_COLORS } from "@/lib/charts/colors";
 
 function NivoPieChartInner({ data, isLoading, error, options }: ChartComponentProps) {
   const title = options?.title || "Pie Chart";
@@ -26,7 +27,12 @@ function NivoPieChartInner({ data, isLoading, error, options }: ChartComponentPr
     );
   }
 
-  const pieData = data || [];
+  // Transform data to Nivo's expected format with id property
+  const pieData = (data || []).map((item: any) => ({
+    id: item.name || item.id,
+    label: item.name || item.id,
+    value: item.value
+  }));
 
   return (
     <Card>
@@ -35,6 +41,7 @@ function NivoPieChartInner({ data, isLoading, error, options }: ChartComponentPr
         <div className="h-96 w-full">
           <ResponsivePie
             data={pieData}
+            colors={PASTEL_COLORS}
             margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
             innerRadius={0}
             padAngle={0.7}
@@ -43,11 +50,11 @@ function NivoPieChartInner({ data, isLoading, error, options }: ChartComponentPr
             borderWidth={1}
             borderColor={{ from: "color", modifiers: [["darker", 0.2]] }}
             arcLinkLabelsSkipAngle={10}
-            arcLinkLabelsTextColor="#333333"
+            arcLinkLabelsTextColor="#000000"
             arcLinkLabelsThickness={2}
             arcLinkLabelsColor={{ from: "color" }}
             arcLabelsSkipAngle={10}
-            arcLabelsTextColor={{ from: "color", modifiers: [["darker", 2]] }}
+            arcLabelsTextColor="#000000"
             legends={[
               {
                 anchor: "bottom",
@@ -58,7 +65,7 @@ function NivoPieChartInner({ data, isLoading, error, options }: ChartComponentPr
                 itemsSpacing: 0,
                 itemWidth: 100,
                 itemHeight: 18,
-                itemTextColor: "#999",
+                itemTextColor: "#333",
                 itemDirection: "left-to-right",
                 itemOpacity: 1,
                 symbolSize: 18,

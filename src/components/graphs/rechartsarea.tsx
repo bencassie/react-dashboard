@@ -4,6 +4,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
+import { PASTEL_COLORS } from "@/lib/charts/colors";
 
 function RechartsAreaChartInner({ data, isLoading, error, options }: ChartComponentProps) {
   const title = options?.title || "Area Chart";
@@ -35,11 +36,17 @@ function RechartsAreaChartInner({ data, isLoading, error, options }: ChartCompon
         <div className="h-96 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
               <XAxis dataKey={xKey} />
               <YAxis />
               <Tooltip />
-              <Area type="monotone" dataKey={dataKey} stroke="#8884d8" fill="#8884d8" />
+              <Area
+                type="monotone"
+                dataKey={dataKey}
+                stroke={PASTEL_COLORS[2]}
+                fill={PASTEL_COLORS[2]}
+                fillOpacity={0.6}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>

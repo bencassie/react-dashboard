@@ -4,6 +4,7 @@ import * as d3 from "d3";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
+import { PASTEL_COLORS } from "@/lib/charts/colors";
 
 function D3BarChartInner({ data, isLoading, error, options }: ChartComponentProps) {
   const ref = useRef<SVGSVGElement | null>(null);
@@ -29,13 +30,14 @@ function D3BarChartInner({ data, isLoading, error, options }: ChartComponentProp
 
     const x = d3
       .scaleBand()
-      .domain(series.map((d: any) => String(d[xKey])))
+      .domain(series.map((d: any) => String(d[xKey] ?? "")))
       .range([0, innerW])
       .padding(0.1);
 
+    const yMax = d3.max(series, (d: any) => Number(d[yKey]) || 0) || 100;
     const y = d3
       .scaleLinear()
-      .domain([0, d3.max(series, (d: any) => Number(d[yKey]) || 0) || 100])
+      .domain([0, yMax])
       .nice()
       .range([innerH, 0]);
 
@@ -44,15 +46,17 @@ function D3BarChartInner({ data, isLoading, error, options }: ChartComponentProp
       .enter()
       .append("rect")
       .attr("class", "bar")
-      .attr("x", (d: any) => x(String(d[xKey])) || 0)
+      .attr("x", (d: any) => x(String(d[xKey] ?? "")) ?? 0)
       .attr("y", (d: any) => y(Number(d[yKey]) || 0))
       .attr("width", x.bandwidth())
-      .attr("height", (d: any) => innerH - y(Number(d[yKey]) || 0))
-      .attr("fill", "currentColor")
-      .attr("opacity", 0.7);
+      .attr("height", (d: any) => Math.max(0, innerH - y(Number(d[yKey]) || 0)))
+      .attr("fill", (d: any, i: number) => PASTEL_COLORS[i % PASTEL_COLORS.length])
+      .attr("opacity", 0.9);
 
-    g.append("g").attr("transform", `translate(0,${innerH})`).call(d3.axisBottom(x));
-    g.append("g").call(d3.axisLeft(y));
+    g.append("g")
+      .attr("transform", `translate(0,${innerH})`)
+      .call(d3.axisBottom(x).tickSizeOuter(0));
+    g.append("g").call(d3.axisLeft(y).tickSizeOuter(0));
   }, [series, xKey, yKey]);
 
   if (isLoading) {
@@ -86,3 +90,4 @@ function D3BarChartInner({ data, isLoading, error, options }: ChartComponentProp
 const D3BarChart = memo(D3BarChartInner);
 D3BarChart.displayName = "D3BarChart";
 export default D3BarChart;
+

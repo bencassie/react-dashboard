@@ -13,8 +13,8 @@ const Plot = dynamic(async () => {
   return (props: any) => <PlotComponent {...props} />;
 }, { ssr: false });
 
-function PlotlyBarChartInner({ data, isLoading, error, options }: ChartComponentProps) {
-  const title = options?.title || "Bar Chart";
+function PlotlyAreaChartInner({ data, isLoading, error, options }: ChartComponentProps) {
+  const title = options?.title || "Area Chart";
   const xKey = options?.xKey || "name";
   const yKey = options?.yKey || "value";
 
@@ -36,8 +36,8 @@ function PlotlyBarChartInner({ data, isLoading, error, options }: ChartComponent
     );
   }
 
-  const x = data?.map((p: any) => String(p[xKey] ?? "")) ?? [];
-  const y = data?.map((p: any) => Number(p[yKey]) || 0) ?? [];
+  const x = data?.map((p: any) => p[xKey]) ?? [];
+  const y = data?.map((p: any) => p[yKey]) ?? [];
 
   return (
     <Card>
@@ -48,18 +48,13 @@ function PlotlyBarChartInner({ data, isLoading, error, options }: ChartComponent
             data={[{
               x,
               y,
-              type: "bar",
-              marker: {
-                color: x.map((_, i) => PASTEL_COLORS[i % PASTEL_COLORS.length])
-              }
+              type: "scatter",
+              mode: "lines",
+              fill: "tozeroy",
+              fillcolor: PASTEL_COLORS[0] + "80",
+              line: { color: PASTEL_COLORS[0] }
             }]}
-            layout={{
-              autosize: true,
-              title: undefined,
-              margin: { t: 20, r: 10, l: 40, b: 40 },
-              xaxis: { fixedrange: true },
-              yaxis: { fixedrange: true }
-            }}
+            layout={{ autosize: true, title: undefined, margin: { t: 20, r: 10, l: 40, b: 40 } }}
             useResizeHandler
             style={{ width: "100%", height: "100%" }}
             config={{ displayModeBar: false }}
@@ -70,7 +65,6 @@ function PlotlyBarChartInner({ data, isLoading, error, options }: ChartComponent
   );
 }
 
-const PlotlyBarChart = memo(PlotlyBarChartInner);
-PlotlyBarChart.displayName = "PlotlyBarChart";
-export default PlotlyBarChart;
-
+const PlotlyAreaChart = memo(PlotlyAreaChartInner);
+PlotlyAreaChart.displayName = "PlotlyAreaChart";
+export default PlotlyAreaChart;

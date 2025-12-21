@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
+import { PASTEL_COLORS } from "@/lib/charts/colors";
 
 const ReactECharts = dynamic(() => import("echarts-for-react"), { ssr: false });
 
@@ -30,7 +31,15 @@ function EchartsDonutChartInner({ data, isLoading, error, options }: ChartCompon
     );
   }
 
-  const table = useMemo(() => data || [], [data]);
+  const table = useMemo(() => {
+    const rawData = data || [];
+    return rawData.map((item: any, index: number) => ({
+      ...item,
+      itemStyle: {
+        color: PASTEL_COLORS[index % PASTEL_COLORS.length]
+      }
+    }));
+  }, [data]);
 
   if (table.length === 0) {
     return (
@@ -44,13 +53,28 @@ function EchartsDonutChartInner({ data, isLoading, error, options }: ChartCompon
   }
 
   const option = {
-    tooltip: { trigger: "item", formatter: "{b}: {c} ({d}%)" },
+    tooltip: {
+      trigger: "item",
+      formatter: "{b}: {c} ({d}%)"
+    },
+    legend: {
+      orient: "vertical",
+      left: "left",
+      top: "middle",
+      textStyle: {
+        color: "#333"
+      }
+    },
     series: [
       {
         type: "pie",
         radius: [innerRadius, outerRadius],
         avoidLabelOverlap: true,
-        label: { show: true, formatter: "{b}" },
+        label: {
+          show: true,
+          formatter: "{b}: {d}%",
+          color: "#000"
+        },
         labelLine: { show: true },
         data: table,
       },

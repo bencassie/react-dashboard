@@ -6,6 +6,7 @@ import createPlotlyComponent from "react-plotly.js/factory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
+import { PASTEL_COLORS } from "@/lib/charts/colors";
 
 const Plot = dynamic(async () => {
   const PlotComponent = createPlotlyComponent(Plotly);
@@ -42,8 +43,17 @@ function PlotlyPieChartInner({ data, isLoading, error, options }: ChartComponent
       <CardContent>
         <div className="h-96 w-full">
           <Plot
-            data={[{ labels, values, type: "pie" }]}
-            layout={{ autosize: true, title: undefined, margin: { t: 20, r: 10, l: 40, b: 40 } }}
+            data={[{
+              labels,
+              values,
+              type: "pie",
+              marker: { colors: PASTEL_COLORS }
+            }]}
+            layout={{
+              autosize: true,
+              title: undefined,
+              margin: { t: 20, r: 10, l: 40, b: 40 }
+            }}
             useResizeHandler
             style={{ width: "100%", height: "100%" }}
             config={{ displayModeBar: false }}

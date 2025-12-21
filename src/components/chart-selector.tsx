@@ -1,5 +1,5 @@
 "use client";
-import { memo, useMemo, useState } from "react";
+import { memo, useMemo, useState, useEffect, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,23 @@ function extractVendorAndType(displayName: string): { vendor: string; type: stri
 
 export const ChartSelector = memo(({ charts, selectedGraphs, onToggle }: ChartSelectorProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsExpanded(false);
+      }
+    };
+
+    if (isExpanded) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => {
+        document.removeEventListener("mousedown", handleClickOutside);
+      };
+    }
+  }, [isExpanded]);
 
   const groupedCharts = useMemo(() => {
     // Group charts by type and vendor
@@ -81,7 +98,7 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle }: ChartSe
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full" ref={containerRef}>
       {/* Compact Header - Always Visible */}
       <div
         className="px-6 py-3 bg-background border-b flex items-center justify-between cursor-pointer hover:bg-muted/50 transition-colors"

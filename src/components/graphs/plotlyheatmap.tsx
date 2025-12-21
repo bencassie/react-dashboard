@@ -1,22 +1,19 @@
 "use client";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import dynamic from "next/dynamic";
 import Plotly from "plotly.js-dist-min";
 import createPlotlyComponent from "react-plotly.js/factory";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
-import { PASTEL_COLORS } from "@/lib/charts/colors";
 
 const Plot = dynamic(async () => {
   const PlotComponent = createPlotlyComponent(Plotly);
   return (props: any) => <PlotComponent {...props} />;
 }, { ssr: false });
 
-function PlotlyBarChartInner({ data, isLoading, error, options }: ChartComponentProps) {
-  const title = options?.title || "Bar Chart";
-  const xKey = options?.xKey || "name";
-  const yKey = options?.yKey || "value";
+function PlotlyHeatmapChartInner({ data, isLoading, error, options }: ChartComponentProps) {
+  const title = options?.title || "Heatmap";
 
   if (isLoading) {
     return (
@@ -36,8 +33,23 @@ function PlotlyBarChartInner({ data, isLoading, error, options }: ChartComponent
     );
   }
 
-  const x = data?.map((p: any) => String(p[xKey] ?? "")) ?? [];
-  const y = data?.map((p: any) => Number(p[yKey]) || 0) ?? [];
+  const { xValues, yValues, zValues } = useMemo(() => {
+    const rawData = data || [];
+
+    // Extract x and y values
+    const xVals = Array.from(new Set(rawData.flatMap((d: any) => d.data?.map((item: any) => item.x) || [])));
+    const yVals = rawData.map((d: any) => d.id);
+
+    // Build z matrix (y rows x x columns)
+    const zVals: number[][] = rawData.map((row: any) => {
+      return xVals.map(xVal => {
+        const cell = row.data?.find((item: any) => item.x === xVal);
+        return cell?.y || 0;
+      });
+    });
+
+    return { xValues: xVals, yValues: yVals, zValues: zVals };
+  }, [data]);
 
   return (
     <Card>
@@ -46,19 +58,18 @@ function PlotlyBarChartInner({ data, isLoading, error, options }: ChartComponent
         <div className="h-96 w-full">
           <Plot
             data={[{
-              x,
-              y,
-              type: "bar",
-              marker: {
-                color: x.map((_, i) => PASTEL_COLORS[i % PASTEL_COLORS.length])
-              }
+              x: xValues,
+              y: yValues,
+              z: zValues,
+              type: "heatmap",
+              colorscale: "YlGnBu"
             }]}
             layout={{
               autosize: true,
               title: undefined,
-              margin: { t: 20, r: 10, l: 40, b: 40 },
-              xaxis: { fixedrange: true },
-              yaxis: { fixedrange: true }
+              margin: { t: 40, r: 40, l: 80, b: 60 },
+              xaxis: { side: "bottom" },
+              yaxis: { autorange: "reversed" }
             }}
             useResizeHandler
             style={{ width: "100%", height: "100%" }}
@@ -70,7 +81,6 @@ function PlotlyBarChartInner({ data, isLoading, error, options }: ChartComponent
   );
 }
 
-const PlotlyBarChart = memo(PlotlyBarChartInner);
-PlotlyBarChart.displayName = "PlotlyBarChart";
-export default PlotlyBarChart;
-
+const PlotlyHeatmapChart = memo(PlotlyHeatmapChartInner);
+PlotlyHeatmapChart.displayName = "PlotlyHeatmapChart";
+export default PlotlyHeatmapChart;
