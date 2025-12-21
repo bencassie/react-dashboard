@@ -2,8 +2,6 @@
 import { memo, useMemo, useState, useEffect, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { X, ChevronDown, ChevronUp, Filter } from "lucide-react";
 
 type ChartSelectorProps = {

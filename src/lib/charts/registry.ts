@@ -1744,11 +1744,3 @@ export const chartRegistry: ChartConfig[] = [
     },
   },
 ];
-
-export function getChartByName(name: string): ChartConfig | undefined {
-  return chartRegistry.find((chart) => chart.name === name);
-}
-
-export function getAllChartNames(): string[] {
-  return chartRegistry.map((chart) => chart.name);
-}

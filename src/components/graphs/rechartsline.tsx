@@ -9,13 +9,12 @@ import {
   LineElement,
   Tooltip,
   Legend,
-  Filler,
 } from "chart.js";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChartComponentProps } from "@/lib/charts/types";
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend, Filler);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
 function RechartsLineChartInner({ data, isLoading, error, options }: ChartComponentProps) {
   const title = options?.title || "Line Chart";

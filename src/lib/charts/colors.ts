@@ -21,10 +21,6 @@ export const PASTEL_COLORS = [
   "#C2E0FF", // Sky blue
 ];
 
-export const PASTEL_COLORS_SEMI_TRANSPARENT = PASTEL_COLORS.map(
-  color => `${color}CC` // Add 80% opacity
-);
-
 export const PASTEL_COLORS_RGBA = [
   "rgba(168, 213, 186, 0.8)", // Soft mint green
   "rgba(255, 181, 194, 0.8)", // Pastel pink
@@ -60,18 +56,3 @@ export const PASTEL_COLORS_BORDER = [
   "rgba(255, 212, 163, 1)", // Cream
   "rgba(194, 224, 255, 1)", // Sky blue
 ];
-
-/**
- * Get a color from the palette by index
- * Wraps around if index exceeds palette length
- */
-export function getPastelColor(index: number): string {
-  return PASTEL_COLORS[index % PASTEL_COLORS.length];
-}
-
-/**
- * Get an array of colors for a given count
- */
-export function getPastelColors(count: number): string[] {
-  return Array.from({ length: count }, (_, i) => getPastelColor(i));
-}

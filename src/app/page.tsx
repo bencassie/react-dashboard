@@ -1,11 +1,10 @@
 "use client";
 import { useQueries } from "@tanstack/react-query";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { Card, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { useEffect, useMemo, useCallback, startTransition, useState, useRef } from "react";
 import { useStore } from "@/lib/store";
 import { chartRegistry } from "@/lib/charts/registry";
-import type { ChartConfig } from "@/lib/charts/types";
 import { ChartWrapper } from "@/components/graphs/chartwrapper";
 import { ChartSelector } from "@/components/chart-selector";
 
