@@ -52,6 +52,7 @@ export default function Page() {
 
   // Progressive rendering: track which charts are ready to render
   const [readyToRender, setReadyToRender] = useState<Set<string>>(new Set());
+  const prevSelectedGraphsRef = useRef<string[]>([]);
 
   // Initialize from URL on mount (once only)
   useEffect(() => {
@@ -85,26 +86,54 @@ export default function Page() {
 
   // Progressive rendering: gradually add charts to render queue
   useEffect(() => {
-    // Reset ready charts when selection changes
-    setReadyToRender(new Set());
+    const prevSelected = prevSelectedGraphsRef.current;
+    const prevSet = new Set(prevSelected);
+    const currentSet = new Set(selectedGraphs);
 
-    if (selectedGraphs.length === 0) return;
+    if (selectedGraphs.length === 0) {
+      setReadyToRender(new Set());
+      prevSelectedGraphsRef.current = selectedGraphs;
+      return;
+    }
 
-    // Render first 3 immediately for instant feedback
-    const immediate = selectedGraphs.slice(0, 3);
-    setReadyToRender(new Set(immediate));
+    // Find newly added charts (in current but not in previous)
+    const newCharts = selectedGraphs.filter(name => !prevSet.has(name));
 
-    // Queue the rest with staggered delays
-    const rest = selectedGraphs.slice(3);
-    const delays: number[] = [];
+    if (newCharts.length === 0) {
+      // No new charts, just clean up removed ones
+      setReadyToRender((prev) => {
+        return new Set([...prev].filter(name => currentSet.has(name)));
+      });
+      prevSelectedGraphsRef.current = selectedGraphs;
+      return;
+    }
 
+    // Preserve ready state for charts that are still selected and add new ones
+    const immediate = newCharts.slice(0, 3);
+    setReadyToRender((prev) => {
+      const updated = new Set([...prev].filter(name => currentSet.has(name)));
+      // Add first 3 new charts immediately
+      immediate.forEach(name => updated.add(name));
+      return updated;
+    });
+
+    // Queue remaining new charts with staggered delays
+    const rest = newCharts.slice(3);
+    if (rest.length === 0) {
+      prevSelectedGraphsRef.current = selectedGraphs;
+      return;
+    }
+
+    const delays: NodeJS.Timeout[] = [];
     rest.forEach((name, index) => {
       const delay = setTimeout(() => {
-        setReadyToRender((prev) => new Set([...prev, name]));
+        setReadyToRender((current) => new Set([...current, name]));
       }, (index + 1) * 50); // 50ms between each chart
 
       delays.push(delay);
     });
+
+    prevSelectedGraphsRef.current = selectedGraphs;
 
     return () => {
       delays.forEach(clearTimeout);
@@ -172,30 +201,36 @@ export default function Page() {
     })),
   });
 
+  // Create a stable map of query results by chart name to prevent unnecessary re-renders
+  const queryMap = useMemo(
+    () => new Map(selectedConfigs.map((config, idx) => [config.name, queries[idx]])),
+    [selectedConfigs, queries]
+  );
+
   // Prepare chart data with transformed results
   const chartData = useMemo(
     () =>
-      selectedConfigs.map((config, idx) => {
-        const query = queries[idx];
+      selectedConfigs.map((config) => {
+        const query = queryMap.get(config.name);
         const isReady = readyToRender.has(config.name);
 
         // Handle client-side data generation (no endpoint)
         const transformedData = config.apiConfig.endpoint === ""
           ? config.apiConfig.transform(null)
-          : query.data
+          : query?.data
           ? config.apiConfig.transform(query.data)
           : null;
 
         return {
           config,
           data: transformedData,
-          isLoading: query.isLoading || !isReady, // Show loading if not ready to render
-          error: query.error as Error | null,
+          isLoading: query?.isLoading || !isReady, // Show loading if not ready to render
+          error: (query?.error as Error | null) ?? null,
           renderKey: renderKeys[config.name] || 0,
           isReady,
         };
       }),
-    [selectedConfigs, queries, renderKeys, readyToRender]
+    [selectedConfigs, queryMap, renderKeys, readyToRender]
   );
 
   // Group charts by type for display
