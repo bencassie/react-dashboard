@@ -159,9 +159,11 @@ export default function Page() {
     });
   }, [setSelectedGraphs]);
 
-  // Get configs for selected charts in registry order (not selection order)
+  // Get configs for selected charts in selection order
   const selectedConfigs = useMemo(
-    () => chartRegistry.filter(chart => selectedGraphs.includes(chart.name)),
+    () => selectedGraphs
+      .map(name => chartRegistry.find(chart => chart.name === name))
+      .filter((chart): chart is typeof chartRegistry[number] => chart !== undefined),
     [selectedGraphs]
   );
 
