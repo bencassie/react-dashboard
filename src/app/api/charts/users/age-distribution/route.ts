@@ -35,9 +35,9 @@ export async function GET() {
       else ageRanges["60+"]++;
     });
 
-    const transformed = Object.entries(ageRanges).map(([name, value]) => ({
-      name,
-      value,
+    const transformed = Object.entries(ageRanges).map(([range, count]) => ({
+      range,
+      count,
     }));
 
     return NextResponse.json(transformed);
