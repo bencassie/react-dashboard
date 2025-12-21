@@ -2,7 +2,7 @@
 import { useQueries } from "@tanstack/react-query";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Card, CardTitle } from "@/components/ui/card";
-import { useEffect, useMemo, useCallback, startTransition } from "react";
+import { useEffect, useMemo, useCallback, startTransition, useState, useRef } from "react";
 import { useStore } from "@/lib/store";
 import { chartRegistry } from "@/lib/charts/registry";
 import { ChartWrapper } from "@/components/graphs/chartwrapper";
@@ -40,6 +40,9 @@ export default function Page() {
   const pathname = usePathname();
   const { selectedGraphs, renderKeys, toggleGraph, setSelectedGraphs } = useStore();
 
+  // Progressive rendering: track which charts are ready to render
+  const [readyToRender, setReadyToRender] = useState<Set<string>>(new Set());
+
   // Initialize from URL on mount (once only)
   useEffect(() => {
     const param = searchParams.get("selected");
@@ -51,8 +54,8 @@ export default function Page() {
         : []; // Empty string = no charts selected
       useStore.setState({ selectedGraphs: selected });
     } else {
-      // No param = first visit, default to all
-      useStore.setState({ selectedGraphs: chartRegistry.map((g) => g.name) });
+      // No param = first visit, default to first 10 charts for better performance
+      useStore.setState({ selectedGraphs: chartRegistry.slice(0, 10).map((g) => g.name) });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount
@@ -70,17 +73,59 @@ export default function Page() {
     }
   }, [selectedGraphs, router, pathname, searchParams]);
 
+  // Progressive rendering: gradually add charts to render queue
+  useEffect(() => {
+    // Reset ready charts when selection changes
+    setReadyToRender(new Set());
+
+    if (selectedGraphs.length === 0) return;
+
+    // Render first 3 immediately for instant feedback
+    const immediate = selectedGraphs.slice(0, 3);
+    setReadyToRender(new Set(immediate));
+
+    // Queue the rest with staggered delays
+    const rest = selectedGraphs.slice(3);
+    const delays: number[] = [];
+
+    rest.forEach((name, index) => {
+      const delay = setTimeout(() => {
+        setReadyToRender((prev) => new Set([...prev, name]));
+      }, (index + 1) * 50); // 50ms between each chart
+
+      delays.push(delay);
+    });
+
+    return () => {
+      delays.forEach(clearTimeout);
+    };
+  }, [selectedGraphs]);
+
   // Memoize chart registry data for sidebar
   const chartList = useMemo(
     () => chartRegistry.map((c) => ({ name: c.name, displayName: c.displayName })),
     []
   );
 
-  // Wrap toggle in startTransition for non-urgent updates
+  // Debounced toggle with refs to track timeouts
+  const toggleTimeouts = useRef<Map<string, NodeJS.Timeout>>(new Map());
+
   const handleToggle = useCallback((name: string) => {
-    startTransition(() => {
-      toggleGraph(name);
-    });
+    // Clear existing timeout for this chart
+    const existing = toggleTimeouts.current.get(name);
+    if (existing) {
+      clearTimeout(existing);
+    }
+
+    // Debounce the actual state update
+    const timeoutId = setTimeout(() => {
+      startTransition(() => {
+        toggleGraph(name);
+        toggleTimeouts.current.delete(name);
+      });
+    }, 150); // 150ms debounce
+
+    toggleTimeouts.current.set(name, timeoutId);
   }, [toggleGraph]);
 
   // Wrap selectAll in startTransition for non-urgent updates
@@ -124,7 +169,8 @@ export default function Page() {
     () =>
       selectedConfigs.map((config, idx) => {
         const query = queries[idx];
-        
+        const isReady = readyToRender.has(config.name);
+
         // Handle client-side data generation (no endpoint)
         const transformedData = config.apiConfig.endpoint === ""
           ? config.apiConfig.transform(null)
@@ -135,12 +181,13 @@ export default function Page() {
         return {
           config,
           data: transformedData,
-          isLoading: query.isLoading,
+          isLoading: query.isLoading || !isReady, // Show loading if not ready to render
           error: query.error as Error | null,
           renderKey: renderKeys[config.name] || 0,
+          isReady,
         };
       }),
-    [selectedConfigs, queries, renderKeys]
+    [selectedConfigs, queries, renderKeys, readyToRender]
   );
 
   return (
@@ -173,7 +220,14 @@ export default function Page() {
               <p className="text-lg">No charts selected. Click on the tags above to select charts for comparison.</p>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <>
+              {/* Progressive loading indicator */}
+              {readyToRender.size < selectedGraphs.length && (
+                <div className="mb-4 text-sm text-muted-foreground">
+                  Loading charts: {readyToRender.size} / {selectedGraphs.length}
+                </div>
+              )}
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {chartData.map(({ config, data, isLoading, error, renderKey }) => (
                 <ChartWrapper
                   key={`${config.name}-${renderKey}`}
@@ -186,7 +240,8 @@ export default function Page() {
                   debounceMs={150}
                 />
               ))}
-            </div>
+              </div>
+            </>
           )}
         </div>
       </div>
