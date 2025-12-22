@@ -9,7 +9,7 @@ import { ChartWrapper } from "@/components/graphs/chartwrapper";
 import { ChartSelector } from "@/components/chart-selector";
 
 const VENDORS = ["Nivo", "ECharts", "Recharts", "Chart.js", "ChartJS", "D3", "Plotly"];
-const CHART_TYPES = ["Bar", "Line", "Pie", "Doughnut", "Area", "Scatter", "Radar", "Heatmap", "Bump"];
+const CHART_TYPES = ["Bar", "Line", "Pie", "Doughnut", "Area", "Scatter", "Radar", "Heatmap", "Bump", "Treemap", "Box Plot", "BoxPlot", "Funnel", "Sunburst"];
 
 function extractVendorAndType(displayName: string): { vendor: string; type: string } {
   const vendor = VENDORS.find(v => displayName.includes(v)) || "Other";
