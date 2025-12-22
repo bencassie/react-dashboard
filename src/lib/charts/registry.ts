@@ -10,6 +10,11 @@ import {
   transformPokemonForEchartsRadar,
   transformPokemonForChartJsRadar,
   transformForNivoLine,
+  transformProductsForTreemap,
+  transformProductsForSunburst,
+  transformProductsForPriceBoxPlot,
+  transformRecipesForCookTimeBoxPlot,
+  passthroughTransformForFunnel,
 } from "./transforms";
 
 // Chart components - dynamically imported for code splitting
@@ -51,6 +56,11 @@ const D3RadarChart = dynamic(() => import("@/components/graphs/d3radar"), { ssr:
 const D3ScatterChart = dynamic(() => import("@/components/graphs/d3scatter"), { ssr: false });
 const D3HeatmapChart = dynamic(() => import("@/components/graphs/d3heatmap"), { ssr: false });
 const D3AreaChart = dynamic(() => import("@/components/graphs/d3area"), { ssr: false });
+
+const EChartsTreemap = dynamic(() => import("@/components/graphs/echartstreemap"), { ssr: false });
+const EChartsBoxPlot = dynamic(() => import("@/components/graphs/echartsboxplot"), { ssr: false });
+const EChartsFunnel = dynamic(() => import("@/components/graphs/echartsfunnel"), { ssr: false });
+const EChartsSunburst = dynamic(() => import("@/components/graphs/echartssunburst"), { ssr: false });
 
 /**
  * Reorganized chart registry for fair library comparison
@@ -1065,6 +1075,87 @@ export const chartRegistry: ChartConfig[] = [
       title: "Area - D3 - SpaceX Launches",
       xKey: "date",
       yKey: "count",
+    },
+  },
+
+  // ============================================================================
+  // TREEMAP CHARTS - Products by Category (1 provider: ECharts)
+  // ============================================================================
+  {
+    name: "Treemap ECharts Products",
+    displayName: "Treemap - ECharts - Products by Category",
+    apiConfig: {
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all", "treemap"],
+      transform: transformProductsForTreemap,
+    },
+    Component: EChartsTreemap,
+    chartOptions: {
+      title: "Treemap - ECharts - Products by Category",
+    },
+  },
+
+  // ============================================================================
+  // BOX PLOT CHARTS - Statistical Distributions (1 provider: ECharts)
+  // ============================================================================
+  {
+    name: "BoxPlot ECharts Product Prices",
+    displayName: "Box Plot - ECharts - Product Prices",
+    apiConfig: {
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all", "boxplot-prices"],
+      transform: transformProductsForPriceBoxPlot,
+    },
+    Component: EChartsBoxPlot,
+    chartOptions: {
+      title: "Box Plot - ECharts - Product Prices by Category",
+    },
+  },
+  {
+    name: "BoxPlot ECharts Recipe Cook Times",
+    displayName: "Box Plot - ECharts - Recipe Cook Times",
+    apiConfig: {
+      endpoint: "/api/charts/recipes/all",
+      queryKey: ["recipes", "all", "boxplot-cooktimes"],
+      transform: transformRecipesForCookTimeBoxPlot,
+    },
+    Component: EChartsBoxPlot,
+    chartOptions: {
+      title: "Box Plot - ECharts - Cook Times by Difficulty",
+    },
+  },
+
+  // ============================================================================
+  // FUNNEL CHARTS - Conversion Pipeline (1 provider: ECharts)
+  // ============================================================================
+  {
+    name: "Funnel ECharts Conversion",
+    displayName: "Funnel - ECharts - E-commerce Conversion",
+    apiConfig: {
+      endpoint: "/api/charts/analytics/funnel",
+      queryKey: ["analytics", "funnel"],
+      transform: passthroughTransformForFunnel,
+    },
+    Component: EChartsFunnel,
+    chartOptions: {
+      title: "Funnel - ECharts - E-commerce Conversion",
+    },
+  },
+
+  // ============================================================================
+  // SUNBURST CHARTS - Hierarchical Product Data (1 provider: ECharts)
+  // ============================================================================
+  {
+    name: "Sunburst ECharts Products",
+    displayName: "Sunburst - ECharts - Products by Category",
+    apiConfig: {
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all", "sunburst"],
+      transform: transformProductsForSunburst,
+    },
+    Component: EChartsSunburst,
+    chartOptions: {
+      title: "Sunburst - ECharts - Products by Category",
     },
   },
 ];

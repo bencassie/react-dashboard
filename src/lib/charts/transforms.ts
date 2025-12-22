@@ -231,3 +231,146 @@ export function transformForNivoLine(xKey: string, yKey: string, seriesName = "D
     }];
   };
 }
+
+// ============================================================================
+// TREEMAP & SUNBURST - Products by Category/Brand Hierarchy
+// ============================================================================
+
+interface HierarchyNode {
+  name: string;
+  value?: number;
+  children?: HierarchyNode[];
+}
+
+export function transformProductsForTreemap(products: any[]): HierarchyNode {
+  if (!Array.isArray(products)) return { name: "All Products", children: [] };
+
+  const categoryMap = new Map<string, Map<string, any[]>>();
+
+  // Group by category → brand
+  products.forEach((product) => {
+    const category = product.category || "Unknown";
+    const brand = product.brand || "Unknown";
+
+    if (!categoryMap.has(category)) {
+      categoryMap.set(category, new Map());
+    }
+    const brandMap = categoryMap.get(category)!;
+    if (!brandMap.has(brand)) {
+      brandMap.set(brand, []);
+    }
+    brandMap.get(brand)!.push(product);
+  });
+
+  // Build hierarchy: All Products → Category → Brand → Products
+  const children = Array.from(categoryMap.entries()).map(([category, brandMap]) => ({
+    name: category,
+    children: Array.from(brandMap.entries()).map(([brand, items]) => ({
+      name: brand,
+      children: items.slice(0, 10).map((p) => ({
+        name: p.title || "Unknown Product",
+        value: Math.round(p.price || 0),
+      })),
+    })),
+  }));
+
+  return {
+    name: "All Products",
+    children,
+  };
+}
+
+export const transformProductsForSunburst = transformProductsForTreemap; // Same structure
+
+// ============================================================================
+// BOX PLOT - Product Prices by Category
+// ============================================================================
+
+interface BoxPlotData {
+  categories: string[];
+  values: number[][];
+}
+
+function calculateBoxPlotStats(values: number[]): number[] {
+  const sorted = [...values].sort((a, b) => a - b);
+  const n = sorted.length;
+
+  if (n === 0) return [0, 0, 0, 0, 0];
+
+  const min = sorted[0];
+  const max = sorted[n - 1];
+  const q1 = sorted[Math.floor(n * 0.25)];
+  const median = sorted[Math.floor(n * 0.5)];
+  const q3 = sorted[Math.floor(n * 0.75)];
+
+  return [min, q1, median, q3, max];
+}
+
+export function transformProductsForPriceBoxPlot(products: any[]): BoxPlotData {
+  if (!Array.isArray(products)) return { categories: [], values: [] };
+
+  const categoryPrices = new Map<string, number[]>();
+
+  products.forEach((product) => {
+    const category = product.category || "Unknown";
+    const price = parseFloat(product.price);
+
+    if (!isNaN(price)) {
+      if (!categoryPrices.has(category)) {
+        categoryPrices.set(category, []);
+      }
+      categoryPrices.get(category)!.push(price);
+    }
+  });
+
+  const categories: string[] = [];
+  const values: number[][] = [];
+
+  categoryPrices.forEach((prices, category) => {
+    if (prices.length > 0) {
+      categories.push(category);
+      values.push(calculateBoxPlotStats(prices));
+    }
+  });
+
+  return { categories, values };
+}
+
+export function transformRecipesForCookTimeBoxPlot(recipes: any[]): BoxPlotData {
+  if (!Array.isArray(recipes)) return { categories: [], values: [] };
+
+  const difficultyTimes = new Map<string, number[]>();
+
+  recipes.forEach((recipe) => {
+    const difficulty = recipe.difficulty || "Unknown";
+    const cookTime = parseInt(recipe.cookTimeMinutes);
+
+    if (!isNaN(cookTime)) {
+      if (!difficultyTimes.has(difficulty)) {
+        difficultyTimes.set(difficulty, []);
+      }
+      difficultyTimes.get(difficulty)!.push(cookTime);
+    }
+  });
+
+  const categories: string[] = [];
+  const values: number[][] = [];
+
+  difficultyTimes.forEach((times, difficulty) => {
+    if (times.length > 0) {
+      categories.push(difficulty);
+      values.push(calculateBoxPlotStats(times));
+    }
+  });
+
+  return { categories, values };
+}
+
+// ============================================================================
+// FUNNEL - Conversion Pipeline
+// ============================================================================
+
+export function passthroughTransformForFunnel(data: any[]): any[] {
+  // Funnel API returns data in correct format already
+  return Array.isArray(data) ? data : [];
+}
