@@ -10,217 +10,351 @@ import {
   transformPokemonForEchartsRadar,
   transformPokemonForChartJsRadar,
   transformForNivoLine,
-  transformUsersForAgeDistributionDonut,
-  transformPokeApiForBaseExperienceBar,
 } from "./transforms";
 
-// Generic chart components (provider-graphtype naming)
-// Existing components
+// Chart components - dynamically imported for code splitting
 const NivoBarChart = dynamic(() => import("@/components/graphs/nivobar"), { ssr: false });
-const EchartsPieChart = dynamic(() => import("@/components/graphs/echartspie"), { ssr: false });
-const NivoHeatmapChart = dynamic(() => import("@/components/graphs/nivoheatmap"), { ssr: false });
-const EchartsLineChart = dynamic(() => import("@/components/graphs/echartsline"), { ssr: false });
-const RechartsLineChart = dynamic(() => import("@/components/graphs/rechartsline"), { ssr: false });
-const RechartsBarChart = dynamic(() => import("@/components/graphs/rechartsbar"), { ssr: false });
-const EchartsDonutChart = dynamic(() => import("@/components/graphs/echartsdonut"), { ssr: false });
-const PlotlyScatterChart = dynamic(() => import("@/components/graphs/plotlyscatter"), { ssr: false });
-const D3AreaChart = dynamic(() => import("@/components/graphs/d3area"), { ssr: false });
-
-// New Nivo components
 const NivoLineChart = dynamic(() => import("@/components/graphs/nivoline"), { ssr: false });
 const NivoPieChart = dynamic(() => import("@/components/graphs/nivopie"), { ssr: false });
-const NivoHeatmap2Chart = dynamic(() => import("@/components/graphs/nivoheatmap2"), { ssr: false });
 const NivoScatterChart = dynamic(() => import("@/components/graphs/nivoscatter"), { ssr: false });
+const NivoHeatmap2Chart = dynamic(() => import("@/components/graphs/nivoheatmap2"), { ssr: false });
 
-// New ECharts components
+const RechartsBarChart = dynamic(() => import("@/components/graphs/rechartsbar"), { ssr: false });
+const RechartsLineChart = dynamic(() => import("@/components/graphs/rechartsline"), { ssr: false });
+const RechartsPieChart = dynamic(() => import("@/components/graphs/rechartspie"), { ssr: false });
+const RechartsRadarChart = dynamic(() => import("@/components/graphs/rechartsradar"), { ssr: false });
+const RechartsScatterChart = dynamic(() => import("@/components/graphs/rechartsscatter"), { ssr: false });
+const RechartsAreaChart = dynamic(() => import("@/components/graphs/rechartsarea"), { ssr: false });
+
 const EchartsBarChart = dynamic(() => import("@/components/graphs/echartsbar"), { ssr: false });
-const EchartsScatterChart = dynamic(() => import("@/components/graphs/echartsscatter"), { ssr: false });
+const EchartsLineChart = dynamic(() => import("@/components/graphs/echartsline"), { ssr: false });
+const EchartsPieChart = dynamic(() => import("@/components/graphs/echartspie"), { ssr: false });
 const EchartsRadarChart = dynamic(() => import("@/components/graphs/echartsradar"), { ssr: false });
+const EchartsScatterChart = dynamic(() => import("@/components/graphs/echartsscatter"), { ssr: false });
 const EchartsHeatmapChart = dynamic(() => import("@/components/graphs/echartsheatmap"), { ssr: false });
 
-// New Chart.js components
 const ChartJsBarChart = dynamic(() => import("@/components/graphs/chartjsbar"), { ssr: false });
-const ChartJsDoughnutChart = dynamic(() => import("@/components/graphs/chartjsdoughnut"), { ssr: false });
 const ChartJsPieChart = dynamic(() => import("@/components/graphs/chartjspie"), { ssr: false });
 const ChartJsRadarChart = dynamic(() => import("@/components/graphs/chartjsradar"), { ssr: false });
 const ChartJsScatterChart = dynamic(() => import("@/components/graphs/chartjsscatter"), { ssr: false });
 
-// New Recharts components
-const RechartsLine2Chart = dynamic(() => import("@/components/graphs/recharts-line2"), { ssr: false });
-const RechartsAreaChart = dynamic(() => import("@/components/graphs/rechartsarea"), { ssr: false });
-const RechartsPieChart = dynamic(() => import("@/components/graphs/rechartspie"), { ssr: false });
-const RechartsRadarChart = dynamic(() => import("@/components/graphs/rechartsradar"), { ssr: false });
-const RechartsScatterChart = dynamic(() => import("@/components/graphs/rechartsscatter"), { ssr: false });
+const PlotlyBarChart = dynamic(() => import("@/components/graphs/plotlybar"), { ssr: false });
+const PlotlyLineChart = dynamic(() => import("@/components/graphs/plotlyline"), { ssr: false });
+const PlotlyPieChart = dynamic(() => import("@/components/graphs/plotlypie"), { ssr: false });
+const PlotlyRadarChart = dynamic(() => import("@/components/graphs/plotlyradar"), { ssr: false });
+const PlotlyScatterChart = dynamic(() => import("@/components/graphs/plotlyscatter"), { ssr: false });
+const PlotlyHeatmapChart = dynamic(() => import("@/components/graphs/plotlyheatmap"), { ssr: false });
 
-// New D3 components
-const D3LineChart = dynamic(() => import("@/components/graphs/d3line"), { ssr: false });
 const D3BarChart = dynamic(() => import("@/components/graphs/d3bar"), { ssr: false });
-const D3HeatmapChart = dynamic(() => import("@/components/graphs/d3heatmap"), { ssr: false });
+const D3LineChart = dynamic(() => import("@/components/graphs/d3line"), { ssr: false });
 const D3RadarChart = dynamic(() => import("@/components/graphs/d3radar"), { ssr: false });
 const D3ScatterChart = dynamic(() => import("@/components/graphs/d3scatter"), { ssr: false });
-
-// New Plotly components
-const PlotlyLineChart = dynamic(() => import("@/components/graphs/plotlyline"), { ssr: false });
-const PlotlyBarChart = dynamic(() => import("@/components/graphs/plotlybar"), { ssr: false });
-const PlotlyPieChart = dynamic(() => import("@/components/graphs/plotlypie"), { ssr: false });
-const PlotlyAreaChart = dynamic(() => import("@/components/graphs/plotlyarea"), { ssr: false });
-const PlotlyHeatmapChart = dynamic(() => import("@/components/graphs/plotlyheatmap"), { ssr: false });
-const PlotlyRadarChart = dynamic(() => import("@/components/graphs/plotlyradar"), { ssr: false });
+const D3HeatmapChart = dynamic(() => import("@/components/graphs/d3heatmap"), { ssr: false });
+const D3AreaChart = dynamic(() => import("@/components/graphs/d3area"), { ssr: false });
 
 /**
- * Central registry of all available charts
- * Using new dedicated API endpoints
+ * Reorganized chart registry for fair library comparison
+ * Each data set has one chart per provider (where chart type makes sense)
+ * This allows users to compare the same data across different libraries
  */
 export const chartRegistry: ChartConfig[] = [
-  // Products Charts (6 variations)
+  // ============================================================================
+  // BAR CHARTS - Brand Counts (6 providers)
+  // ============================================================================
   {
-    name: "Product Price Rating",
-    displayName: "Bar - Nivo - Price vs Rating",
-    apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "price-rating"],
-      transform: passthroughTransform,
-    },
-    Component: NivoBarChart,
-    chartOptions: {
-      title: "Bar - Nivo - Price vs Rating",
-      keys: ["price", "rating"],
-      indexBy: "id",
-      xAxisLabel: "Product",
-      yAxisLabel: "Value",
-    },
-  },
-  {
-    name: "Product Categories Pie",
-    displayName: "Pie - ECharts - Category Distribution",
-    apiConfig: {
-      endpoint: "/api/charts/products/categories",
-      queryKey: ["products", "categories"],
-      transform: passthroughTransform,
-    },
-    Component: EchartsPieChart,
-    chartOptions: {
-      title: "Pie - ECharts - Category Distribution",
-      radius: "60%",
-    },
-  },
-  {
-    name: "Product Categories Donut",
-    displayName: "Doughnut - ECharts - Category Donut Chart",
-    apiConfig: {
-      endpoint: "/api/charts/products/categories",
-      queryKey: ["products", "categories", "donut"],
-      transform: passthroughTransform,
-    },
-    Component: EchartsDonutChart,
-    chartOptions: {
-      title: "Doughnut - ECharts - Category Donut Chart",
-      innerRadius: "45%",
-      outerRadius: "70%",
-    },
-  },
-  {
-    name: "Brand Counts Bar",
-    displayName: "Bar - Nivo - Top Brands",
+    name: "Bar Nivo Brand Counts",
+    displayName: "Bar - Nivo - Brand Counts",
     apiConfig: {
       endpoint: "/api/charts/products/brand-counts",
-      queryKey: ["products", "brand-counts"],
+      queryKey: ["products", "brand-counts", "nivo"],
       transform: passthroughTransform,
     },
     Component: NivoBarChart,
     chartOptions: {
-      title: "Bar - Nivo - Top Brands",
+      title: "Bar - Nivo - Brand Counts",
       keys: ["count"],
       indexBy: "brand",
       xAxisLabel: "Brand",
-      yAxisLabel: "Product Count",
+      yAxisLabel: "Count",
     },
   },
   {
-    name: "Brand Counts Recharts",
-    displayName: "Bar - Recharts - Brand Count",
+    name: "Bar Recharts Brand Counts",
+    displayName: "Bar - Recharts - Brand Counts",
     apiConfig: {
       endpoint: "/api/charts/products/brand-counts",
-      queryKey: ["products", "brand-counts", "alt"],
+      queryKey: ["products", "brand-counts", "recharts"],
       transform: passthroughTransform,
     },
     Component: RechartsBarChart,
     chartOptions: {
-      title: "Bar - Recharts - Brand Count",
+      title: "Bar - Recharts - Brand Counts",
       dataKey: "count",
       xKey: "brand",
     },
   },
   {
-    name: "Low Stock Products",
-    displayName: "Bar - Recharts - Low Stock Alert",
+    name: "Bar ECharts Brand Counts",
+    displayName: "Bar - ECharts - Brand Counts",
     apiConfig: {
-      endpoint: "/api/charts/products/low-stock",
-      queryKey: ["products", "low-stock"],
+      endpoint: "/api/charts/products/brand-counts",
+      queryKey: ["products", "brand-counts", "echarts"],
       transform: passthroughTransform,
     },
-    Component: RechartsBarChart,
+    Component: EchartsBarChart,
     chartOptions: {
-      title: "Bar - Recharts - Low Stock Alert",
-      dataKey: "stock",
-      xKey: "product",
+      title: "Bar - ECharts - Brand Counts",
+      xKey: "brand",
+      yKey: "count",
     },
   },
   {
-    name: "Product Discounts Line",
-    displayName: "Line - Recharts - Product Discounts",
+    name: "Bar ChartJS Brand Counts",
+    displayName: "Bar - Chart.js - Brand Counts",
     apiConfig: {
-      endpoint: "/api/charts/products/discounts",
-      queryKey: ["products", "discounts"],
+      endpoint: "/api/charts/products/brand-counts",
+      queryKey: ["products", "brand-counts", "chartjs"],
       transform: passthroughTransform,
     },
-    Component: RechartsLineChart,
+    Component: ChartJsBarChart,
     chartOptions: {
-      title: "Line - Recharts - Product Discounts",
-      labelKey: "product",
-      dataKey: "discountPercentage",
-      datasetLabel: "Discount %",
+      title: "Bar - Chart.js - Brand Counts",
+      xKey: "brand",
+      yKey: "count",
     },
   },
   {
-    name: "Product Discounts ECharts",
-    displayName: "Line - ECharts - Discounts",
+    name: "Bar Plotly Brand Counts",
+    displayName: "Bar - Plotly - Brand Counts",
     apiConfig: {
-      endpoint: "/api/charts/products/discounts",
-      queryKey: ["products", "discounts", "echarts"],
+      endpoint: "/api/charts/products/brand-counts",
+      queryKey: ["products", "brand-counts", "plotly"],
       transform: passthroughTransform,
     },
-    Component: EchartsLineChart,
+    Component: PlotlyBarChart,
     chartOptions: {
-      title: "Line - ECharts - Discounts",
-      xKey: "product",
-      yKey: "discountPercentage",
-      xLabel: "Product ${product}",
+      title: "Bar - Plotly - Brand Counts",
+      xKey: "brand",
+      yKey: "count",
     },
   },
   {
-    name: "Price Distribution Area",
-    displayName: "Area - D3 - Price Distribution",
+    name: "Bar D3 Brand Counts",
+    displayName: "Bar - D3 - Brand Counts",
     apiConfig: {
-      endpoint: "/api/charts/products/price-distribution",
-      queryKey: ["products", "price-distribution"],
-      transform: passthroughWithDateTransform,
+      endpoint: "/api/charts/products/brand-counts",
+      queryKey: ["products", "brand-counts", "d3"],
+      transform: passthroughTransform,
     },
-    Component: D3AreaChart,
+    Component: D3BarChart,
     chartOptions: {
-      title: "Area - D3 - Price Distribution",
-      xKey: "date",
+      title: "Bar - D3 - Brand Counts",
+      xKey: "brand",
       yKey: "count",
     },
   },
 
-  // Users Charts (6 variations)
+  // ============================================================================
+  // BAR CHARTS - Age Distribution (6 providers)
+  // ============================================================================
   {
-    name: "User Gender Pie",
+    name: "Bar Nivo Age Distribution",
+    displayName: "Bar - Nivo - Age Groups",
+    apiConfig: {
+      endpoint: "/api/charts/users/age-distribution",
+      queryKey: ["users", "age-distribution", "nivo"],
+      transform: passthroughTransform,
+    },
+    Component: NivoBarChart,
+    chartOptions: {
+      title: "Bar - Nivo - Age Groups",
+      keys: ["count"],
+      indexBy: "range",
+      xAxisLabel: "Age Range",
+      yAxisLabel: "Count",
+    },
+  },
+  {
+    name: "Bar Recharts Age Distribution",
+    displayName: "Bar - Recharts - Age Groups",
+    apiConfig: {
+      endpoint: "/api/charts/users/age-distribution",
+      queryKey: ["users", "age-distribution", "recharts"],
+      transform: passthroughTransform,
+    },
+    Component: RechartsBarChart,
+    chartOptions: {
+      title: "Bar - Recharts - Age Groups",
+      dataKey: "count",
+      xKey: "range",
+    },
+  },
+  {
+    name: "Bar ECharts Age Distribution",
+    displayName: "Bar - ECharts - Age Groups",
+    apiConfig: {
+      endpoint: "/api/charts/users/age-distribution",
+      queryKey: ["users", "age-distribution", "echarts"],
+      transform: passthroughTransform,
+    },
+    Component: EchartsBarChart,
+    chartOptions: {
+      title: "Bar - ECharts - Age Groups",
+      xKey: "range",
+      yKey: "count",
+    },
+  },
+  {
+    name: "Bar ChartJS Age Distribution",
+    displayName: "Bar - Chart.js - Age Groups",
+    apiConfig: {
+      endpoint: "/api/charts/users/age-distribution",
+      queryKey: ["users", "age-distribution", "chartjs"],
+      transform: passthroughTransform,
+    },
+    Component: ChartJsBarChart,
+    chartOptions: {
+      title: "Bar - Chart.js - Age Groups",
+      xKey: "range",
+      yKey: "count",
+    },
+  },
+  {
+    name: "Bar Plotly Age Distribution",
+    displayName: "Bar - Plotly - Age Groups",
+    apiConfig: {
+      endpoint: "/api/charts/users/age-distribution",
+      queryKey: ["users", "age-distribution", "plotly"],
+      transform: passthroughTransform,
+    },
+    Component: PlotlyBarChart,
+    chartOptions: {
+      title: "Bar - Plotly - Age Groups",
+      xKey: "range",
+      yKey: "count",
+    },
+  },
+  {
+    name: "Bar D3 Age Distribution",
+    displayName: "Bar - D3 - Age Groups",
+    apiConfig: {
+      endpoint: "/api/charts/users/age-distribution",
+      queryKey: ["users", "age-distribution", "d3"],
+      transform: passthroughTransform,
+    },
+    Component: D3BarChart,
+    chartOptions: {
+      title: "Bar - D3 - Age Groups",
+      xKey: "range",
+      yKey: "count",
+    },
+  },
+
+  // ============================================================================
+  // PIE CHARTS - Product Categories (5 providers, D3 doesn't have pie)
+  // ============================================================================
+  {
+    name: "Pie Nivo Categories",
+    displayName: "Pie - Nivo - Product Categories",
+    apiConfig: {
+      endpoint: "/api/charts/products/categories",
+      queryKey: ["products", "categories", "nivo"],
+      transform: passthroughTransform,
+    },
+    Component: NivoPieChart,
+    chartOptions: {
+      title: "Pie - Nivo - Product Categories",
+    },
+  },
+  {
+    name: "Pie Recharts Categories",
+    displayName: "Pie - Recharts - Product Categories",
+    apiConfig: {
+      endpoint: "/api/charts/products/categories",
+      queryKey: ["products", "categories", "recharts"],
+      transform: passthroughTransform,
+    },
+    Component: RechartsPieChart,
+    chartOptions: {
+      title: "Pie - Recharts - Product Categories",
+    },
+  },
+  {
+    name: "Pie ECharts Categories",
+    displayName: "Pie - ECharts - Product Categories",
+    apiConfig: {
+      endpoint: "/api/charts/products/categories",
+      queryKey: ["products", "categories", "echarts"],
+      transform: passthroughTransform,
+    },
+    Component: EchartsPieChart,
+    chartOptions: {
+      title: "Pie - ECharts - Product Categories",
+      radius: "60%",
+    },
+  },
+  {
+    name: "Pie ChartJS Categories",
+    displayName: "Pie - Chart.js - Product Categories",
+    apiConfig: {
+      endpoint: "/api/charts/products/categories",
+      queryKey: ["products", "categories", "chartjs"],
+      transform: passthroughTransform,
+    },
+    Component: ChartJsPieChart,
+    chartOptions: {
+      title: "Pie - Chart.js - Product Categories",
+    },
+  },
+  {
+    name: "Pie Plotly Categories",
+    displayName: "Pie - Plotly - Product Categories",
+    apiConfig: {
+      endpoint: "/api/charts/products/categories",
+      queryKey: ["products", "categories", "plotly"],
+      transform: passthroughTransform,
+    },
+    Component: PlotlyPieChart,
+    chartOptions: {
+      title: "Pie - Plotly - Product Categories",
+    },
+  },
+
+  // ============================================================================
+  // PIE CHARTS - Gender Distribution (5 providers)
+  // ============================================================================
+  {
+    name: "Pie Nivo Gender",
+    displayName: "Pie - Nivo - Gender Distribution",
+    apiConfig: {
+      endpoint: "/api/charts/users/gender",
+      queryKey: ["users", "gender", "nivo"],
+      transform: passthroughTransform,
+    },
+    Component: NivoPieChart,
+    chartOptions: {
+      title: "Pie - Nivo - Gender Distribution",
+    },
+  },
+  {
+    name: "Pie Recharts Gender",
+    displayName: "Pie - Recharts - Gender Distribution",
+    apiConfig: {
+      endpoint: "/api/charts/users/gender",
+      queryKey: ["users", "gender", "recharts"],
+      transform: passthroughTransform,
+    },
+    Component: RechartsPieChart,
+    chartOptions: {
+      title: "Pie - Recharts - Gender Distribution",
+    },
+  },
+  {
+    name: "Pie ECharts Gender",
     displayName: "Pie - ECharts - Gender Distribution",
     apiConfig: {
       endpoint: "/api/charts/users/gender",
-      queryKey: ["users", "gender"],
+      queryKey: ["users", "gender", "echarts"],
       transform: passthroughTransform,
     },
     Component: EchartsPieChart,
@@ -230,353 +364,279 @@ export const chartRegistry: ChartConfig[] = [
     },
   },
   {
-    name: "User Gender Donut",
-    displayName: "Doughnut - ECharts - Gender Donut",
+    name: "Pie ChartJS Gender",
+    displayName: "Pie - Chart.js - Gender Distribution",
     apiConfig: {
       endpoint: "/api/charts/users/gender",
-      queryKey: ["users", "gender", "donut"],
+      queryKey: ["users", "gender", "chartjs"],
       transform: passthroughTransform,
     },
-    Component: EchartsDonutChart,
+    Component: ChartJsPieChart,
     chartOptions: {
-      title: "Doughnut - ECharts - Gender Donut",
-      innerRadius: "50%",
-      outerRadius: "75%",
+      title: "Pie - Chart.js - Gender Distribution",
     },
   },
   {
-    name: "User Age Distribution",
-    displayName: "Doughnut - ECharts - Age Distribution",
+    name: "Pie Plotly Gender",
+    displayName: "Pie - Plotly - Gender Distribution",
     apiConfig: {
-      endpoint: "/api/charts/users/age-distribution",
-      queryKey: ["users", "age-distribution"],
-      transform: transformUsersForAgeDistributionDonut,
-    },
-    Component: EchartsDonutChart,
-    chartOptions: {
-      title: "Doughnut - ECharts - Age Distribution",
-      innerRadius: "50%",
-      outerRadius: "75%",
-    },
-  },
-  {
-    name: "User Age Pie",
-    displayName: "Pie - ECharts - Age Groups",
-    apiConfig: {
-      endpoint: "/api/charts/users/age-distribution",
-      queryKey: ["users", "age-distribution", "pie"],
-      transform: transformUsersForAgeDistributionDonut,
-    },
-    Component: EchartsPieChart,
-    chartOptions: {
-      title: "Pie - ECharts - Age Groups",
-      radius: "65%",
-    },
-  },
-  {
-    name: "User Blood Type Donut",
-    displayName: "Doughnut - ECharts - Blood Type Distribution",
-    apiConfig: {
-      endpoint: "/api/charts/users/blood-type",
-      queryKey: ["users", "blood-type"],
+      endpoint: "/api/charts/users/gender",
+      queryKey: ["users", "gender", "plotly"],
       transform: passthroughTransform,
     },
-    Component: EchartsDonutChart,
+    Component: PlotlyPieChart,
     chartOptions: {
-      title: "Doughnut - ECharts - Blood Type Distribution",
-      innerRadius: "50%",
-      outerRadius: "75%",
-    },
-  },
-  {
-    name: "User Blood Type Pie",
-    displayName: "Pie - ECharts - Blood Types",
-    apiConfig: {
-      endpoint: "/api/charts/users/blood-type",
-      queryKey: ["users", "blood-type", "pie"],
-      transform: passthroughTransform,
-    },
-    Component: EchartsPieChart,
-    chartOptions: {
-      title: "Pie - ECharts - Blood Types",
-      radius: "60%",
+      title: "Pie - Plotly - Gender Distribution",
     },
   },
 
-  // Recipes Charts (6 variations)
+  // ============================================================================
+  // PIE CHARTS - Blood Type (5 providers)
+  // ============================================================================
   {
-    name: "Recipe Ratings Scatter",
-    displayName: "Scatter - Plotly - Recipe Ratings",
+    name: "Pie Nivo Blood Type",
+    displayName: "Pie - Nivo - Blood Type Distribution",
     apiConfig: {
-      endpoint: "/api/charts/recipes/ratings",
-      queryKey: ["recipes", "ratings"],
+      endpoint: "/api/charts/users/blood-type",
+      queryKey: ["users", "blood-type", "nivo"],
       transform: passthroughTransform,
     },
-    Component: PlotlyScatterChart,
+    Component: NivoPieChart,
     chartOptions: {
-      title: "Scatter - Plotly - Recipe Ratings",
-      xKey: "id",
-      yKey: "rating",
-      textKey: "name",
+      title: "Pie - Nivo - Blood Type Distribution",
     },
   },
   {
-    name: "Recipe Difficulty Bar",
-    displayName: "Bar - Nivo - Recipe Difficulty",
+    name: "Pie Recharts Blood Type",
+    displayName: "Pie - Recharts - Blood Type Distribution",
     apiConfig: {
-      endpoint: "/api/charts/recipes/difficulty",
-      queryKey: ["recipes", "difficulty"],
+      endpoint: "/api/charts/users/blood-type",
+      queryKey: ["users", "blood-type", "recharts"],
       transform: passthroughTransform,
     },
-    Component: NivoBarChart,
+    Component: RechartsPieChart,
     chartOptions: {
-      title: "Bar - Nivo - Recipe Difficulty",
-      keys: ["count"],
-      indexBy: "difficulty",
-      xAxisLabel: "Difficulty",
-      yAxisLabel: "Count",
+      title: "Pie - Recharts - Blood Type Distribution",
     },
   },
   {
-    name: "Recipe Difficulty Recharts",
-    displayName: "Bar - Recharts - Difficulty Levels",
+    name: "Pie ECharts Blood Type",
+    displayName: "Pie - ECharts - Blood Type Distribution",
     apiConfig: {
-      endpoint: "/api/charts/recipes/difficulty",
-      queryKey: ["recipes", "difficulty", "alt"],
+      endpoint: "/api/charts/users/blood-type",
+      queryKey: ["users", "blood-type", "echarts"],
       transform: passthroughTransform,
     },
-    Component: RechartsBarChart,
+    Component: EchartsPieChart,
     chartOptions: {
-      title: "Bar - Recharts - Difficulty Levels",
-      dataKey: "count",
-      xKey: "difficulty",
+      title: "Pie - ECharts - Blood Type Distribution",
+      radius: "60%",
     },
   },
   {
-    name: "Recipe Difficulty Pie",
-    displayName: "Pie - ECharts - Difficulty Split",
+    name: "Pie ChartJS Blood Type",
+    displayName: "Pie - Chart.js - Blood Type Distribution",
+    apiConfig: {
+      endpoint: "/api/charts/users/blood-type",
+      queryKey: ["users", "blood-type", "chartjs"],
+      transform: passthroughTransform,
+    },
+    Component: ChartJsPieChart,
+    chartOptions: {
+      title: "Pie - Chart.js - Blood Type Distribution",
+    },
+  },
+  {
+    name: "Pie Plotly Blood Type",
+    displayName: "Pie - Plotly - Blood Type Distribution",
+    apiConfig: {
+      endpoint: "/api/charts/users/blood-type",
+      queryKey: ["users", "blood-type", "plotly"],
+      transform: passthroughTransform,
+    },
+    Component: PlotlyPieChart,
+    chartOptions: {
+      title: "Pie - Plotly - Blood Type Distribution",
+    },
+  },
+
+  // ============================================================================
+  // PIE CHARTS - Recipe Difficulty (5 providers)
+  // ============================================================================
+  {
+    name: "Pie Nivo Recipe Difficulty",
+    displayName: "Pie - Nivo - Recipe Difficulty",
     apiConfig: {
       endpoint: "/api/charts/recipes/difficulty",
-      queryKey: ["recipes", "difficulty", "pie"],
+      queryKey: ["recipes", "difficulty", "nivo"],
+      transform: transformDifficultyToNameValue,
+    },
+    Component: NivoPieChart,
+    chartOptions: {
+      title: "Pie - Nivo - Recipe Difficulty",
+    },
+  },
+  {
+    name: "Pie Recharts Recipe Difficulty",
+    displayName: "Pie - Recharts - Recipe Difficulty",
+    apiConfig: {
+      endpoint: "/api/charts/recipes/difficulty",
+      queryKey: ["recipes", "difficulty", "recharts"],
+      transform: transformDifficultyToNameValue,
+    },
+    Component: RechartsPieChart,
+    chartOptions: {
+      title: "Pie - Recharts - Recipe Difficulty",
+    },
+  },
+  {
+    name: "Pie ECharts Recipe Difficulty",
+    displayName: "Pie - ECharts - Recipe Difficulty",
+    apiConfig: {
+      endpoint: "/api/charts/recipes/difficulty",
+      queryKey: ["recipes", "difficulty", "echarts"],
       transform: transformDifficultyToNameValue,
     },
     Component: EchartsPieChart,
     chartOptions: {
-      title: "Pie - ECharts - Difficulty Split",
+      title: "Pie - ECharts - Recipe Difficulty",
       radius: "60%",
     },
   },
   {
-    name: "Recipe Cooking Time Line",
-    displayName: "Line - ECharts - Cooking Time",
+    name: "Pie ChartJS Recipe Difficulty",
+    displayName: "Pie - Chart.js - Recipe Difficulty",
     apiConfig: {
-      endpoint: "/api/charts/recipes/cooking-time",
-      queryKey: ["recipes", "cooking-time"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/recipes/difficulty",
+      queryKey: ["recipes", "difficulty", "chartjs"],
+      transform: transformDifficultyToNameValue,
     },
-    Component: EchartsLineChart,
+    Component: ChartJsPieChart,
     chartOptions: {
-      title: "Line - ECharts - Cooking Time",
-      xKey: "name",
-      yKey: "cookTimeMinutes",
-      xLabel: "Recipe ${name}",
+      title: "Pie - Chart.js - Recipe Difficulty",
     },
   },
   {
-    name: "Recipe Cooking Time Recharts",
-    displayName: "Line - Recharts - Cook Time",
+    name: "Pie Plotly Recipe Difficulty",
+    displayName: "Pie - Plotly - Recipe Difficulty",
     apiConfig: {
-      endpoint: "/api/charts/recipes/cooking-time",
-      queryKey: ["recipes", "cooking-time", "alt"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/recipes/difficulty",
+      queryKey: ["recipes", "difficulty", "plotly"],
+      transform: transformDifficultyToNameValue,
     },
-    Component: RechartsLineChart,
+    Component: PlotlyPieChart,
     chartOptions: {
-      title: "Line - Recharts - Cook Time",
-      labelKey: "name",
-      dataKey: "cookTimeMinutes",
-      datasetLabel: "Minutes",
+      title: "Pie - Plotly - Recipe Difficulty",
     },
   },
 
-  // Todos, Posts, Carts, Quotes (8 variations)
+  // ============================================================================
+  // PIE CHARTS - Todo Status (5 providers)
+  // ============================================================================
   {
-    name: "Todo Status Bar",
-    displayName: "Bar - Nivo - Todo Completion",
+    name: "Pie Nivo Todo Status",
+    displayName: "Pie - Nivo - Todo Status",
     apiConfig: {
       endpoint: "/api/charts/todos/status",
-      queryKey: ["todos", "status"],
-      transform: passthroughTransform,
+      queryKey: ["todos", "status", "nivo"],
+      transform: transformStatusToNameValue,
     },
-    Component: NivoBarChart,
+    Component: NivoPieChart,
     chartOptions: {
-      title: "Bar - Nivo - Todo Completion",
-      keys: ["count"],
-      indexBy: "status",
-      xAxisLabel: "Status",
-      yAxisLabel: "Count",
+      title: "Pie - Nivo - Todo Status",
     },
   },
   {
-    name: "Todo Status Recharts",
-    displayName: "Bar - Recharts - Todo Stats",
+    name: "Pie Recharts Todo Status",
+    displayName: "Pie - Recharts - Todo Status",
     apiConfig: {
       endpoint: "/api/charts/todos/status",
-      queryKey: ["todos", "status", "alt"],
-      transform: passthroughTransform,
+      queryKey: ["todos", "status", "recharts"],
+      transform: transformStatusToNameValue,
     },
-    Component: RechartsBarChart,
+    Component: RechartsPieChart,
     chartOptions: {
-      title: "Bar - Recharts - Todo Stats",
-      dataKey: "count",
-      xKey: "status",
+      title: "Pie - Recharts - Todo Status",
     },
   },
   {
-    name: "Todo Status Pie",
-    displayName: "Pie - ECharts - Todo Status Split",
+    name: "Pie ECharts Todo Status",
+    displayName: "Pie - ECharts - Todo Status",
     apiConfig: {
       endpoint: "/api/charts/todos/status",
-      queryKey: ["todos", "status", "pie"],
+      queryKey: ["todos", "status", "echarts"],
       transform: transformStatusToNameValue,
     },
     Component: EchartsPieChart,
     chartOptions: {
-      title: "Pie - ECharts - Todo Status Split",
+      title: "Pie - ECharts - Todo Status",
       radius: "60%",
     },
   },
   {
-    name: "Post Reactions Bar",
-    displayName: "Bar - Nivo - Top Posts",
+    name: "Pie ChartJS Todo Status",
+    displayName: "Pie - Chart.js - Todo Status",
     apiConfig: {
-      endpoint: "/api/charts/posts/reactions",
-      queryKey: ["posts", "reactions"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/todos/status",
+      queryKey: ["todos", "status", "chartjs"],
+      transform: transformStatusToNameValue,
     },
-    Component: NivoBarChart,
+    Component: ChartJsPieChart,
     chartOptions: {
-      title: "Bar - Nivo - Top Posts",
-      keys: ["reactions"],
-      indexBy: "title",
-      xAxisLabel: "Post Title",
-      yAxisLabel: "Reactions",
+      title: "Pie - Chart.js - Todo Status",
     },
   },
   {
-    name: "Post Reactions Recharts",
-    displayName: "Bar - Recharts - Post Engagement",
+    name: "Pie Plotly Todo Status",
+    displayName: "Pie - Plotly - Todo Status",
     apiConfig: {
-      endpoint: "/api/charts/posts/reactions",
-      queryKey: ["posts", "reactions", "alt"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/todos/status",
+      queryKey: ["todos", "status", "plotly"],
+      transform: transformStatusToNameValue,
     },
-    Component: RechartsBarChart,
+    Component: PlotlyPieChart,
     chartOptions: {
-      title: "Bar - Recharts - Post Engagement",
-      dataKey: "reactions",
-      xKey: "title",
-    },
-  },
-  {
-    name: "Cart Totals Line",
-    displayName: "Line - ECharts - Cart Totals",
-    apiConfig: {
-      endpoint: "/api/charts/carts/totals",
-      queryKey: ["carts", "totals"],
-      transform: passthroughTransform,
-    },
-    Component: EchartsLineChart,
-    chartOptions: {
-      title: "Line - ECharts - Cart Totals",
-      xKey: "userId",
-      yKey: "total",
-      xLabel: "Cart ${userId}",
-    },
-  },
-  {
-    name: "Cart Totals Recharts",
-    displayName: "Line - Recharts - Cart Values",
-    apiConfig: {
-      endpoint: "/api/charts/carts/totals",
-      queryKey: ["carts", "totals", "alt"],
-      transform: passthroughTransform,
-    },
-    Component: RechartsLineChart,
-    chartOptions: {
-      title: "Line - Recharts - Cart Values",
-      labelKey: "userId",
-      dataKey: "total",
-      datasetLabel: "Total $",
-    },
-  },
-  {
-    name: "Quote Authors Pie",
-    displayName: "Pie - ECharts - Top Authors",
-    apiConfig: {
-      endpoint: "/api/charts/quotes/authors",
-      queryKey: ["quotes", "authors"],
-      transform: passthroughTransform,
-    },
-    Component: EchartsPieChart,
-    chartOptions: {
-      title: "Pie - ECharts - Top Authors",
-      radius: "60%",
-    },
-  },
-  {
-    name: "Quote Authors Donut",
-    displayName: "Doughnut - ECharts - Author Distribution",
-    apiConfig: {
-      endpoint: "/api/charts/quotes/authors",
-      queryKey: ["quotes", "authors", "donut"],
-      transform: passthroughTransform,
-    },
-    Component: EchartsDonutChart,
-    chartOptions: {
-      title: "Doughnut - ECharts - Author Distribution",
-      innerRadius: "50%",
-      outerRadius: "75%",
+      title: "Pie - Plotly - Todo Status",
     },
   },
 
-  // Heatmap (1 chart)
+  // ============================================================================
+  // LINE CHARTS - Weather Temperature (6 providers)
+  // ============================================================================
   {
-    name: "Activity Heatmap",
-    displayName: "Heatmap - Nivo - Activity",
-    apiConfig: {
-      endpoint: "/api/charts/heatmap/sample",
-      queryKey: ["heatmap", "sample"],
-      transform: passthroughTransform,
-    },
-    Component: NivoHeatmapChart,
-    chartOptions: {
-      title: "Heatmap - Nivo - Activity",
-      xAxisLabel: "Hour",
-      yAxisLabel: "Day",
-    },
-  },
-
-  // External APIs (12 variations)
-  {
-    name: "Weather Temperature Line",
-    displayName: "Line - Recharts - London Temperature",
+    name: "Line Nivo Temperature",
+    displayName: "Line - Nivo - Temperature Trend",
     apiConfig: {
       endpoint: "/api/charts/weather/temperature",
-      queryKey: ["weather", "temperature"],
+      queryKey: ["weather", "temperature", "nivo"],
+      transform: transformForNivoLine("date", "temperature", "Temperature"),
+    },
+    Component: NivoLineChart,
+    chartOptions: {
+      title: "Line - Nivo - Temperature Trend",
+      xKey: "date",
+      yKey: "temperature",
+    },
+  },
+  {
+    name: "Line Recharts Temperature",
+    displayName: "Line - Recharts - Temperature Trend",
+    apiConfig: {
+      endpoint: "/api/charts/weather/temperature",
+      queryKey: ["weather", "temperature", "recharts"],
       transform: passthroughTransform,
     },
     Component: RechartsLineChart,
     chartOptions: {
-      title: "Line - Recharts - London Temperature",
+      title: "Line - Recharts - Temperature Trend",
       labelKey: "date",
       dataKey: "temperature",
       datasetLabel: "Temp °C",
     },
   },
   {
-    name: "Weather Temperature ECharts",
-    displayName: "Line - ECharts - Weather Forecast",
+    name: "Line ECharts Temperature",
+    displayName: "Line - ECharts - Temperature Trend",
     apiConfig: {
       endpoint: "/api/charts/weather/temperature",
       queryKey: ["weather", "temperature", "echarts"],
@@ -584,95 +644,243 @@ export const chartRegistry: ChartConfig[] = [
     },
     Component: EchartsLineChart,
     chartOptions: {
-      title: "Line - ECharts - Weather Forecast",
+      title: "Line - ECharts - Temperature Trend",
       xKey: "date",
       yKey: "temperature",
       xLabel: "Time",
     },
   },
   {
-    name: "Breweries By State Bar",
-    displayName: "Bar - Recharts - Breweries by State",
+    name: "Line Plotly Temperature",
+    displayName: "Line - Plotly - Temperature Trend",
     apiConfig: {
-      endpoint: "/api/charts/breweries/states",
-      queryKey: ["breweries", "states"],
+      endpoint: "/api/charts/weather/temperature",
+      queryKey: ["weather", "temperature", "plotly"],
       transform: passthroughTransform,
     },
-    Component: RechartsBarChart,
+    Component: PlotlyLineChart,
     chartOptions: {
-      title: "Bar - Recharts - Breweries by State",
-      dataKey: "count",
-      xKey: "state",
+      title: "Line - Plotly - Temperature Trend",
+      xKey: "date",
+      yKey: "temperature",
     },
   },
   {
-    name: "Breweries By State Nivo",
-    displayName: "Bar - Nivo - Brewery Distribution",
+    name: "Line D3 Temperature",
+    displayName: "Line - D3 - Temperature Trend",
     apiConfig: {
-      endpoint: "/api/charts/breweries/states",
-      queryKey: ["breweries", "states", "nivo"],
+      endpoint: "/api/charts/weather/temperature",
+      queryKey: ["weather", "temperature", "d3"],
       transform: passthroughTransform,
     },
-    Component: NivoBarChart,
+    Component: D3LineChart,
     chartOptions: {
-      title: "Bar - Nivo - Brewery Distribution",
-      keys: ["count"],
-      indexBy: "state",
-      xAxisLabel: "State",
-      yAxisLabel: "Count",
+      title: "Line - D3 - Temperature Trend",
+      xKey: "date",
+      yKey: "temperature",
+    },
+  },
+
+  // ============================================================================
+  // LINE CHARTS - Recipe Cooking Time (5 providers)
+  // ============================================================================
+  {
+    name: "Line Nivo Cooking Time",
+    displayName: "Line - Nivo - Cooking Times",
+    apiConfig: {
+      endpoint: "/api/charts/recipes/cooking-time",
+      queryKey: ["recipes", "cooking-time", "nivo"],
+      transform: transformForNivoLine("name", "cookTimeMinutes", "Recipes"),
+    },
+    Component: NivoLineChart,
+    chartOptions: {
+      title: "Line - Nivo - Cooking Times",
+      xKey: "name",
+      yKey: "cookTimeMinutes",
     },
   },
   {
-    name: "Library Subject Works Donut",
-    displayName: "Doughnut - ECharts - Library Subjects",
+    name: "Line Recharts Cooking Time",
+    displayName: "Line - Recharts - Cooking Times",
     apiConfig: {
-      endpoint: "/api/charts/library/subject-works",
-      queryKey: ["library", "subject-works"],
+      endpoint: "/api/charts/recipes/cooking-time",
+      queryKey: ["recipes", "cooking-time", "recharts"],
       transform: passthroughTransform,
     },
-    Component: EchartsDonutChart,
+    Component: RechartsLineChart,
     chartOptions: {
-      title: "Doughnut - ECharts - Library Subjects",
-      innerRadius: "50%",
-      outerRadius: "75%",
+      title: "Line - Recharts - Cooking Times",
+      labelKey: "name",
+      dataKey: "cookTimeMinutes",
+      datasetLabel: "Minutes",
     },
   },
   {
-    name: "Library Subject Works Pie",
-    displayName: "Pie - ECharts - Science Topics",
+    name: "Line ECharts Cooking Time",
+    displayName: "Line - ECharts - Cooking Times",
     apiConfig: {
-      endpoint: "/api/charts/library/subject-works",
-      queryKey: ["library", "subject-works", "pie"],
+      endpoint: "/api/charts/recipes/cooking-time",
+      queryKey: ["recipes", "cooking-time", "echarts"],
       transform: passthroughTransform,
     },
-    Component: EchartsPieChart,
+    Component: EchartsLineChart,
     chartOptions: {
-      title: "Pie - ECharts - Science Topics",
-      radius: "65%",
+      title: "Line - ECharts - Cooking Times",
+      xKey: "name",
+      yKey: "cookTimeMinutes",
+      xLabel: "Recipe ${name}",
     },
   },
   {
-    name: "Pokemon Base XP Scatter",
-    displayName: "Scatter - Plotly - Pokemon Base XP",
+    name: "Line Plotly Cooking Time",
+    displayName: "Line - Plotly - Cooking Times",
     apiConfig: {
-      endpoint: "/api/charts/pokemon/base-xp",
-      queryKey: ["pokemon", "base-xp"],
+      endpoint: "/api/charts/recipes/cooking-time",
+      queryKey: ["recipes", "cooking-time", "plotly"],
+      transform: passthroughTransform,
+    },
+    Component: PlotlyLineChart,
+    chartOptions: {
+      title: "Line - Plotly - Cooking Times",
+      xKey: "name",
+      yKey: "cookTimeMinutes",
+    },
+  },
+  {
+    name: "Line D3 Cooking Time",
+    displayName: "Line - D3 - Cooking Times",
+    apiConfig: {
+      endpoint: "/api/charts/recipes/cooking-time",
+      queryKey: ["recipes", "cooking-time", "d3"],
+      transform: passthroughTransform,
+    },
+    Component: D3LineChart,
+    chartOptions: {
+      title: "Line - D3 - Cooking Times",
+      xKey: "name",
+      yKey: "cookTimeMinutes",
+    },
+  },
+
+  // ============================================================================
+  // SCATTER CHARTS - Product Price vs Rating (6 providers)
+  // ============================================================================
+  {
+    name: "Scatter Nivo Price Rating",
+    displayName: "Scatter - Nivo - Price vs Rating",
+    apiConfig: {
+      endpoint: "/api/charts/products/price-rating",
+      queryKey: ["products", "price-rating", "nivo"],
+      transform: passthroughTransform,
+    },
+    Component: NivoScatterChart,
+    chartOptions: {
+      title: "Scatter - Nivo - Price vs Rating",
+      xKey: "price",
+      yKey: "rating",
+    },
+  },
+  {
+    name: "Scatter Recharts Price Rating",
+    displayName: "Scatter - Recharts - Price vs Rating",
+    apiConfig: {
+      endpoint: "/api/charts/products/price-rating",
+      queryKey: ["products", "price-rating", "recharts"],
+      transform: passthroughTransform,
+    },
+    Component: RechartsScatterChart,
+    chartOptions: {
+      title: "Scatter - Recharts - Price vs Rating",
+      xKey: "price",
+      yKey: "rating",
+    },
+  },
+  {
+    name: "Scatter ECharts Price Rating",
+    displayName: "Scatter - ECharts - Price vs Rating",
+    apiConfig: {
+      endpoint: "/api/charts/products/price-rating",
+      queryKey: ["products", "price-rating", "echarts"],
+      transform: passthroughTransform,
+    },
+    Component: EchartsScatterChart,
+    chartOptions: {
+      title: "Scatter - ECharts - Price vs Rating",
+      xKey: "price",
+      yKey: "rating",
+    },
+  },
+  {
+    name: "Scatter ChartJS Price Rating",
+    displayName: "Scatter - Chart.js - Price vs Rating",
+    apiConfig: {
+      endpoint: "/api/charts/products/price-rating",
+      queryKey: ["products", "price-rating", "chartjs"],
+      transform: passthroughTransform,
+    },
+    Component: ChartJsScatterChart,
+    chartOptions: {
+      title: "Scatter - Chart.js - Price vs Rating",
+      xKey: "price",
+      yKey: "rating",
+    },
+  },
+  {
+    name: "Scatter Plotly Price Rating",
+    displayName: "Scatter - Plotly - Price vs Rating",
+    apiConfig: {
+      endpoint: "/api/charts/products/price-rating",
+      queryKey: ["products", "price-rating", "plotly"],
       transform: passthroughTransform,
     },
     Component: PlotlyScatterChart,
     chartOptions: {
-      title: "Scatter - Plotly - Pokemon Base XP",
-      xKey: "id",
-      yKey: "base_experience",
-      textKey: "name",
+      title: "Scatter - Plotly - Price vs Rating",
+      xKey: "price",
+      yKey: "rating",
+      textKey: "id",
     },
   },
   {
-    name: "Pokemon Height Weight Scatter",
+    name: "Scatter D3 Price Rating",
+    displayName: "Scatter - D3 - Price vs Rating",
+    apiConfig: {
+      endpoint: "/api/charts/products/price-rating",
+      queryKey: ["products", "price-rating", "d3"],
+      transform: passthroughTransform,
+    },
+    Component: D3ScatterChart,
+    chartOptions: {
+      title: "Scatter - D3 - Price vs Rating",
+      xKey: "price",
+      yKey: "rating",
+    },
+  },
+
+  // ============================================================================
+  // SCATTER CHARTS - Pokemon Height vs Weight (3 providers)
+  // ============================================================================
+  {
+    name: "Scatter ECharts Pokemon",
+    displayName: "Scatter - ECharts - Pokemon Size",
+    apiConfig: {
+      endpoint: "/api/charts/pokemon/height-weight",
+      queryKey: ["pokemon", "height-weight", "echarts"],
+      transform: passthroughTransform,
+    },
+    Component: EchartsScatterChart,
+    chartOptions: {
+      title: "Scatter - ECharts - Pokemon Size",
+      xKey: "height",
+      yKey: "weight",
+    },
+  },
+  {
+    name: "Scatter Plotly Pokemon",
     displayName: "Scatter - Plotly - Pokemon Size",
     apiConfig: {
       endpoint: "/api/charts/pokemon/height-weight",
-      queryKey: ["pokemon", "height-weight"],
+      queryKey: ["pokemon", "height-weight", "plotly"],
       transform: passthroughTransform,
     },
     Component: PlotlyScatterChart,
@@ -684,610 +892,30 @@ export const chartRegistry: ChartConfig[] = [
     },
   },
   {
-    name: "SpaceX Launches Area",
-    displayName: "Area - D3 - SpaceX Launches",
-    apiConfig: {
-      endpoint: "/api/charts/spacex/launches",
-      queryKey: ["spacex", "launches"],
-      transform: passthroughWithDateTransform,
-    },
-    Component: D3AreaChart,
-    chartOptions: {
-      title: "Area - D3 - SpaceX Launches",
-      xKey: "date",
-      yKey: "count",
-    },
-  },
-
-  // Additional variations for more charts (6 more)
-  {
-    name: "Product Price Bar",
-    displayName: "Bar - Recharts - Product Prices",
-    apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "price-only"],
-      transform: passthroughTransform,
-    },
-    Component: RechartsBarChart,
-    chartOptions: {
-      title: "Bar - Recharts - Product Prices",
-      dataKey: "price",
-      xKey: "id",
-    },
-  },
-  {
-    name: "Product Rating Bar",
-    displayName: "Bar - Recharts - Product Ratings",
-    apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "rating-only"],
-      transform: passthroughTransform,
-    },
-    Component: RechartsBarChart,
-    chartOptions: {
-      title: "Bar - Recharts - Product Ratings",
-      dataKey: "rating",
-      xKey: "id",
-    },
-  },
-  {
-    name: "Low Stock Alert Nivo",
-    displayName: "Bar - Nivo - Stock Alert",
-    apiConfig: {
-      endpoint: "/api/charts/products/low-stock",
-      queryKey: ["products", "low-stock", "nivo"],
-      transform: passthroughTransform,
-    },
-    Component: NivoBarChart,
-    chartOptions: {
-      title: "Bar - Nivo - Stock Alert",
-      keys: ["stock"],
-      indexBy: "product",
-      xAxisLabel: "Product",
-      yAxisLabel: "Stock Level",
-    },
-  },
-  {
-    name: "User Demographics Summary",
-    displayName: "Doughnut - ECharts - User Demographics",
-    apiConfig: {
-      endpoint: "/api/charts/users/age-distribution",
-      queryKey: ["users", "demographics"],
-      transform: transformUsersForAgeDistributionDonut,
-    },
-    Component: EchartsDonutChart,
-    chartOptions: {
-      title: "Doughnut - ECharts - User Demographics",
-      innerRadius: "40%",
-      outerRadius: "70%",
-    },
-  },
-  {
-    name: "Recipe Stats Overview",
-    displayName: "Doughnut - ECharts - Recipe Overview",
-    apiConfig: {
-      endpoint: "/api/charts/recipes/difficulty",
-      queryKey: ["recipes", "overview"],
-      transform: transformDifficultyToNameValue,
-    },
-    Component: EchartsDonutChart,
-    chartOptions: {
-      title: "Doughnut - ECharts - Recipe Overview",
-      innerRadius: "45%",
-      outerRadius: "75%",
-    },
-  },
-  {
-    name: "Product Stock Status",
-    displayName: "Line - ECharts - Stock Levels",
-    apiConfig: {
-      endpoint: "/api/charts/products/low-stock",
-      queryKey: ["products", "stock-status"],
-      transform: passthroughTransform,
-    },
-    Component: EchartsLineChart,
-    chartOptions: {
-      title: "Line - ECharts - Stock Levels",
-      xKey: "product",
-      yKey: "stock",
-      xLabel: "Product",
-    },
-  },
-
-  // New Nivo Line Charts
-  {
-    name: "Nivo Product Price-Rating Line",
-    displayName: "Line - Nivo - Price vs Rating",
-    apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "price-rating-nivo"],
-      transform: transformForNivoLine("price", "rating", "Products"),
-    },
-    Component: NivoLineChart,
-    chartOptions: {
-      title: "Line - Nivo - Price vs Rating",
-      xKey: "price",
-      yKey: "rating",
-    },
-  },
-  {
-    name: "Nivo Recipe Cooking Time Line",
-    displayName: "Line - Nivo - Cooking Times",
-    apiConfig: {
-      endpoint: "/api/charts/recipes/cooking-time",
-      queryKey: ["recipes", "cooking-time-nivo"],
-      transform: transformForNivoLine("name", "cookTimeMinutes", "Recipes"),
-    },
-    Component: NivoLineChart,
-    chartOptions: {
-      title: "Line - Nivo - Cooking Times",
-      xKey: "name",
-      yKey: "cookTimeMinutes",
-    },
-  },
-  {
-    name: "Nivo Weather Temperature Line",
-    displayName: "Line - Nivo - Temperature Trend",
-    apiConfig: {
-      endpoint: "/api/charts/weather/temperature",
-      queryKey: ["weather", "temperature-nivo"],
-      transform: transformForNivoLine("date", "temperature", "Temperature"),
-    },
-    Component: NivoLineChart,
-    chartOptions: {
-      title: "Line - Nivo - Temperature Trend",
-      xKey: "date",
-      yKey: "temperature",
-    },
-  },
-
-  // New Nivo Pie Charts
-  {
-    name: "Nivo Category Distribution Pie",
-    displayName: "Pie - Nivo - Categories",
-    apiConfig: {
-      endpoint: "/api/charts/products/categories",
-      queryKey: ["products", "categories-nivo-pie"],
-      transform: passthroughTransform,
-    },
-    Component: NivoPieChart,
-    chartOptions: {
-      title: "Pie - Nivo - Categories",
-    },
-  },
-  {
-    name: "Nivo Gender Distribution Pie",
-    displayName: "Pie - Nivo - Gender Split",
-    apiConfig: {
-      endpoint: "/api/charts/users/gender",
-      queryKey: ["users", "gender-nivo-pie"],
-      transform: passthroughTransform,
-    },
-    Component: NivoPieChart,
-    chartOptions: {
-      title: "Pie - Nivo - Gender Split",
-    },
-  },
-  {
-    name: "Nivo Blood Type Pie",
-    displayName: "Pie - Nivo - Blood Types",
-    apiConfig: {
-      endpoint: "/api/charts/users/blood-type",
-      queryKey: ["users", "blood-type-nivo-pie"],
-      transform: passthroughTransform,
-    },
-    Component: NivoPieChart,
-    chartOptions: {
-      title: "Pie - Nivo - Blood Types",
-    },
-  },
-  {
-    name: "Nivo Recipe Difficulty Pie",
-    displayName: "Pie - Nivo - Recipe Difficulty",
-    apiConfig: {
-      endpoint: "/api/charts/recipes/difficulty",
-      queryKey: ["recipes", "difficulty-nivo-pie"],
-      transform: transformDifficultyToNameValue,
-    },
-    Component: NivoPieChart,
-    chartOptions: {
-      title: "Pie - Nivo - Recipe Difficulty",
-    },
-  },
-  {
-    name: "Nivo Todo Status Pie",
-    displayName: "Pie - Nivo - Todo Status",
-    apiConfig: {
-      endpoint: "/api/charts/todos/status",
-      queryKey: ["todos", "status-nivo-pie"],
-      transform: transformStatusToNameValue,
-    },
-    Component: NivoPieChart,
-    chartOptions: {
-      title: "Pie - Nivo - Todo Status",
-    },
-  },
-
-  // New ECharts Bar Charts
-  {
-    name: "ECharts Brand Counts Bar",
-    displayName: "Bar - ECharts - Brand Counts",
-    apiConfig: {
-      endpoint: "/api/charts/products/brand-counts",
-      queryKey: ["products", "brand-counts-echarts"],
-      transform: passthroughTransform,
-    },
-    Component: EchartsBarChart,
-    chartOptions: {
-      title: "Bar - ECharts - Brand Counts",
-      xKey: "brand",
-      yKey: "count",
-    },
-  },
-  {
-    name: "ECharts Age Distribution Bar",
-    displayName: "Bar - ECharts - Age Groups",
-    apiConfig: {
-      endpoint: "/api/charts/users/age-distribution",
-      queryKey: ["users", "age-distribution-echarts"],
-      transform: passthroughTransform,
-    },
-    Component: EchartsBarChart,
-    chartOptions: {
-      title: "Bar - ECharts - Age Groups",
-      xKey: "range",
-      yKey: "count",
-    },
-  },
-  {
-    name: "ECharts Recipe Ratings Bar",
-    displayName: "Bar - ECharts - Recipe Ratings",
-    apiConfig: {
-      endpoint: "/api/charts/recipes/ratings",
-      queryKey: ["recipes", "ratings-echarts"],
-      transform: passthroughTransform,
-    },
-    Component: EchartsBarChart,
-    chartOptions: {
-      title: "Bar - ECharts - Recipe Ratings",
-      xKey: "name",
-      yKey: "rating",
-    },
-  },
-  {
-    name: "ECharts Post Reactions Bar",
-    displayName: "Bar - ECharts - Post Reactions",
-    apiConfig: {
-      endpoint: "/api/charts/posts/reactions",
-      queryKey: ["posts", "reactions-echarts"],
-      transform: passthroughTransform,
-    },
-    Component: EchartsBarChart,
-    chartOptions: {
-      title: "Bar - ECharts - Post Reactions",
-      xKey: "title",
-      yKey: "reactions",
-    },
-  },
-
-  // New ECharts Scatter Charts
-  {
-    name: "ECharts Price-Rating Scatter",
-    displayName: "Scatter - ECharts - Price vs Rating",
-    apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "price-rating-scatter"],
-      transform: passthroughTransform,
-    },
-    Component: EchartsScatterChart,
-    chartOptions: {
-      title: "Scatter - ECharts - Price vs Rating",
-      xKey: "price",
-      yKey: "rating",
-    },
-  },
-  {
-    name: "ECharts Pokemon Stats Scatter",
-    displayName: "Scatter - ECharts - Pokemon Height/Weight",
+    name: "Scatter D3 Pokemon",
+    displayName: "Scatter - D3 - Pokemon Size",
     apiConfig: {
       endpoint: "/api/charts/pokemon/height-weight",
-      queryKey: ["pokemon", "height-weight-scatter"],
+      queryKey: ["pokemon", "height-weight", "d3"],
       transform: passthroughTransform,
     },
-    Component: EchartsScatterChart,
+    Component: D3ScatterChart,
     chartOptions: {
-      title: "Scatter - ECharts - Pokemon Height/Weight",
+      title: "Scatter - D3 - Pokemon Size",
       xKey: "height",
       yKey: "weight",
     },
   },
 
-  // New ECharts Radar Charts
+  // ============================================================================
+  // RADAR CHARTS - Pokemon Stats (5 providers)
+  // ============================================================================
   {
-    name: "ECharts Pokemon Stats Radar",
-    displayName: "Radar - ECharts - Pokemon Stats",
-    apiConfig: {
-      endpoint: "/api/charts/pokemon/stats",
-      queryKey: ["pokemon", "stats-echarts-radar"],
-      transform: transformPokemonForEchartsRadar,
-    },
-    Component: EchartsRadarChart,
-    chartOptions: {
-      title: "Radar - ECharts - Pokemon Stats",
-    },
-  },
-
-  // New Chart.js Bar Charts
-  {
-    name: "ChartJS Brand Counts Bar",
-    displayName: "Bar - Chart.js - Brands",
-    apiConfig: {
-      endpoint: "/api/charts/products/brand-counts",
-      queryKey: ["products", "brand-counts-chartjs"],
-      transform: passthroughTransform,
-    },
-    Component: ChartJsBarChart,
-    chartOptions: {
-      title: "Bar - Chart.js - Brands",
-      xKey: "brand",
-      yKey: "count",
-    },
-  },
-  {
-    name: "ChartJS Brewery States Bar",
-    displayName: "Bar - Chart.js - Breweries by State",
-    apiConfig: {
-      endpoint: "/api/charts/breweries/states",
-      queryKey: ["breweries", "states-chartjs"],
-      transform: passthroughTransform,
-    },
-    Component: ChartJsBarChart,
-    chartOptions: {
-      title: "Bar - Chart.js - Breweries by State",
-      xKey: "state",
-      yKey: "count",
-    },
-  },
-  {
-    name: "ChartJS Quote Authors Bar",
-    displayName: "Bar - Chart.js - Quote Authors",
-    apiConfig: {
-      endpoint: "/api/charts/quotes/authors",
-      queryKey: ["quotes", "authors-chartjs"],
-      transform: passthroughTransform,
-    },
-    Component: ChartJsBarChart,
-    chartOptions: {
-      title: "Bar - Chart.js - Quote Authors",
-      xKey: "name",
-      yKey: "value",
-    },
-  },
-
-  // New Chart.js Doughnut Charts
-  {
-    name: "ChartJS Category Doughnut",
-    displayName: "Doughnut - Chart.js - Categories",
-    apiConfig: {
-      endpoint: "/api/charts/products/categories",
-      queryKey: ["products", "categories-doughnut"],
-      transform: passthroughTransform,
-    },
-    Component: ChartJsDoughnutChart,
-    chartOptions: {
-      title: "Doughnut - Chart.js - Categories",
-    },
-  },
-  {
-    name: "ChartJS Gender Doughnut",
-    displayName: "Doughnut - Chart.js - Gender",
-    apiConfig: {
-      endpoint: "/api/charts/users/gender",
-      queryKey: ["users", "gender-doughnut"],
-      transform: passthroughTransform,
-    },
-    Component: ChartJsDoughnutChart,
-    chartOptions: {
-      title: "Doughnut - Chart.js - Gender",
-    },
-  },
-  {
-    name: "ChartJS Todo Status Doughnut",
-    displayName: "Doughnut - Chart.js - Todos",
-    apiConfig: {
-      endpoint: "/api/charts/todos/status",
-      queryKey: ["todos", "status-doughnut"],
-      transform: transformStatusToNameValue,
-    },
-    Component: ChartJsDoughnutChart,
-    chartOptions: {
-      title: "Doughnut - Chart.js - Todos",
-    },
-  },
-
-  // New Chart.js Pie Charts
-  {
-    name: "ChartJS Blood Type Pie",
-    displayName: "Pie - Chart.js - Blood Types",
-    apiConfig: {
-      endpoint: "/api/charts/users/blood-type",
-      queryKey: ["users", "blood-type-chartjs-pie"],
-      transform: passthroughTransform,
-    },
-    Component: ChartJsPieChart,
-    chartOptions: {
-      title: "Pie - Chart.js - Blood Types",
-    },
-  },
-  {
-    name: "ChartJS Recipe Difficulty Pie",
-    displayName: "Pie - Chart.js - Difficulty",
-    apiConfig: {
-      endpoint: "/api/charts/recipes/difficulty",
-      queryKey: ["recipes", "difficulty-chartjs-pie"],
-      transform: transformDifficultyToNameValue,
-    },
-    Component: ChartJsPieChart,
-    chartOptions: {
-      title: "Pie - Chart.js - Difficulty",
-    },
-  },
-
-  // New Chart.js Radar Charts
-  {
-    name: "ChartJS Pokemon Stats Radar",
-    displayName: "Radar - Chart.js - Pokemon Stats",
-    apiConfig: {
-      endpoint: "/api/charts/pokemon/stats",
-      queryKey: ["pokemon", "stats-chartjs-radar"],
-      transform: transformPokemonForChartJsRadar,
-    },
-    Component: ChartJsRadarChart,
-    chartOptions: {
-      title: "Radar - Chart.js - Pokemon Stats",
-    },
-  },
-
-  // New Recharts Line Charts
-  {
-    name: "Recharts Recipe Cooking Time Line",
-    displayName: "Line - Recharts - Cooking Times",
-    apiConfig: {
-      endpoint: "/api/charts/recipes/cooking-time",
-      queryKey: ["recipes", "cooking-time-recharts-line"],
-      transform: passthroughTransform,
-    },
-    Component: RechartsLine2Chart,
-    chartOptions: {
-      title: "Line - Recharts - Cooking Times",
-      xKey: "name",
-      yKey: "cookTimeMinutes",
-    },
-  },
-  {
-    name: "Recharts Post Reactions Line",
-    displayName: "Line - Recharts - Post Reactions",
-    apiConfig: {
-      endpoint: "/api/charts/posts/reactions",
-      queryKey: ["posts", "reactions-recharts-line"],
-      transform: passthroughTransform,
-    },
-    Component: RechartsLine2Chart,
-    chartOptions: {
-      title: "Line - Recharts - Post Reactions",
-      xKey: "title",
-      yKey: "reactions",
-    },
-  },
-  {
-    name: "Recharts SpaceX Launches Line",
-    displayName: "Line - Recharts - SpaceX Launches",
-    apiConfig: {
-      endpoint: "/api/charts/spacex/launches",
-      queryKey: ["spacex", "launches-recharts-line"],
-      transform: passthroughWithDateTransform,
-    },
-    Component: RechartsLine2Chart,
-    chartOptions: {
-      title: "Line - Recharts - SpaceX Launches",
-      xKey: "date",
-      yKey: "count",
-    },
-  },
-
-  // New Recharts Area Charts
-  {
-    name: "Recharts Price Distribution Area",
-    displayName: "Area - Recharts - Price Distribution",
-    apiConfig: {
-      endpoint: "/api/charts/products/price-distribution",
-      queryKey: ["products", "price-distribution-area"],
-      transform: passthroughWithDateTransform,
-    },
-    Component: RechartsAreaChart,
-    chartOptions: {
-      title: "Area - Recharts - Price Distribution",
-      xKey: "date",
-      dataKey: "count",
-    },
-  },
-  {
-    name: "Recharts Weather Temperature Area",
-    displayName: "Area - Recharts - Temperature",
-    apiConfig: {
-      endpoint: "/api/charts/weather/temperature",
-      queryKey: ["weather", "temperature-area"],
-      transform: passthroughTransform,
-    },
-    Component: RechartsAreaChart,
-    chartOptions: {
-      title: "Area - Recharts - Temperature",
-      xKey: "date",
-      dataKey: "temperature",
-    },
-  },
-
-  // New Recharts Pie Charts
-  {
-    name: "Recharts Category Pie",
-    displayName: "Pie - Recharts - Categories",
-    apiConfig: {
-      endpoint: "/api/charts/products/categories",
-      queryKey: ["products", "categories-recharts-pie"],
-      transform: passthroughTransform,
-    },
-    Component: RechartsPieChart,
-    chartOptions: {
-      title: "Pie - Recharts - Categories",
-    },
-  },
-  {
-    name: "Recharts Gender Pie",
-    displayName: "Pie - Recharts - Gender",
-    apiConfig: {
-      endpoint: "/api/charts/users/gender",
-      queryKey: ["users", "gender-recharts-pie"],
-      transform: passthroughTransform,
-    },
-    Component: RechartsPieChart,
-    chartOptions: {
-      title: "Pie - Recharts - Gender",
-    },
-  },
-  {
-    name: "Recharts Blood Type Pie",
-    displayName: "Pie - Recharts - Blood Types",
-    apiConfig: {
-      endpoint: "/api/charts/users/blood-type",
-      queryKey: ["users", "blood-type-recharts-pie"],
-      transform: passthroughTransform,
-    },
-    Component: RechartsPieChart,
-    chartOptions: {
-      title: "Pie - Recharts - Blood Types",
-    },
-  },
-  {
-    name: "Recharts Todo Status Pie",
-    displayName: "Pie - Recharts - Todos",
-    apiConfig: {
-      endpoint: "/api/charts/todos/status",
-      queryKey: ["todos", "status-recharts-pie"],
-      transform: transformStatusToNameValue,
-    },
-    Component: RechartsPieChart,
-    chartOptions: {
-      title: "Pie - Recharts - Todos",
-    },
-  },
-
-  // New Recharts Radar Charts
-  {
-    name: "Recharts Pokemon Stats Radar",
+    name: "Radar Recharts Pokemon Stats",
     displayName: "Radar - Recharts - Pokemon Stats",
     apiConfig: {
       endpoint: "/api/charts/pokemon/stats",
-      queryKey: ["pokemon", "stats-recharts-radar"],
+      queryKey: ["pokemon", "stats", "recharts"],
       transform: transformPokemonForRechartsRadar,
     },
     Component: RechartsRadarChart,
@@ -1295,355 +923,68 @@ export const chartRegistry: ChartConfig[] = [
       title: "Radar - Recharts - Pokemon Stats",
     },
   },
-
-  // New D3 Line Charts
   {
-    name: "D3 Recipe Cooking Time Line",
-    displayName: "Line - D3 - Cooking Times",
+    name: "Radar ECharts Pokemon Stats",
+    displayName: "Radar - ECharts - Pokemon Stats",
     apiConfig: {
-      endpoint: "/api/charts/recipes/cooking-time",
-      queryKey: ["recipes", "cooking-time-d3"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/pokemon/stats",
+      queryKey: ["pokemon", "stats", "echarts"],
+      transform: transformPokemonForEchartsRadar,
     },
-    Component: D3LineChart,
+    Component: EchartsRadarChart,
     chartOptions: {
-      title: "Line - D3 - Cooking Times",
-      xKey: "name",
-      yKey: "cookTimeMinutes",
+      title: "Radar - ECharts - Pokemon Stats",
     },
   },
   {
-    name: "D3 Recipe Ratings Line",
-    displayName: "Line - D3 - Recipe Ratings",
+    name: "Radar ChartJS Pokemon Stats",
+    displayName: "Radar - Chart.js - Pokemon Stats",
     apiConfig: {
-      endpoint: "/api/charts/recipes/ratings",
-      queryKey: ["recipes", "ratings-d3-line"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/pokemon/stats",
+      queryKey: ["pokemon", "stats", "chartjs"],
+      transform: transformPokemonForChartJsRadar,
     },
-    Component: D3LineChart,
+    Component: ChartJsRadarChart,
     chartOptions: {
-      title: "Line - D3 - Recipe Ratings",
-      xKey: "name",
-      yKey: "rating",
+      title: "Radar - Chart.js - Pokemon Stats",
     },
   },
   {
-    name: "D3 Product Discounts Line",
-    displayName: "Line - D3 - Discounts",
+    name: "Radar Plotly Pokemon Stats",
+    displayName: "Radar - Plotly - Pokemon Stats",
     apiConfig: {
-      endpoint: "/api/charts/products/discounts",
-      queryKey: ["products", "discounts-d3-line"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/pokemon/stats",
+      queryKey: ["pokemon", "stats", "plotly"],
+      transform: transformPokemonForChartJsRadar,
     },
-    Component: D3LineChart,
+    Component: PlotlyRadarChart,
     chartOptions: {
-      title: "Line - D3 - Discounts",
-      xKey: "product",
-      yKey: "discountPercentage",
-    },
-  },
-
-  // New D3 Bar Charts
-  {
-    name: "D3 Brand Counts Bar",
-    displayName: "Bar - D3 - Brands",
-    apiConfig: {
-      endpoint: "/api/charts/products/brand-counts",
-      queryKey: ["products", "brand-counts-d3"],
-      transform: passthroughTransform,
-    },
-    Component: D3BarChart,
-    chartOptions: {
-      title: "Bar - D3 - Brands",
-      xKey: "brand",
-      yKey: "count",
+      title: "Radar - Plotly - Pokemon Stats",
     },
   },
   {
-    name: "D3 Age Distribution Bar",
-    displayName: "Bar - D3 - Age Groups",
+    name: "Radar D3 Pokemon Stats",
+    displayName: "Radar - D3 - Pokemon Stats",
     apiConfig: {
-      endpoint: "/api/charts/users/age-distribution",
-      queryKey: ["users", "age-distribution-d3"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/pokemon/stats",
+      queryKey: ["pokemon", "stats", "d3"],
+      transform: transformPokemonForChartJsRadar,
     },
-    Component: D3BarChart,
+    Component: D3RadarChart,
     chartOptions: {
-      title: "Bar - D3 - Age Groups",
-      xKey: "range",
-      yKey: "count",
-    },
-  },
-  {
-    name: "D3 Quote Authors Bar",
-    displayName: "Bar - D3 - Quote Authors",
-    apiConfig: {
-      endpoint: "/api/charts/quotes/authors",
-      queryKey: ["quotes", "authors-d3"],
-      transform: passthroughTransform,
-    },
-    Component: D3BarChart,
-    chartOptions: {
-      title: "Bar - D3 - Quote Authors",
-      xKey: "name",
-      yKey: "value",
-    },
-  },
-  {
-    name: "D3 Pokemon Base XP Bar",
-    displayName: "Bar - D3 - Pokemon XP",
-    apiConfig: {
-      endpoint: "/api/charts/pokemon/base-xp",
-      queryKey: ["pokemon", "base-xp-d3"],
-      transform: transformPokeApiForBaseExperienceBar,
-    },
-    Component: D3BarChart,
-    chartOptions: {
-      title: "Bar - D3 - Pokemon XP",
-      xKey: "name",
-      yKey: "base_experience",
+      title: "Radar - D3 - Pokemon Stats",
     },
   },
 
-  // New Plotly Line Charts
+  // ============================================================================
+  // HEATMAP - Activity Heatmap (4 providers)
+  // ============================================================================
   {
-    name: "Plotly Recipe Cooking Time Line",
-    displayName: "Line - Plotly - Cooking Times",
-    apiConfig: {
-      endpoint: "/api/charts/recipes/cooking-time",
-      queryKey: ["recipes", "cooking-time-plotly"],
-      transform: passthroughTransform,
-    },
-    Component: PlotlyLineChart,
-    chartOptions: {
-      title: "Line - Plotly - Cooking Times",
-      xKey: "name",
-      yKey: "cookTimeMinutes",
-    },
-  },
-  {
-    name: "Plotly Recipe Ratings Line",
-    displayName: "Line - Plotly - Recipe Ratings",
-    apiConfig: {
-      endpoint: "/api/charts/recipes/ratings",
-      queryKey: ["recipes", "ratings-plotly"],
-      transform: passthroughTransform,
-    },
-    Component: PlotlyLineChart,
-    chartOptions: {
-      title: "Line - Plotly - Recipe Ratings",
-      xKey: "name",
-      yKey: "rating",
-    },
-  },
-  {
-    name: "Plotly Weather Temperature Line",
-    displayName: "Line - Plotly - Temperature",
-    apiConfig: {
-      endpoint: "/api/charts/weather/temperature",
-      queryKey: ["weather", "temperature-plotly"],
-      transform: passthroughTransform,
-    },
-    Component: PlotlyLineChart,
-    chartOptions: {
-      title: "Line - Plotly - Temperature",
-      xKey: "date",
-      yKey: "temperature",
-    },
-  },
-  {
-    name: "Plotly Cart Totals Line",
-    displayName: "Line - Plotly - Cart Totals",
-    apiConfig: {
-      endpoint: "/api/charts/carts/totals",
-      queryKey: ["carts", "totals-plotly"],
-      transform: passthroughTransform,
-    },
-    Component: PlotlyLineChart,
-    chartOptions: {
-      title: "Line - Plotly - Cart Totals",
-      xKey: "userId",
-      yKey: "total",
-    },
-  },
-
-  // New Plotly Bar Charts
-  {
-    name: "Plotly Brand Counts Bar",
-    displayName: "Bar - Plotly - Brands",
-    apiConfig: {
-      endpoint: "/api/charts/products/brand-counts",
-      queryKey: ["products", "brand-counts-plotly"],
-      transform: passthroughTransform,
-    },
-    Component: PlotlyBarChart,
-    chartOptions: {
-      title: "Bar - Plotly - Brands",
-      xKey: "brand",
-      yKey: "count",
-    },
-  },
-  {
-    name: "Plotly Age Distribution Bar",
-    displayName: "Bar - Plotly - Age Groups",
-    apiConfig: {
-      endpoint: "/api/charts/users/age-distribution",
-      queryKey: ["users", "age-distribution-plotly"],
-      transform: passthroughTransform,
-    },
-    Component: PlotlyBarChart,
-    chartOptions: {
-      title: "Bar - Plotly - Age Groups",
-      xKey: "range",
-      yKey: "count",
-    },
-  },
-  {
-    name: "Plotly Library Subject Works Bar",
-    displayName: "Bar - Plotly - Library Works",
-    apiConfig: {
-      endpoint: "/api/charts/library/subject-works",
-      queryKey: ["library", "subject-works-plotly"],
-      transform: passthroughTransform,
-    },
-    Component: PlotlyBarChart,
-    chartOptions: {
-      title: "Bar - Plotly - Library Works",
-      xKey: "name",
-      yKey: "value",
-    },
-  },
-
-  // New Plotly Pie Charts
-  {
-    name: "Plotly Category Pie",
-    displayName: "Pie - Plotly - Categories",
-    apiConfig: {
-      endpoint: "/api/charts/products/categories",
-      queryKey: ["products", "categories-plotly-pie"],
-      transform: passthroughTransform,
-    },
-    Component: PlotlyPieChart,
-    chartOptions: {
-      title: "Pie - Plotly - Categories",
-    },
-  },
-  {
-    name: "Plotly Gender Pie",
-    displayName: "Pie - Plotly - Gender",
-    apiConfig: {
-      endpoint: "/api/charts/users/gender",
-      queryKey: ["users", "gender-plotly-pie"],
-      transform: passthroughTransform,
-    },
-    Component: PlotlyPieChart,
-    chartOptions: {
-      title: "Pie - Plotly - Gender",
-    },
-  },
-  {
-    name: "Plotly Blood Type Pie",
-    displayName: "Pie - Plotly - Blood Types",
-    apiConfig: {
-      endpoint: "/api/charts/users/blood-type",
-      queryKey: ["users", "blood-type-plotly-pie"],
-      transform: passthroughTransform,
-    },
-    Component: PlotlyPieChart,
-    chartOptions: {
-      title: "Pie - Plotly - Blood Types",
-    },
-  },
-  {
-    name: "Plotly Recipe Difficulty Pie",
-    displayName: "Pie - Plotly - Difficulty",
-    apiConfig: {
-      endpoint: "/api/charts/recipes/difficulty",
-      queryKey: ["recipes", "difficulty-plotly-pie"],
-      transform: transformDifficultyToNameValue,
-    },
-    Component: PlotlyPieChart,
-    chartOptions: {
-      title: "Pie - Plotly - Difficulty",
-    },
-  },
-  {
-    name: "Plotly Todo Status Pie",
-    displayName: "Pie - Plotly - Todos",
-    apiConfig: {
-      endpoint: "/api/charts/todos/status",
-      queryKey: ["todos", "status-plotly-pie"],
-      transform: transformStatusToNameValue,
-    },
-    Component: PlotlyPieChart,
-    chartOptions: {
-      title: "Pie - Plotly - Todos",
-    },
-  },
-
-  // New Area Charts
-  {
-    name: "Plotly Weather Temperature Area",
-    displayName: "Area - Plotly - Temperature",
-    apiConfig: {
-      endpoint: "/api/charts/weather/temperature",
-      queryKey: ["weather", "temperature-plotly-area"],
-      transform: passthroughTransform,
-    },
-    Component: PlotlyAreaChart,
-    chartOptions: {
-      title: "Area - Plotly - Temperature",
-      xKey: "date",
-      yKey: "temperature",
-    },
-  },
-
-  // New Heatmap Charts
-  {
-    name: "ECharts Activity Heatmap",
-    displayName: "Heatmap - ECharts - Activity",
-    apiConfig: {
-      endpoint: "/api/charts/heatmap/sample",
-      queryKey: ["heatmap", "sample-echarts"],
-      transform: passthroughTransform,
-    },
-    Component: EchartsHeatmapChart,
-    chartOptions: {
-      title: "Heatmap - ECharts - Activity",
-    },
-  },
-  {
-    name: "Plotly Activity Heatmap",
-    displayName: "Heatmap - Plotly - Activity",
-    apiConfig: {
-      endpoint: "/api/charts/heatmap/sample",
-      queryKey: ["heatmap", "sample-plotly"],
-      transform: passthroughTransform,
-    },
-    Component: PlotlyHeatmapChart,
-    chartOptions: {
-      title: "Heatmap - Plotly - Activity",
-    },
-  },
-  {
-    name: "D3 Activity Heatmap",
-    displayName: "Heatmap - D3 - Activity",
-    apiConfig: {
-      endpoint: "/api/charts/heatmap/sample",
-      queryKey: ["heatmap", "sample-d3"],
-      transform: passthroughTransform,
-    },
-    Component: D3HeatmapChart,
-    chartOptions: {
-      title: "Heatmap - D3 - Activity",
-    },
-  },
-  {
-    name: "Nivo Activity Heatmap 2",
+    name: "Heatmap Nivo Activity",
     displayName: "Heatmap - Nivo - Activity",
     apiConfig: {
       endpoint: "/api/charts/heatmap/sample",
-      queryKey: ["heatmap", "sample-nivo2"],
+      queryKey: ["heatmap", "sample", "nivo"],
       transform: passthroughTransform,
     },
     Component: NivoHeatmap2Chart,
@@ -1653,94 +994,77 @@ export const chartRegistry: ChartConfig[] = [
       yAxisLabel: "Day",
     },
   },
+  {
+    name: "Heatmap ECharts Activity",
+    displayName: "Heatmap - ECharts - Activity",
+    apiConfig: {
+      endpoint: "/api/charts/heatmap/sample",
+      queryKey: ["heatmap", "sample", "echarts"],
+      transform: passthroughTransform,
+    },
+    Component: EchartsHeatmapChart,
+    chartOptions: {
+      title: "Heatmap - ECharts - Activity",
+    },
+  },
+  {
+    name: "Heatmap Plotly Activity",
+    displayName: "Heatmap - Plotly - Activity",
+    apiConfig: {
+      endpoint: "/api/charts/heatmap/sample",
+      queryKey: ["heatmap", "sample", "plotly"],
+      transform: passthroughTransform,
+    },
+    Component: PlotlyHeatmapChart,
+    chartOptions: {
+      title: "Heatmap - Plotly - Activity",
+    },
+  },
+  {
+    name: "Heatmap D3 Activity",
+    displayName: "Heatmap - D3 - Activity",
+    apiConfig: {
+      endpoint: "/api/charts/heatmap/sample",
+      queryKey: ["heatmap", "sample", "d3"],
+      transform: passthroughTransform,
+    },
+    Component: D3HeatmapChart,
+    chartOptions: {
+      title: "Heatmap - D3 - Activity",
+    },
+  },
 
-  // New Radar Charts
+  // ============================================================================
+  // AREA CHARTS - SpaceX Launches (2 providers)
+  // ============================================================================
   {
-    name: "Plotly Pokemon Stats Radar",
-    displayName: "Radar - Plotly - Pokemon Stats",
+    name: "Area Recharts SpaceX",
+    displayName: "Area - Recharts - SpaceX Launches",
     apiConfig: {
-      endpoint: "/api/charts/pokemon/stats",
-      queryKey: ["pokemon", "stats-plotly-radar"],
-      transform: transformPokemonForChartJsRadar,
+      endpoint: "/api/charts/spacex/launches",
+      queryKey: ["spacex", "launches", "recharts"],
+      transform: passthroughWithDateTransform,
     },
-    Component: PlotlyRadarChart,
+    Component: RechartsAreaChart,
     chartOptions: {
-      title: "Radar - Plotly - Pokemon Stats",
+      title: "Area - Recharts - SpaceX Launches",
+      xKey: "date",
+      dataKey: "count",
     },
   },
   {
-    name: "D3 Pokemon Stats Radar",
-    displayName: "Radar - D3 - Pokemon Stats",
+    name: "Area D3 SpaceX",
+    displayName: "Area - D3 - SpaceX Launches",
     apiConfig: {
-      endpoint: "/api/charts/pokemon/stats",
-      queryKey: ["pokemon", "stats-d3-radar"],
-      transform: transformPokemonForChartJsRadar,
+      endpoint: "/api/charts/spacex/launches",
+      queryKey: ["spacex", "launches", "d3"],
+      transform: passthroughWithDateTransform,
     },
-    Component: D3RadarChart,
+    Component: D3AreaChart,
     chartOptions: {
-      title: "Radar - D3 - Pokemon Stats",
-    },
-  },
-
-  // New Scatter Charts
-  {
-    name: "Recharts Product Price-Rating Scatter",
-    displayName: "Scatter - Recharts - Price vs Rating",
-    apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "price-rating-recharts-scatter"],
-      transform: passthroughTransform,
-    },
-    Component: RechartsScatterChart,
-    chartOptions: {
-      title: "Scatter - Recharts - Price vs Rating",
-      xKey: "price",
-      yKey: "rating",
-    },
-  },
-  {
-    name: "Nivo Product Price-Rating Scatter",
-    displayName: "Scatter - Nivo - Price vs Rating",
-    apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "price-rating-nivo-scatter"],
-      transform: passthroughTransform,
-    },
-    Component: NivoScatterChart,
-    chartOptions: {
-      title: "Scatter - Nivo - Price vs Rating",
-      xKey: "price",
-      yKey: "rating",
-    },
-  },
-  {
-    name: "ChartJS Product Price-Rating Scatter",
-    displayName: "Scatter - Chart.js - Price vs Rating",
-    apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "price-rating-chartjs-scatter"],
-      transform: passthroughTransform,
-    },
-    Component: ChartJsScatterChart,
-    chartOptions: {
-      title: "Scatter - Chart.js - Price vs Rating",
-      xKey: "price",
-      yKey: "rating",
-    },
-  },
-  {
-    name: "D3 Product Price-Rating Scatter",
-    displayName: "Scatter - D3 - Price vs Rating",
-    apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "price-rating-d3-scatter"],
-      transform: passthroughTransform,
-    },
-    Component: D3ScatterChart,
-    chartOptions: {
-      title: "Scatter - D3 - Price vs Rating",
-      xKey: "price",
-      yKey: "rating",
+      title: "Area - D3 - SpaceX Launches",
+      xKey: "date",
+      yKey: "count",
     },
   },
 ];

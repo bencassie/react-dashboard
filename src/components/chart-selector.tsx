@@ -73,6 +73,7 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle, onSelectA
   const [isMounted, setIsMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const portalRef = useRef<HTMLDivElement>(null);
+  const scrollPositionRef = useRef<number>(0);
 
   // Track mounted state for portal (SSR compatibility)
   useEffect(() => {
@@ -90,6 +91,26 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle, onSelectA
     setTimeout(() => setIsPending(false), 300);
   }, [onToggle]);
 
+  // Save scroll position when closing
+  const handleClose = useCallback(() => {
+    if (portalRef.current) {
+      scrollPositionRef.current = portalRef.current.scrollTop;
+    }
+    setIsExpanded(false);
+  }, []);
+
+  // Restore scroll position when opening
+  useEffect(() => {
+    if (isExpanded && portalRef.current) {
+      // Restore scroll position on next frame to ensure content is rendered
+      requestAnimationFrame(() => {
+        if (portalRef.current) {
+          portalRef.current.scrollTop = scrollPositionRef.current;
+        }
+      });
+    }
+  }, [isExpanded]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -98,7 +119,7 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle, onSelectA
       const isOutsidePortal = portalRef.current && !portalRef.current.contains(target);
 
       if (isOutsideContainer && isOutsidePortal) {
-        setIsExpanded(false);
+        handleClose();
       }
     };
 
@@ -108,7 +129,7 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle, onSelectA
         document.removeEventListener("mousedown", handleClickOutside);
       };
     }
-  }, [isExpanded]);
+  }, [isExpanded, handleClose]);
 
   const groupedCharts = useMemo(() => {
     // Group charts by type and vendor
@@ -163,7 +184,13 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle, onSelectA
         className={`inline-flex items-center gap-2 px-3 py-2 bg-muted/40 hover:bg-muted/60 rounded-full cursor-pointer transition-all shadow-sm hover:shadow-md border border-border/30 ${
           isPending ? "opacity-60" : ""
         }`}
-        onClick={() => setIsExpanded(!isExpanded)}
+        onClick={() => {
+          if (isExpanded) {
+            handleClose();
+          } else {
+            setIsExpanded(true);
+          }
+        }}
       >
         <Filter className={`w-4 h-4 text-muted-foreground ${isPending ? "animate-pulse" : ""}`} />
         <span className="text-sm font-medium">
