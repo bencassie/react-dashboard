@@ -2,7 +2,7 @@
 import { useQueries } from "@tanstack/react-query";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Card } from "@/components/ui/card";
-import { useEffect, useMemo, useCallback, startTransition, useState, useRef } from "react";
+import { useEffect, useMemo, useCallback, startTransition, useState, useRef, Suspense } from "react";
 import { useStore } from "@/lib/store";
 import { chartRegistry } from "@/lib/charts/registry";
 import { ChartWrapper } from "@/components/graphs/chartwrapper";
@@ -43,7 +43,7 @@ const fetchData = async (url: string, options?: { multiFetch?: boolean }) => {
   return json;
 };
 
-export default function Page() {
+function DashboardContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -345,5 +345,19 @@ export default function Page() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/10">
+        <Card className="p-12 text-center">
+          <p className="text-lg text-muted-foreground">Loading dashboard...</p>
+        </Card>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   );
 }
