@@ -16,6 +16,7 @@ type GroupedChart = {
   displayName: string;
   vendor: string;
   type: string;
+  dataSet: string;
 };
 
 // Memoized individual badge component for performance
@@ -44,9 +45,7 @@ const ChartBadge = memo(({
       onClick={handleClick}
     >
       <span className="font-semibold mr-1">{chart.vendor}</span>
-      <span className="opacity-75">
-        · {chart.displayName.replace(chart.vendor, '').replace(/\(.*?\)/g, '').trim()}
-      </span>
+      <span className="opacity-75">· {chart.type}</span>
       {isSelected && <X className="ml-2 h-3 w-3" />}
     </Badge>
   );
@@ -57,14 +56,21 @@ ChartBadge.displayName = "ChartBadge";
 const VENDORS = ["Nivo", "ECharts", "Recharts", "Chart.js", "ChartJS", "D3", "Plotly"];
 const CHART_TYPES = ["Bar", "Line", "Pie", "Doughnut", "Area", "Scatter", "Radar", "Heatmap", "Bump"];
 
-function extractVendorAndType(displayName: string): { vendor: string; type: string } {
-  // Find vendor in display name
+function extractVendorAndType(displayName: string): { vendor: string; type: string; dataSet: string } {
+  // DisplayName format: "{Type} - {Vendor} - {Data Set}"
+  const parts = displayName.split(" - ").map(p => p.trim());
+
+  if (parts.length >= 3) {
+    const type = parts[0];
+    const vendor = parts[1] === "ChartJS" ? "Chart.js" : parts[1];
+    const dataSet = parts.slice(2).join(" - "); // In case data set contains " - "
+    return { vendor, type, dataSet };
+  }
+
+  // Fallback to old logic if format doesn't match
   const vendor = VENDORS.find(v => displayName.includes(v)) || "Other";
-
-  // Find chart type in display name
   const type = CHART_TYPES.find(t => displayName.toLowerCase().includes(t.toLowerCase())) || "Other";
-
-  return { vendor: vendor === "ChartJS" ? "Chart.js" : vendor, type };
+  return { vendor: vendor === "ChartJS" ? "Chart.js" : vendor, type, dataSet: "Other" };
 }
 
 export const ChartSelector = memo(({ charts, selectedGraphs, onToggle, onSelectAll }: ChartSelectorProps) => {
@@ -132,26 +138,27 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle, onSelectA
   }, [isExpanded, handleClose]);
 
   const groupedCharts = useMemo(() => {
-    // Group charts by type and vendor
+    // Group charts by data set and vendor
     const groups: Record<string, GroupedChart[]> = {};
 
     charts.forEach(chart => {
-      const { vendor, type } = extractVendorAndType(chart.displayName);
+      const { vendor, type, dataSet } = extractVendorAndType(chart.displayName);
 
-      if (!groups[type]) {
-        groups[type] = [];
+      if (!groups[dataSet]) {
+        groups[dataSet] = [];
       }
 
-      groups[type].push({
+      groups[dataSet].push({
         ...chart,
         vendor,
         type,
+        dataSet,
       });
     });
 
     // Sort each group by vendor
-    Object.keys(groups).forEach(type => {
-      groups[type].sort((a, b) => {
+    Object.keys(groups).forEach(dataSet => {
+      groups[dataSet].sort((a, b) => {
         const vendorOrder = VENDORS.indexOf(a.vendor) - VENDORS.indexOf(b.vendor);
         if (vendorOrder !== 0) return vendorOrder;
         return a.displayName.localeCompare(b.displayName);
@@ -161,8 +168,9 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle, onSelectA
     return groups;
   }, [charts]);
 
-  const chartTypeOrder = useMemo(() => {
-    return CHART_TYPES.filter(type => groupedCharts[type]?.length > 0);
+  const dataSetOrder = useMemo(() => {
+    // Sort data sets alphabetically
+    return Object.keys(groupedCharts).sort((a, b) => a.localeCompare(b));
   }, [groupedCharts]);
 
   const getVendorColor = useCallback((vendor: string) => {
@@ -228,13 +236,13 @@ export const ChartSelector = memo(({ charts, selectedGraphs, onToggle, onSelectA
               </span>
             </div>
 
-            {chartTypeOrder.map(type => (
-              <div key={type} className="space-y-2">
+            {dataSetOrder.map(dataSet => (
+              <div key={dataSet} className="space-y-2">
                 <h3 className="font-bold text-sm text-foreground sticky top-0 bg-background py-1 border-b">
-                  {type} Charts ({groupedCharts[type]?.length})
+                  {dataSet} ({groupedCharts[dataSet]?.length})
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {groupedCharts[type]?.map(chart => (
+                  {groupedCharts[dataSet]?.map(chart => (
                     <ChartBadge
                       key={chart.name}
                       chart={chart}

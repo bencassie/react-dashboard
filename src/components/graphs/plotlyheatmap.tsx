@@ -38,15 +38,15 @@ function PlotlyHeatmapChartInner({ data, isLoading, error, options }: ChartCompo
 
     // Extract x and y values
     const xVals = Array.from(new Set(rawData.flatMap((d: any) => d.data?.map((item: any) => item.x) || [])));
-    const yVals = rawData.map((d: any) => d.id);
+    const yVals = rawData.map((d: any) => d.id).reverse(); // Reverse to show Day 1 at top
 
-    // Build z matrix (y rows x x columns)
+    // Build z matrix (y rows x x columns) - reversed to match yVals
     const zVals: number[][] = rawData.map((row: any) => {
       return xVals.map(xVal => {
         const cell = row.data?.find((item: any) => item.x === xVal);
         return cell?.y || 0;
       });
-    });
+    }).reverse(); // Reverse rows to match reversed yVals
 
     return { xValues: xVals, yValues: yVals, zValues: zVals };
   }, [data]);
@@ -68,8 +68,7 @@ function PlotlyHeatmapChartInner({ data, isLoading, error, options }: ChartCompo
               autosize: true,
               title: undefined,
               margin: { t: 40, r: 40, l: 80, b: 60 },
-              xaxis: { side: "bottom" },
-              yaxis: { autorange: "reversed" }
+              xaxis: { side: "bottom" }
             }}
             useResizeHandler
             style={{ width: "100%", height: "100%" }}

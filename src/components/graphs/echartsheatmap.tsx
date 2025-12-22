@@ -33,14 +33,16 @@ function EchartsHeatmapChartInner({ data, isLoading, error, options }: ChartComp
 
     // Extract unique x and y values
     const xValues = Array.from(new Set(rawData.flatMap((d: any) => d.data?.map((item: any) => item.x) || [])));
-    const yValues = Array.from(new Set(rawData.map((d: any) => d.id)));
+    const yValues = Array.from(new Set(rawData.map((d: any) => d.id))).reverse(); // Reverse to show Day 1 at top
 
     // Transform data to ECharts format: [[xIndex, yIndex, value], ...]
     const heatmapData: [number, number, number][] = [];
     rawData.forEach((row: any, yIndex: number) => {
       row.data?.forEach((cell: any) => {
         const xIndex = xValues.indexOf(cell.x);
-        heatmapData.push([xIndex, yIndex, cell.y || 0]);
+        // Since yValues is reversed, find the correct index in the reversed array
+        const reversedYIndex = yValues.indexOf(row.id);
+        heatmapData.push([xIndex, reversedYIndex, cell.y || 0]);
       });
     });
 
