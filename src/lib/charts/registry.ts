@@ -1289,13 +1289,15 @@ export const chartRegistry: ChartConfig[] = [
     displayName: "Treemap - ECharts - Products by Category",
     apiConfig: {
       endpoint: "/api/charts/products/all",
-      queryKey: ["products", "all", "treemap"],
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
       transform: transformProductsForTreemap,
     },
     Component: EChartsTreemap,
     chartOptions: {
       title: "Treemap - ECharts - Products by Category",
     },
+    filterConfig: productsFilterConfig,
   },
 
   // ============================================================================
@@ -1306,26 +1308,30 @@ export const chartRegistry: ChartConfig[] = [
     displayName: "Box Plot - ECharts - Product Prices",
     apiConfig: {
       endpoint: "/api/charts/products/all",
-      queryKey: ["products", "all", "boxplot-prices"],
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
       transform: transformProductsForPriceBoxPlot,
     },
     Component: EChartsBoxPlot,
     chartOptions: {
       title: "Box Plot - ECharts - Product Prices by Category",
     },
+    filterConfig: productsFilterConfig,
   },
   {
     name: "BoxPlot ECharts Recipe Cook Times",
     displayName: "Box Plot - ECharts - Recipe Cook Times",
     apiConfig: {
       endpoint: "/api/charts/recipes/all",
-      queryKey: ["recipes", "all", "boxplot-cooktimes"],
+      queryKey: ["recipes", "all"],
+      dataSourceId: "recipes",
       transform: transformRecipesForCookTimeBoxPlot,
     },
     Component: EChartsBoxPlot,
     chartOptions: {
       title: "Box Plot - ECharts - Cook Times by Difficulty",
     },
+    filterConfig: recipesFilterConfig,
   },
 
   // ============================================================================
@@ -1353,12 +1359,14 @@ export const chartRegistry: ChartConfig[] = [
     displayName: "Sunburst - ECharts - Products by Category",
     apiConfig: {
       endpoint: "/api/charts/products/all",
-      queryKey: ["products", "all", "sunburst"],
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
       transform: transformProductsForSunburst,
     },
     Component: EChartsSunburst,
     chartOptions: {
       title: "Sunburst - ECharts - Products by Category",
     },
+    filterConfig: productsFilterConfig,
   },
 ];

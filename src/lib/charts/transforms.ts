@@ -332,13 +332,24 @@ interface HierarchyNode {
   children?: HierarchyNode[];
 }
 
-export function transformProductsForTreemap(products: any[]): HierarchyNode {
+export function transformProductsForTreemap(
+  raw: any,
+  filters?: ChartFilterState
+): HierarchyNode {
+  const products = raw?.products || raw || [];
   if (!Array.isArray(products)) return { name: "All Products", children: [] };
+
+  // Import filter configs lazily to avoid circular dependency
+  const filterConfigs: FilterConfig[] = [
+    { id: "category", type: "multi-select", field: "category", label: "Categories", options: "auto", defaultValue: [] },
+    { id: "priceRange", type: "range", field: "price", label: "Price", bounds: "auto", defaultValue: { min: 0, max: 2000 } },
+  ];
+  const filtered = applyFilters(products, filters, filterConfigs);
 
   const categoryMap = new Map<string, Map<string, any[]>>();
 
   // Group by category → brand
-  products.forEach((product) => {
+  filtered.forEach((product: any) => {
     const category = product.category || "Unknown";
     const brand = product.brand || "Unknown";
 
@@ -357,7 +368,7 @@ export function transformProductsForTreemap(products: any[]): HierarchyNode {
     name: category,
     children: Array.from(brandMap.entries()).map(([brand, items]) => ({
       name: brand,
-      children: items.slice(0, 10).map((p) => ({
+      children: items.slice(0, 10).map((p: any) => ({
         name: p.title || "Unknown Product",
         value: Math.round(p.price || 0),
       })),
@@ -370,7 +381,12 @@ export function transformProductsForTreemap(products: any[]): HierarchyNode {
   };
 }
 
-export const transformProductsForSunburst = transformProductsForTreemap; // Same structure
+export function transformProductsForSunburst(
+  raw: any,
+  filters?: ChartFilterState
+): HierarchyNode {
+  return transformProductsForTreemap(raw, filters);
+}
 
 // ============================================================================
 // BOX PLOT - Product Prices by Category
@@ -396,12 +412,22 @@ function calculateBoxPlotStats(values: number[]): number[] {
   return [min, q1, median, q3, max];
 }
 
-export function transformProductsForPriceBoxPlot(products: any[]): BoxPlotData {
+export function transformProductsForPriceBoxPlot(
+  raw: any,
+  filters?: ChartFilterState
+): BoxPlotData {
+  const products = raw?.products || raw || [];
   if (!Array.isArray(products)) return { categories: [], values: [] };
+
+  // Apply filters (only category filter makes sense for boxplot by category)
+  const filterConfigs: FilterConfig[] = [
+    { id: "category", type: "multi-select", field: "category", label: "Categories", options: "auto", defaultValue: [] },
+  ];
+  const filtered = applyFilters(products, filters, filterConfigs);
 
   const categoryPrices = new Map<string, number[]>();
 
-  products.forEach((product) => {
+  filtered.forEach((product: any) => {
     const category = product.category || "Unknown";
     const price = parseFloat(product.price);
 
@@ -426,12 +452,23 @@ export function transformProductsForPriceBoxPlot(products: any[]): BoxPlotData {
   return { categories, values };
 }
 
-export function transformRecipesForCookTimeBoxPlot(recipes: any[]): BoxPlotData {
+export function transformRecipesForCookTimeBoxPlot(
+  raw: any,
+  filters?: ChartFilterState
+): BoxPlotData {
+  const recipes = raw?.recipes || raw || [];
   if (!Array.isArray(recipes)) return { categories: [], values: [] };
+
+  // Apply filters
+  const filterConfigs: FilterConfig[] = [
+    { id: "difficulty", type: "multi-select", field: "difficulty", label: "Difficulty", options: ["Easy", "Medium", "Hard"], defaultValue: [] },
+    { id: "cuisine", type: "multi-select", field: "cuisine", label: "Cuisine", options: "auto", defaultValue: [] },
+  ];
+  const filtered = applyFilters(recipes, filters, filterConfigs);
 
   const difficultyTimes = new Map<string, number[]>();
 
-  recipes.forEach((recipe) => {
+  filtered.forEach((recipe: any) => {
     const difficulty = recipe.difficulty || "Unknown";
     const cookTime = parseInt(recipe.cookTimeMinutes);
 
