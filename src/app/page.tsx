@@ -7,6 +7,8 @@ import { useStore } from "@/lib/store";
 import { chartRegistry } from "@/lib/charts/registry";
 import { ChartWrapper } from "@/components/graphs/chartwrapper";
 import { ChartSelector } from "@/components/chart-selector";
+import { FilterContainer } from "@/components/filters";
+import type { FilterValue } from "@/lib/charts/filter-types";
 
 const VENDORS = ["Nivo", "ECharts", "Recharts", "Chart.js", "ChartJS", "D3", "Plotly"];
 const CHART_TYPES = ["Bar", "Line", "Pie", "Doughnut", "Area", "Scatter", "Radar", "Heatmap", "Bump", "Treemap", "Box Plot", "BoxPlot", "Funnel", "Sunburst"];
@@ -47,7 +49,7 @@ function DashboardContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const { selectedGraphs, renderKeys, toggleGraph, setSelectedGraphs } = useStore();
+  const { selectedGraphs, renderKeys, toggleGraph, setSelectedGraphs, chartFilters, setFilter, resetFilters } = useStore();
 
   // Progressive rendering: track which charts are ready to render
   const [readyToRender, setReadyToRender] = useState<Set<string>>(new Set());
@@ -197,7 +199,7 @@ function DashboardContent() {
       refetchOnWindowFocus: false,    // no tab-focus refetch
       refetchOnMount: false,          // no refetch if cache fresh
       refetchOnReconnect: false,      // no refetch on reconnect
-      retry: (failureCount, err: any) => {
+      retry: (failureCount: number, err: any) => {
         const status = err?.status ?? err?.response?.status;
         if (status && status >= 400 && status < 500) return false; // don't retry 4xx
         return failureCount < 2; // small backoff for transient errors
@@ -214,13 +216,18 @@ function DashboardContent() {
       selectedConfigs.map((config, idx) => {
         const query = queries[idx];
         const isReady = readyToRender.has(config.name);
+        const filters = chartFilters[config.name] || {};
 
         // Handle client-side data generation (no endpoint)
+        // Pass filters to transform for client-side filtering
         const transformedData = config.apiConfig.endpoint === ""
-          ? config.apiConfig.transform(null)
+          ? config.apiConfig.transform(null, filters)
           : query?.data
-          ? config.apiConfig.transform(query.data)
+          ? config.apiConfig.transform(query.data, filters)
           : null;
+
+        // Extract raw data for filter option derivation
+        const rawData = query?.data;
 
         // Check if data actually changed by comparing with cached version
         const cached = chartDataCache.current.get(config.name);
@@ -234,7 +241,8 @@ function DashboardContent() {
           cached.isLoading === currentIsLoading &&
           cached.error === query?.error &&
           cached.renderKey === currentRenderKey &&
-          cached.isReady === isReady
+          cached.isReady === isReady &&
+          cached.rawData === rawData
         ) {
           return cached;
         }
@@ -243,16 +251,18 @@ function DashboardContent() {
         const newData = {
           config,
           data: transformedData,
+          rawData, // Store raw data for filter option derivation
           isLoading: currentIsLoading,
           error: (query?.error as Error | null) ?? null,
           renderKey: currentRenderKey,
           isReady,
+          filters,
         };
 
         chartDataCache.current.set(config.name, newData);
         return newData;
       }),
-    [selectedConfigs, queries, renderKeys, readyToRender]
+    [selectedConfigs, queries, renderKeys, readyToRender, chartFilters]
   );
 
   // Group charts by type for display
@@ -324,18 +334,40 @@ function DashboardContent() {
 
                     {/* Charts in this group */}
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                      {groupedChartData[type].map(({ config, data, isLoading, error, renderKey }) => (
-                        <ChartWrapper
-                          key={`${config.name}-${renderKey}`}
-                          Component={config.Component}
-                          data={data}
-                          isLoading={isLoading}
-                          error={error}
-                          renderKey={renderKey}
-                          options={config.chartOptions}
-                          debounceMs={150}
-                        />
-                      ))}
+                      {groupedChartData[type].map(({ config, data, rawData, isLoading, error, renderKey }) => {
+                        // Extract raw array for filter options
+                        const rawArray = Array.isArray(rawData)
+                          ? rawData
+                          : rawData?.products || rawData?.users || rawData?.recipes || [];
+
+                        return (
+                          <div key={`${config.name}-${renderKey}`} className="flex flex-col">
+                            {/* Filter UI */}
+                            {config.filterConfig && rawArray.length > 0 && (
+                              <FilterContainer
+                                filters={config.filterConfig.filters}
+                                values={chartFilters[config.name] || {}}
+                                rawData={rawArray}
+                                onChange={(filterId: string, value: FilterValue) =>
+                                  setFilter(config.name, filterId, value)
+                                }
+                                onReset={() => resetFilters(config.name)}
+                                layout={config.filterConfig.layout}
+                              />
+                            )}
+                            {/* Chart */}
+                            <ChartWrapper
+                              Component={config.Component}
+                              data={data}
+                              isLoading={isLoading}
+                              error={error}
+                              renderKey={renderKey}
+                              options={config.chartOptions}
+                              debounceMs={150}
+                            />
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 ))}

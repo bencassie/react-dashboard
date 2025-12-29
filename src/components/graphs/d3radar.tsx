@@ -31,7 +31,7 @@ function D3RadarChartInner({ data, isLoading, error, options, renderKey }: Chart
     const angleStep = (2 * Math.PI) / series.length;
 
     // Create radial scale for each metric
-    const maxValues = metrics.map(metric => d3.max(series, (d: any) => d[metric]) || 100);
+    const maxValues = metrics.map(metric => d3.max(series, (d: any) => Number(d[metric])) || 100);
     const globalMax = Math.max(...maxValues);
     const rScale = d3.scaleLinear().domain([0, globalMax]).range([0, radius]);
 

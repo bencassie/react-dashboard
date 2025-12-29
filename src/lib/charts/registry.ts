@@ -3,9 +3,6 @@ import dynamic from "next/dynamic";
 import type { ChartConfig } from "./types";
 import {
   passthroughTransform,
-  passthroughWithDateTransform,
-  transformDifficultyToNameValue,
-  transformStatusToNameValue,
   transformPokemonForRechartsRadar,
   transformPokemonForEchartsRadar,
   transformPokemonForChartJsRadar,
@@ -15,7 +12,24 @@ import {
   transformProductsForPriceBoxPlot,
   transformRecipesForCookTimeBoxPlot,
   passthroughTransformForFunnel,
+  // Products - client-side transforms
+  transformProductsForBrandCountsFiltered,
+  transformProductsForCategories,
+  transformProductsForPriceRatingFiltered,
+  // Users - client-side transforms
+  transformUsersForGender,
+  transformUsersForBloodType,
+  transformUsersForAgeDistribution,
+  // Recipes - client-side transforms
+  transformRecipesForDifficulty,
+  transformRecipesForCookingTime,
+  transformRecipesForCookingTimeNivoLine,
+  // Todos - client-side transforms
+  transformTodosForStatus,
+  // SpaceX - client-side transforms
+  transformSpaceXForLaunchesPerYear,
 } from "./transforms";
+import type { ChartFilterConfig } from "./filter-types";
 
 // Chart components - dynamically imported for code splitting
 const NivoBarChart = dynamic(() => import("@/components/graphs/nivobar"), { ssr: false });
@@ -62,6 +76,102 @@ const EChartsBoxPlot = dynamic(() => import("@/components/graphs/echartsboxplot"
 const EChartsFunnel = dynamic(() => import("@/components/graphs/echartsfunnel"), { ssr: false });
 const EChartsSunburst = dynamic(() => import("@/components/graphs/echartssunburst"), { ssr: false });
 
+// Filter configuration for Products data source
+const productsFilterConfig: ChartFilterConfig = {
+  filters: [
+    {
+      id: "category",
+      type: "multi-select",
+      label: "Category",
+      field: "category",
+      options: "auto",
+      defaultValue: [],
+    },
+    {
+      id: "priceRange",
+      type: "range",
+      label: "Price",
+      field: "price",
+      bounds: "auto",
+      step: 10,
+      defaultValue: { min: 0, max: 2000 },
+    },
+    {
+      id: "rating",
+      type: "range",
+      label: "Rating",
+      field: "rating",
+      bounds: { min: 0, max: 5 },
+      step: 0.5,
+      defaultValue: { min: 0, max: 5 },
+    },
+  ],
+  layout: "inline",
+};
+
+// Filter configuration for Users data source
+const usersFilterConfig: ChartFilterConfig = {
+  filters: [
+    {
+      id: "gender",
+      type: "multi-select",
+      label: "Gender",
+      field: "gender",
+      options: "auto",
+      defaultValue: [],
+    },
+    {
+      id: "age",
+      type: "range",
+      label: "Age",
+      field: "age",
+      bounds: "auto",
+      defaultValue: { min: 0, max: 100 },
+    },
+    {
+      id: "bloodGroup",
+      type: "multi-select",
+      label: "Blood Type",
+      field: "bloodGroup",
+      options: "auto",
+      defaultValue: [],
+    },
+  ],
+  layout: "inline",
+};
+
+// Filter configuration for Recipes data source
+const recipesFilterConfig: ChartFilterConfig = {
+  filters: [
+    {
+      id: "difficulty",
+      type: "multi-select",
+      label: "Difficulty",
+      field: "difficulty",
+      options: ["Easy", "Medium", "Hard"],
+      defaultValue: [],
+    },
+    {
+      id: "cuisine",
+      type: "multi-select",
+      label: "Cuisine",
+      field: "cuisine",
+      options: "auto",
+      defaultValue: [],
+    },
+    {
+      id: "rating",
+      type: "range",
+      label: "Rating",
+      field: "rating",
+      bounds: { min: 0, max: 5 },
+      step: 0.5,
+      defaultValue: { min: 0, max: 5 },
+    },
+  ],
+  layout: "inline",
+};
+
 /**
  * Reorganized chart registry for fair library comparison
  * Each data set has one chart per provider (where chart type makes sense)
@@ -75,9 +185,10 @@ export const chartRegistry: ChartConfig[] = [
     name: "Bar Nivo Brand Counts",
     displayName: "Bar - Nivo - Brand Counts",
     apiConfig: {
-      endpoint: "/api/charts/products/brand-counts",
-      queryKey: ["products", "brand-counts", "nivo"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForBrandCountsFiltered,
     },
     Component: NivoBarChart,
     chartOptions: {
@@ -87,14 +198,16 @@ export const chartRegistry: ChartConfig[] = [
       xAxisLabel: "Brand",
       yAxisLabel: "Count",
     },
+    filterConfig: productsFilterConfig,
   },
   {
     name: "Bar Recharts Brand Counts",
     displayName: "Bar - Recharts - Brand Counts",
     apiConfig: {
-      endpoint: "/api/charts/products/brand-counts",
-      queryKey: ["products", "brand-counts", "recharts"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForBrandCountsFiltered,
     },
     Component: RechartsBarChart,
     chartOptions: {
@@ -102,14 +215,16 @@ export const chartRegistry: ChartConfig[] = [
       dataKey: "count",
       xKey: "brand",
     },
+    filterConfig: productsFilterConfig,
   },
   {
     name: "Bar ECharts Brand Counts",
     displayName: "Bar - ECharts - Brand Counts",
     apiConfig: {
-      endpoint: "/api/charts/products/brand-counts",
-      queryKey: ["products", "brand-counts", "echarts"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForBrandCountsFiltered,
     },
     Component: EchartsBarChart,
     chartOptions: {
@@ -117,14 +232,16 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "brand",
       yKey: "count",
     },
+    filterConfig: productsFilterConfig,
   },
   {
     name: "Bar ChartJS Brand Counts",
     displayName: "Bar - Chart.js - Brand Counts",
     apiConfig: {
-      endpoint: "/api/charts/products/brand-counts",
-      queryKey: ["products", "brand-counts", "chartjs"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForBrandCountsFiltered,
     },
     Component: ChartJsBarChart,
     chartOptions: {
@@ -132,14 +249,16 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "brand",
       yKey: "count",
     },
+    filterConfig: productsFilterConfig,
   },
   {
     name: "Bar Plotly Brand Counts",
     displayName: "Bar - Plotly - Brand Counts",
     apiConfig: {
-      endpoint: "/api/charts/products/brand-counts",
-      queryKey: ["products", "brand-counts", "plotly"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForBrandCountsFiltered,
     },
     Component: PlotlyBarChart,
     chartOptions: {
@@ -147,14 +266,16 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "brand",
       yKey: "count",
     },
+    filterConfig: productsFilterConfig,
   },
   {
     name: "Bar D3 Brand Counts",
     displayName: "Bar - D3 - Brand Counts",
     apiConfig: {
-      endpoint: "/api/charts/products/brand-counts",
-      queryKey: ["products", "brand-counts", "d3"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForBrandCountsFiltered,
     },
     Component: D3BarChart,
     chartOptions: {
@@ -162,6 +283,7 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "brand",
       yKey: "count",
     },
+    filterConfig: productsFilterConfig,
   },
 
   // ============================================================================
@@ -171,9 +293,10 @@ export const chartRegistry: ChartConfig[] = [
     name: "Bar Nivo Age Distribution",
     displayName: "Bar - Nivo - Age Groups",
     apiConfig: {
-      endpoint: "/api/charts/users/age-distribution",
-      queryKey: ["users", "age-distribution", "nivo"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForAgeDistribution,
     },
     Component: NivoBarChart,
     chartOptions: {
@@ -183,14 +306,16 @@ export const chartRegistry: ChartConfig[] = [
       xAxisLabel: "Age Range",
       yAxisLabel: "Count",
     },
+    filterConfig: usersFilterConfig,
   },
   {
     name: "Bar Recharts Age Distribution",
     displayName: "Bar - Recharts - Age Groups",
     apiConfig: {
-      endpoint: "/api/charts/users/age-distribution",
-      queryKey: ["users", "age-distribution", "recharts"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForAgeDistribution,
     },
     Component: RechartsBarChart,
     chartOptions: {
@@ -198,14 +323,16 @@ export const chartRegistry: ChartConfig[] = [
       dataKey: "count",
       xKey: "range",
     },
+    filterConfig: usersFilterConfig,
   },
   {
     name: "Bar ECharts Age Distribution",
     displayName: "Bar - ECharts - Age Groups",
     apiConfig: {
-      endpoint: "/api/charts/users/age-distribution",
-      queryKey: ["users", "age-distribution", "echarts"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForAgeDistribution,
     },
     Component: EchartsBarChart,
     chartOptions: {
@@ -213,14 +340,16 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "range",
       yKey: "count",
     },
+    filterConfig: usersFilterConfig,
   },
   {
     name: "Bar ChartJS Age Distribution",
     displayName: "Bar - Chart.js - Age Groups",
     apiConfig: {
-      endpoint: "/api/charts/users/age-distribution",
-      queryKey: ["users", "age-distribution", "chartjs"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForAgeDistribution,
     },
     Component: ChartJsBarChart,
     chartOptions: {
@@ -228,14 +357,16 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "range",
       yKey: "count",
     },
+    filterConfig: usersFilterConfig,
   },
   {
     name: "Bar Plotly Age Distribution",
     displayName: "Bar - Plotly - Age Groups",
     apiConfig: {
-      endpoint: "/api/charts/users/age-distribution",
-      queryKey: ["users", "age-distribution", "plotly"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForAgeDistribution,
     },
     Component: PlotlyBarChart,
     chartOptions: {
@@ -243,14 +374,16 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "range",
       yKey: "count",
     },
+    filterConfig: usersFilterConfig,
   },
   {
     name: "Bar D3 Age Distribution",
     displayName: "Bar - D3 - Age Groups",
     apiConfig: {
-      endpoint: "/api/charts/users/age-distribution",
-      queryKey: ["users", "age-distribution", "d3"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForAgeDistribution,
     },
     Component: D3BarChart,
     chartOptions: {
@@ -258,6 +391,7 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "range",
       yKey: "count",
     },
+    filterConfig: usersFilterConfig,
   },
 
   // ============================================================================
@@ -267,67 +401,77 @@ export const chartRegistry: ChartConfig[] = [
     name: "Pie Nivo Categories",
     displayName: "Pie - Nivo - Product Categories",
     apiConfig: {
-      endpoint: "/api/charts/products/categories",
-      queryKey: ["products", "categories", "nivo"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForCategories,
     },
     Component: NivoPieChart,
     chartOptions: {
       title: "Pie - Nivo - Product Categories",
     },
+    filterConfig: productsFilterConfig,
   },
   {
     name: "Pie Recharts Categories",
     displayName: "Pie - Recharts - Product Categories",
     apiConfig: {
-      endpoint: "/api/charts/products/categories",
-      queryKey: ["products", "categories", "recharts"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForCategories,
     },
     Component: RechartsPieChart,
     chartOptions: {
       title: "Pie - Recharts - Product Categories",
     },
+    filterConfig: productsFilterConfig,
   },
   {
     name: "Pie ECharts Categories",
     displayName: "Pie - ECharts - Product Categories",
     apiConfig: {
-      endpoint: "/api/charts/products/categories",
-      queryKey: ["products", "categories", "echarts"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForCategories,
     },
     Component: EchartsPieChart,
     chartOptions: {
       title: "Pie - ECharts - Product Categories",
       radius: "60%",
     },
+    filterConfig: productsFilterConfig,
   },
   {
     name: "Pie ChartJS Categories",
     displayName: "Pie - Chart.js - Product Categories",
     apiConfig: {
-      endpoint: "/api/charts/products/categories",
-      queryKey: ["products", "categories", "chartjs"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForCategories,
     },
     Component: ChartJsPieChart,
     chartOptions: {
       title: "Pie - Chart.js - Product Categories",
     },
+    filterConfig: productsFilterConfig,
   },
   {
     name: "Pie Plotly Categories",
     displayName: "Pie - Plotly - Product Categories",
     apiConfig: {
-      endpoint: "/api/charts/products/categories",
-      queryKey: ["products", "categories", "plotly"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForCategories,
     },
     Component: PlotlyPieChart,
     chartOptions: {
       title: "Pie - Plotly - Product Categories",
     },
+    filterConfig: productsFilterConfig,
   },
 
   // ============================================================================
@@ -337,67 +481,77 @@ export const chartRegistry: ChartConfig[] = [
     name: "Pie Nivo Gender",
     displayName: "Pie - Nivo - Gender Distribution",
     apiConfig: {
-      endpoint: "/api/charts/users/gender",
-      queryKey: ["users", "gender", "nivo"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForGender,
     },
     Component: NivoPieChart,
     chartOptions: {
       title: "Pie - Nivo - Gender Distribution",
     },
+    filterConfig: usersFilterConfig,
   },
   {
     name: "Pie Recharts Gender",
     displayName: "Pie - Recharts - Gender Distribution",
     apiConfig: {
-      endpoint: "/api/charts/users/gender",
-      queryKey: ["users", "gender", "recharts"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForGender,
     },
     Component: RechartsPieChart,
     chartOptions: {
       title: "Pie - Recharts - Gender Distribution",
     },
+    filterConfig: usersFilterConfig,
   },
   {
     name: "Pie ECharts Gender",
     displayName: "Pie - ECharts - Gender Distribution",
     apiConfig: {
-      endpoint: "/api/charts/users/gender",
-      queryKey: ["users", "gender", "echarts"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForGender,
     },
     Component: EchartsPieChart,
     chartOptions: {
       title: "Pie - ECharts - Gender Distribution",
       radius: "60%",
     },
+    filterConfig: usersFilterConfig,
   },
   {
     name: "Pie ChartJS Gender",
     displayName: "Pie - Chart.js - Gender Distribution",
     apiConfig: {
-      endpoint: "/api/charts/users/gender",
-      queryKey: ["users", "gender", "chartjs"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForGender,
     },
     Component: ChartJsPieChart,
     chartOptions: {
       title: "Pie - Chart.js - Gender Distribution",
     },
+    filterConfig: usersFilterConfig,
   },
   {
     name: "Pie Plotly Gender",
     displayName: "Pie - Plotly - Gender Distribution",
     apiConfig: {
-      endpoint: "/api/charts/users/gender",
-      queryKey: ["users", "gender", "plotly"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForGender,
     },
     Component: PlotlyPieChart,
     chartOptions: {
       title: "Pie - Plotly - Gender Distribution",
     },
+    filterConfig: usersFilterConfig,
   },
 
   // ============================================================================
@@ -407,67 +561,77 @@ export const chartRegistry: ChartConfig[] = [
     name: "Pie Nivo Blood Type",
     displayName: "Pie - Nivo - Blood Type Distribution",
     apiConfig: {
-      endpoint: "/api/charts/users/blood-type",
-      queryKey: ["users", "blood-type", "nivo"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForBloodType,
     },
     Component: NivoPieChart,
     chartOptions: {
       title: "Pie - Nivo - Blood Type Distribution",
     },
+    filterConfig: usersFilterConfig,
   },
   {
     name: "Pie Recharts Blood Type",
     displayName: "Pie - Recharts - Blood Type Distribution",
     apiConfig: {
-      endpoint: "/api/charts/users/blood-type",
-      queryKey: ["users", "blood-type", "recharts"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForBloodType,
     },
     Component: RechartsPieChart,
     chartOptions: {
       title: "Pie - Recharts - Blood Type Distribution",
     },
+    filterConfig: usersFilterConfig,
   },
   {
     name: "Pie ECharts Blood Type",
     displayName: "Pie - ECharts - Blood Type Distribution",
     apiConfig: {
-      endpoint: "/api/charts/users/blood-type",
-      queryKey: ["users", "blood-type", "echarts"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForBloodType,
     },
     Component: EchartsPieChart,
     chartOptions: {
       title: "Pie - ECharts - Blood Type Distribution",
       radius: "60%",
     },
+    filterConfig: usersFilterConfig,
   },
   {
     name: "Pie ChartJS Blood Type",
     displayName: "Pie - Chart.js - Blood Type Distribution",
     apiConfig: {
-      endpoint: "/api/charts/users/blood-type",
-      queryKey: ["users", "blood-type", "chartjs"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForBloodType,
     },
     Component: ChartJsPieChart,
     chartOptions: {
       title: "Pie - Chart.js - Blood Type Distribution",
     },
+    filterConfig: usersFilterConfig,
   },
   {
     name: "Pie Plotly Blood Type",
     displayName: "Pie - Plotly - Blood Type Distribution",
     apiConfig: {
-      endpoint: "/api/charts/users/blood-type",
-      queryKey: ["users", "blood-type", "plotly"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/users/all",
+      queryKey: ["users", "all"],
+      dataSourceId: "users",
+      transform: transformUsersForBloodType,
     },
     Component: PlotlyPieChart,
     chartOptions: {
       title: "Pie - Plotly - Blood Type Distribution",
     },
+    filterConfig: usersFilterConfig,
   },
 
   // ============================================================================
@@ -477,67 +641,77 @@ export const chartRegistry: ChartConfig[] = [
     name: "Pie Nivo Recipe Difficulty",
     displayName: "Pie - Nivo - Recipe Difficulty",
     apiConfig: {
-      endpoint: "/api/charts/recipes/difficulty",
-      queryKey: ["recipes", "difficulty", "nivo"],
-      transform: transformDifficultyToNameValue,
+      endpoint: "/api/charts/recipes/all",
+      queryKey: ["recipes", "all"],
+      dataSourceId: "recipes",
+      transform: transformRecipesForDifficulty,
     },
     Component: NivoPieChart,
     chartOptions: {
       title: "Pie - Nivo - Recipe Difficulty",
     },
+    filterConfig: recipesFilterConfig,
   },
   {
     name: "Pie Recharts Recipe Difficulty",
     displayName: "Pie - Recharts - Recipe Difficulty",
     apiConfig: {
-      endpoint: "/api/charts/recipes/difficulty",
-      queryKey: ["recipes", "difficulty", "recharts"],
-      transform: transformDifficultyToNameValue,
+      endpoint: "/api/charts/recipes/all",
+      queryKey: ["recipes", "all"],
+      dataSourceId: "recipes",
+      transform: transformRecipesForDifficulty,
     },
     Component: RechartsPieChart,
     chartOptions: {
       title: "Pie - Recharts - Recipe Difficulty",
     },
+    filterConfig: recipesFilterConfig,
   },
   {
     name: "Pie ECharts Recipe Difficulty",
     displayName: "Pie - ECharts - Recipe Difficulty",
     apiConfig: {
-      endpoint: "/api/charts/recipes/difficulty",
-      queryKey: ["recipes", "difficulty", "echarts"],
-      transform: transformDifficultyToNameValue,
+      endpoint: "/api/charts/recipes/all",
+      queryKey: ["recipes", "all"],
+      dataSourceId: "recipes",
+      transform: transformRecipesForDifficulty,
     },
     Component: EchartsPieChart,
     chartOptions: {
       title: "Pie - ECharts - Recipe Difficulty",
       radius: "60%",
     },
+    filterConfig: recipesFilterConfig,
   },
   {
     name: "Pie ChartJS Recipe Difficulty",
     displayName: "Pie - Chart.js - Recipe Difficulty",
     apiConfig: {
-      endpoint: "/api/charts/recipes/difficulty",
-      queryKey: ["recipes", "difficulty", "chartjs"],
-      transform: transformDifficultyToNameValue,
+      endpoint: "/api/charts/recipes/all",
+      queryKey: ["recipes", "all"],
+      dataSourceId: "recipes",
+      transform: transformRecipesForDifficulty,
     },
     Component: ChartJsPieChart,
     chartOptions: {
       title: "Pie - Chart.js - Recipe Difficulty",
     },
+    filterConfig: recipesFilterConfig,
   },
   {
     name: "Pie Plotly Recipe Difficulty",
     displayName: "Pie - Plotly - Recipe Difficulty",
     apiConfig: {
-      endpoint: "/api/charts/recipes/difficulty",
-      queryKey: ["recipes", "difficulty", "plotly"],
-      transform: transformDifficultyToNameValue,
+      endpoint: "/api/charts/recipes/all",
+      queryKey: ["recipes", "all"],
+      dataSourceId: "recipes",
+      transform: transformRecipesForDifficulty,
     },
     Component: PlotlyPieChart,
     chartOptions: {
       title: "Pie - Plotly - Recipe Difficulty",
     },
+    filterConfig: recipesFilterConfig,
   },
 
   // ============================================================================
@@ -547,9 +721,10 @@ export const chartRegistry: ChartConfig[] = [
     name: "Pie Nivo Todo Status",
     displayName: "Pie - Nivo - Todo Status",
     apiConfig: {
-      endpoint: "/api/charts/todos/status",
-      queryKey: ["todos", "status", "nivo"],
-      transform: transformStatusToNameValue,
+      endpoint: "/api/charts/todos/all",
+      queryKey: ["todos", "all"],
+      dataSourceId: "todos",
+      transform: transformTodosForStatus,
     },
     Component: NivoPieChart,
     chartOptions: {
@@ -560,9 +735,10 @@ export const chartRegistry: ChartConfig[] = [
     name: "Pie Recharts Todo Status",
     displayName: "Pie - Recharts - Todo Status",
     apiConfig: {
-      endpoint: "/api/charts/todos/status",
-      queryKey: ["todos", "status", "recharts"],
-      transform: transformStatusToNameValue,
+      endpoint: "/api/charts/todos/all",
+      queryKey: ["todos", "all"],
+      dataSourceId: "todos",
+      transform: transformTodosForStatus,
     },
     Component: RechartsPieChart,
     chartOptions: {
@@ -573,9 +749,10 @@ export const chartRegistry: ChartConfig[] = [
     name: "Pie ECharts Todo Status",
     displayName: "Pie - ECharts - Todo Status",
     apiConfig: {
-      endpoint: "/api/charts/todos/status",
-      queryKey: ["todos", "status", "echarts"],
-      transform: transformStatusToNameValue,
+      endpoint: "/api/charts/todos/all",
+      queryKey: ["todos", "all"],
+      dataSourceId: "todos",
+      transform: transformTodosForStatus,
     },
     Component: EchartsPieChart,
     chartOptions: {
@@ -587,9 +764,10 @@ export const chartRegistry: ChartConfig[] = [
     name: "Pie ChartJS Todo Status",
     displayName: "Pie - Chart.js - Todo Status",
     apiConfig: {
-      endpoint: "/api/charts/todos/status",
-      queryKey: ["todos", "status", "chartjs"],
-      transform: transformStatusToNameValue,
+      endpoint: "/api/charts/todos/all",
+      queryKey: ["todos", "all"],
+      dataSourceId: "todos",
+      transform: transformTodosForStatus,
     },
     Component: ChartJsPieChart,
     chartOptions: {
@@ -600,9 +778,10 @@ export const chartRegistry: ChartConfig[] = [
     name: "Pie Plotly Todo Status",
     displayName: "Pie - Plotly - Todo Status",
     apiConfig: {
-      endpoint: "/api/charts/todos/status",
-      queryKey: ["todos", "status", "plotly"],
-      transform: transformStatusToNameValue,
+      endpoint: "/api/charts/todos/all",
+      queryKey: ["todos", "all"],
+      dataSourceId: "todos",
+      transform: transformTodosForStatus,
     },
     Component: PlotlyPieChart,
     chartOptions: {
@@ -698,9 +877,10 @@ export const chartRegistry: ChartConfig[] = [
     name: "Line Nivo Cooking Time",
     displayName: "Line - Nivo - Cooking Times",
     apiConfig: {
-      endpoint: "/api/charts/recipes/cooking-time",
-      queryKey: ["recipes", "cooking-time", "nivo"],
-      transform: transformForNivoLine("name", "cookTimeMinutes", "Recipes"),
+      endpoint: "/api/charts/recipes/all",
+      queryKey: ["recipes", "all"],
+      dataSourceId: "recipes",
+      transform: transformRecipesForCookingTimeNivoLine,
     },
     Component: NivoLineChart,
     chartOptions: {
@@ -708,14 +888,16 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "name",
       yKey: "cookTimeMinutes",
     },
+    filterConfig: recipesFilterConfig,
   },
   {
     name: "Line Recharts Cooking Time",
     displayName: "Line - Recharts - Cooking Times",
     apiConfig: {
-      endpoint: "/api/charts/recipes/cooking-time",
-      queryKey: ["recipes", "cooking-time", "recharts"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/recipes/all",
+      queryKey: ["recipes", "all"],
+      dataSourceId: "recipes",
+      transform: transformRecipesForCookingTime,
     },
     Component: RechartsLineChart,
     chartOptions: {
@@ -724,14 +906,16 @@ export const chartRegistry: ChartConfig[] = [
       dataKey: "cookTimeMinutes",
       datasetLabel: "Minutes",
     },
+    filterConfig: recipesFilterConfig,
   },
   {
     name: "Line ECharts Cooking Time",
     displayName: "Line - ECharts - Cooking Times",
     apiConfig: {
-      endpoint: "/api/charts/recipes/cooking-time",
-      queryKey: ["recipes", "cooking-time", "echarts"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/recipes/all",
+      queryKey: ["recipes", "all"],
+      dataSourceId: "recipes",
+      transform: transformRecipesForCookingTime,
     },
     Component: EchartsLineChart,
     chartOptions: {
@@ -740,14 +924,16 @@ export const chartRegistry: ChartConfig[] = [
       yKey: "cookTimeMinutes",
       xLabel: "Recipe ${name}",
     },
+    filterConfig: recipesFilterConfig,
   },
   {
     name: "Line Plotly Cooking Time",
     displayName: "Line - Plotly - Cooking Times",
     apiConfig: {
-      endpoint: "/api/charts/recipes/cooking-time",
-      queryKey: ["recipes", "cooking-time", "plotly"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/recipes/all",
+      queryKey: ["recipes", "all"],
+      dataSourceId: "recipes",
+      transform: transformRecipesForCookingTime,
     },
     Component: PlotlyLineChart,
     chartOptions: {
@@ -755,14 +941,16 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "name",
       yKey: "cookTimeMinutes",
     },
+    filterConfig: recipesFilterConfig,
   },
   {
     name: "Line D3 Cooking Time",
     displayName: "Line - D3 - Cooking Times",
     apiConfig: {
-      endpoint: "/api/charts/recipes/cooking-time",
-      queryKey: ["recipes", "cooking-time", "d3"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/recipes/all",
+      queryKey: ["recipes", "all"],
+      dataSourceId: "recipes",
+      transform: transformRecipesForCookingTime,
     },
     Component: D3LineChart,
     chartOptions: {
@@ -770,6 +958,7 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "name",
       yKey: "cookTimeMinutes",
     },
+    filterConfig: recipesFilterConfig,
   },
 
   // ============================================================================
@@ -779,9 +968,10 @@ export const chartRegistry: ChartConfig[] = [
     name: "Scatter Nivo Price Rating",
     displayName: "Scatter - Nivo - Price vs Rating",
     apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "price-rating", "nivo"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForPriceRatingFiltered,
     },
     Component: NivoScatterChart,
     chartOptions: {
@@ -789,14 +979,16 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "price",
       yKey: "rating",
     },
+    filterConfig: productsFilterConfig,
   },
   {
     name: "Scatter Recharts Price Rating",
     displayName: "Scatter - Recharts - Price vs Rating",
     apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "price-rating", "recharts"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForPriceRatingFiltered,
     },
     Component: RechartsScatterChart,
     chartOptions: {
@@ -804,14 +996,16 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "price",
       yKey: "rating",
     },
+    filterConfig: productsFilterConfig,
   },
   {
     name: "Scatter ECharts Price Rating",
     displayName: "Scatter - ECharts - Price vs Rating",
     apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "price-rating", "echarts"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForPriceRatingFiltered,
     },
     Component: EchartsScatterChart,
     chartOptions: {
@@ -819,14 +1013,16 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "price",
       yKey: "rating",
     },
+    filterConfig: productsFilterConfig,
   },
   {
     name: "Scatter ChartJS Price Rating",
     displayName: "Scatter - Chart.js - Price vs Rating",
     apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "price-rating", "chartjs"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForPriceRatingFiltered,
     },
     Component: ChartJsScatterChart,
     chartOptions: {
@@ -834,14 +1030,16 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "price",
       yKey: "rating",
     },
+    filterConfig: productsFilterConfig,
   },
   {
     name: "Scatter Plotly Price Rating",
     displayName: "Scatter - Plotly - Price vs Rating",
     apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "price-rating", "plotly"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForPriceRatingFiltered,
     },
     Component: PlotlyScatterChart,
     chartOptions: {
@@ -850,14 +1048,16 @@ export const chartRegistry: ChartConfig[] = [
       yKey: "rating",
       textKey: "id",
     },
+    filterConfig: productsFilterConfig,
   },
   {
     name: "Scatter D3 Price Rating",
     displayName: "Scatter - D3 - Price vs Rating",
     apiConfig: {
-      endpoint: "/api/charts/products/price-rating",
-      queryKey: ["products", "price-rating", "d3"],
-      transform: passthroughTransform,
+      endpoint: "/api/charts/products/all",
+      queryKey: ["products", "all"],
+      dataSourceId: "products",
+      transform: transformProductsForPriceRatingFiltered,
     },
     Component: D3ScatterChart,
     chartOptions: {
@@ -865,6 +1065,7 @@ export const chartRegistry: ChartConfig[] = [
       xKey: "price",
       yKey: "rating",
     },
+    filterConfig: productsFilterConfig,
   },
 
   // ============================================================================
@@ -1051,9 +1252,10 @@ export const chartRegistry: ChartConfig[] = [
     name: "Area Recharts SpaceX",
     displayName: "Area - Recharts - SpaceX Launches",
     apiConfig: {
-      endpoint: "/api/charts/spacex/launches",
-      queryKey: ["spacex", "launches", "recharts"],
-      transform: passthroughWithDateTransform,
+      endpoint: "/api/charts/spacex/all",
+      queryKey: ["spacex", "all"],
+      dataSourceId: "spacex",
+      transform: transformSpaceXForLaunchesPerYear,
     },
     Component: RechartsAreaChart,
     chartOptions: {
@@ -1066,9 +1268,10 @@ export const chartRegistry: ChartConfig[] = [
     name: "Area D3 SpaceX",
     displayName: "Area - D3 - SpaceX Launches",
     apiConfig: {
-      endpoint: "/api/charts/spacex/launches",
-      queryKey: ["spacex", "launches", "d3"],
-      transform: passthroughWithDateTransform,
+      endpoint: "/api/charts/spacex/all",
+      queryKey: ["spacex", "all"],
+      dataSourceId: "spacex",
+      transform: transformSpaceXForLaunchesPerYear,
     },
     Component: D3AreaChart,
     chartOptions: {

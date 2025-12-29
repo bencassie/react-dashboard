@@ -1,4 +1,5 @@
 import { ComponentType } from "react";
+import type { ChartFilterConfig, ChartFilterState, FilterValue } from "./filter-types";
 
 /**
  * Configuration for a chart's API call
@@ -8,10 +9,18 @@ export type ChartApiConfig = {
   endpoint: string;
   /** React Query key for caching */
   queryKey: string[];
-  /** Transform raw API response into chart-ready data */
-  transform: (raw: any) => any;
+  /**
+   * Transform raw API response into chart-ready data
+   * Optional filters parameter for client-side filtering
+   */
+  transform: (raw: any, filters?: ChartFilterState) => any;
   /** Optional: Additional fetch options */
   fetchOptions?: RequestInit;
+  /**
+   * Data source identifier for sharing raw data between charts.
+   * Charts with same dataSourceId share cached raw data.
+   */
+  dataSourceId?: string;
 };
 
 /**
@@ -28,6 +37,8 @@ export type ChartConfig = {
   Component: ComponentType<ChartComponentProps>;
   /** Optional: Chart-specific rendering options */
   chartOptions?: Record<string, any>;
+  /** Optional: Filter configuration for interactive filtering */
+  filterConfig?: ChartFilterConfig;
 };
 
 /**
@@ -48,4 +59,8 @@ export type ChartComponentProps = {
     description?: string;
     [key: string]: any;
   };
+  /** Current filter state for display purposes */
+  activeFilters?: ChartFilterState;
+  /** Callback when filter changes (for embedded filter UI) */
+  onFilterChange?: (filterId: string, value: FilterValue) => void;
 };

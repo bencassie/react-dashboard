@@ -50,8 +50,8 @@ function ChartJsBarChartInner({ data, isLoading, error, options }: ChartComponen
       {
         label: datasetLabel,
         data: values,
-        backgroundColor: values.map((_, i) => PASTEL_COLORS_RGBA[i % PASTEL_COLORS_RGBA.length]),
-        borderColor: values.map((_, i) => PASTEL_COLORS_BORDER[i % PASTEL_COLORS_BORDER.length]),
+        backgroundColor: values.map((_: any, i: number) => PASTEL_COLORS_RGBA[i % PASTEL_COLORS_RGBA.length]),
+        borderColor: values.map((_: any, i: number) => PASTEL_COLORS_BORDER[i % PASTEL_COLORS_BORDER.length]),
         borderWidth: 1,
       },
     ],

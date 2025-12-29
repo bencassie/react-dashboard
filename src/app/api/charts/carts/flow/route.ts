@@ -24,7 +24,7 @@ export async function GET() {
     const products = productsData?.products || [];
 
     // Create product lookup map
-    const productMap = new Map(
+    const productMap = new Map<number, { category: string; title: string }>(
       products.map((p: any) => [p.id, { category: p.category, title: p.title }])
     );
 

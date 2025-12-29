@@ -50,7 +50,7 @@ function PlotlyBarChartInner({ data, isLoading, error, options }: ChartComponent
               y,
               type: "bar",
               marker: {
-                color: x.map((_, i) => PASTEL_COLORS[i % PASTEL_COLORS.length])
+                color: x.map((_: string, i: number) => PASTEL_COLORS[i % PASTEL_COLORS.length])
               }
             }]}
             layout={{

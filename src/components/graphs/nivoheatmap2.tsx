@@ -70,7 +70,6 @@ function NivoHeatmap2ChartInner({ data, isLoading, error, options }: ChartCompon
             colors={{ type: "sequential", scheme: "blues", minValue: 0, maxValue: 100 }}
             axisTop={axisTop}
             axisLeft={axisLeft}
-            pixelRatio={1}
             animate={false}
             enableLabels={false}
           />

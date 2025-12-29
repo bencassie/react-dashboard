@@ -30,7 +30,7 @@ function D3AreaChartInner({ data, isLoading, error, options, renderKey }: ChartC
 
     const x = d3
       .scaleUtc()
-      .domain(d3.extent(series, (d: any) => d[xKey]) as [Date, Date])
+      .domain(d3.extent(series, (d: any) => d[xKey]) as unknown as [Date, Date])
       .range([0, innerW]);
 
     const yMax = d3.max(series, (d: any) => Number(d[yKey]) || 0) || 100;

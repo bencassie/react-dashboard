@@ -106,5 +106,5 @@ export async function GET(req: NextRequest) {
   if (contentType) headers.set("content-type", contentType);
   headers.set("cache-control", "no-store");
 
-  return new NextResponse(bodyForClient, { status, headers });
+  return new NextResponse(bodyForClient as BodyInit, { status, headers });
 }
