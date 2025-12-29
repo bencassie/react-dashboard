@@ -18,6 +18,19 @@ export const FilterRange = memo(function FilterRange({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Local state for smooth slider dragging (only commits on release)
+  const [localMin, setLocalMin] = useState(value.min);
+  const [localMax, setLocalMax] = useState(value.max);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Sync local state when external value changes (e.g., reset)
+  useEffect(() => {
+    if (!isDragging) {
+      setLocalMin(value.min);
+      setLocalMax(value.max);
+    }
+  }, [value.min, value.max, isDragging]);
+
   const bounds =
     config.bounds === "auto"
       ? { min: 0, max: 100 }
@@ -45,25 +58,49 @@ export const FilterRange = memo(function FilterRange({
     }
   }, [open]);
 
-  const handleMinChange = useCallback(
+  // Update local state while dragging (fast, no chart re-render)
+  const handleMinInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newMin = Number(e.target.value);
-      onChange({ ...value, min: Math.min(newMin, value.max) });
+      setLocalMin(Math.min(newMin, localMax));
     },
-    [value, onChange]
+    [localMax]
   );
 
-  const handleMaxChange = useCallback(
+  const handleMaxInput = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const newMax = Number(e.target.value);
-      onChange({ ...value, max: Math.max(newMax, value.min) });
+      setLocalMax(Math.max(newMax, localMin));
     },
-    [value, onChange]
+    [localMin]
   );
+
+  // Commit value to parent only on mouse/pointer up (triggers chart re-render)
+  const handleMinCommit = useCallback(() => {
+    setIsDragging(false);
+    const newMin = Math.min(localMin, localMax);
+    if (newMin !== value.min) {
+      onChange({ ...value, min: newMin });
+    }
+  }, [localMin, localMax, value, onChange]);
+
+  const handleMaxCommit = useCallback(() => {
+    setIsDragging(false);
+    const newMax = Math.max(localMax, localMin);
+    if (newMax !== value.max) {
+      onChange({ ...value, max: newMax });
+    }
+  }, [localMin, localMax, value, onChange]);
+
+  const handleDragStart = useCallback(() => {
+    setIsDragging(true);
+  }, []);
 
   const handleReset = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
+      setLocalMin(bounds.min);
+      setLocalMax(bounds.max);
       onChange({ min: bounds.min, max: bounds.max });
     },
     [bounds, onChange]
@@ -97,29 +134,37 @@ export const FilterRange = memo(function FilterRange({
           <div className="space-y-3">
             <div>
               <label className="text-xs text-muted-foreground">
-                Min: {formatValue(value.min)}
+                Min: {formatValue(localMin)}
               </label>
               <input
                 type="range"
                 min={bounds.min}
                 max={bounds.max}
                 step={step}
-                value={value.min}
-                onChange={handleMinChange}
+                value={localMin}
+                onChange={handleMinInput}
+                onMouseDown={handleDragStart}
+                onMouseUp={handleMinCommit}
+                onTouchStart={handleDragStart}
+                onTouchEnd={handleMinCommit}
                 className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer"
               />
             </div>
             <div>
               <label className="text-xs text-muted-foreground">
-                Max: {formatValue(value.max)}
+                Max: {formatValue(localMax)}
               </label>
               <input
                 type="range"
                 min={bounds.min}
                 max={bounds.max}
                 step={step}
-                value={value.max}
-                onChange={handleMaxChange}
+                value={localMax}
+                onChange={handleMaxInput}
+                onMouseDown={handleDragStart}
+                onMouseUp={handleMaxCommit}
+                onTouchStart={handleDragStart}
+                onTouchEnd={handleMaxCommit}
                 className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer"
               />
             </div>
