@@ -9,12 +9,12 @@ This project serves as both a functional dashboard and a demonstration of integr
 ## Features
 
 ### Chart Libraries Integrated
-- **[Nivo](https://nivo.rocks/)** - Bar, Heatmap, Line, Pie, and Area (Bump) charts
-- **[ECharts](https://echarts.apache.org/)** - Pie, Donut, Line, Bar, Scatter, and Radar charts
-- **[Recharts](https://recharts.org/)** - Line, Bar, Area, Pie, and Radar charts
-- **[Chart.js](https://www.chartjs.org/)** - Bar, Pie, Doughnut, and Radar charts
-- **[Plotly.js](https://plotly.com/javascript/)** - Line, Bar, Pie, and Scatter charts
-- **[D3.js](https://d3js.org/)** - Area, Line, and Bar charts
+- **[Nivo](https://nivo.rocks/)** - Bar, Heatmap, Line, Pie, Scatter, and Area (Bump) charts
+- **[ECharts](https://echarts.apache.org/)** - Pie, Donut, Line, Bar, Scatter, Radar, Heatmap, Treemap, Box Plot, Funnel, and Sunburst charts
+- **[Recharts](https://recharts.org/)** - Line, Bar, Area, Pie, Scatter, and Radar charts
+- **[Chart.js](https://www.chartjs.org/)** - Bar, Pie, Doughnut, Scatter, and Radar charts
+- **[Plotly.js](https://plotly.com/javascript/)** - Line, Bar, Pie, Scatter, Radar, Area, and Heatmap charts
+- **[D3.js](https://d3js.org/)** - Area, Line, Bar, Scatter, Radar, and Heatmap charts
 
 ### Data Sources
 The dashboard uses a hybrid data architecture combining internal API routes and external APIs:
@@ -38,9 +38,10 @@ The dashboard uses a hybrid data architecture combining internal API routes and 
 - **[SpaceX API](https://github.com/r-spacex/SpaceX-API)** - Launch history
 
 ### Core Functionality
-- **Interactive Chart Selection** - Toggle individual charts on/off via sidebar
+- **Interactive Chart Selection** - Toggle individual charts on/off via chip-based selector grouped by data set
+- **Interactive Filtering** - Filter chart data in real-time using range sliders, multi-select, and dropdown controls
 - **URL State Persistence** - Selected charts are saved in URL query parameters
-- **Optimized Data Fetching** - TanStack Query with 5-minute caching and parallel requests
+- **Optimized Data Fetching** - TanStack Query with 5-minute caching, parallel requests, and data source sharing
 - **Responsive Design** - Mobile-friendly grid layout
 - **Refresh Functionality** - Manually refresh all chart data
 - **CORS Proxy** - Built-in API proxy to handle cross-origin requests
@@ -85,91 +86,133 @@ dashboard/
 ├── src/
 │   ├── app/
 │   │   ├── api/
-│   │   │   ├── charts/             # Internal API routes
+│   │   │   ├── charts/             # Internal API routes (39 routes)
 │   │   │   │   ├── products/       # Product-related endpoints
+│   │   │   │   │   ├── all/route.ts          # Raw products data
 │   │   │   │   │   ├── price-rating/route.ts
 │   │   │   │   │   ├── categories/route.ts
 │   │   │   │   │   ├── brand-counts/route.ts
 │   │   │   │   │   ├── low-stock/route.ts
 │   │   │   │   │   ├── discounts/route.ts
-│   │   │   │   │   └── price-distribution/route.ts
+│   │   │   │   │   ├── price-distribution/route.ts
+│   │   │   │   │   ├── bubble/route.ts
+│   │   │   │   │   ├── category-flow/route.ts
+│   │   │   │   │   └── category-distribution/route.ts
 │   │   │   │   ├── users/          # User demographics endpoints
+│   │   │   │   │   ├── all/route.ts          # Raw users data
 │   │   │   │   │   ├── gender/route.ts
 │   │   │   │   │   ├── age-distribution/route.ts
 │   │   │   │   │   └── blood-type/route.ts
 │   │   │   │   ├── recipes/        # Recipe data endpoints
+│   │   │   │   │   ├── all/route.ts          # Raw recipes data
 │   │   │   │   │   ├── ratings/route.ts
 │   │   │   │   │   ├── difficulty/route.ts
+│   │   │   │   │   ├── difficulty-distribution/route.ts
 │   │   │   │   │   └── cooking-time/route.ts
 │   │   │   │   ├── todos/          # Todo completion stats
+│   │   │   │   │   ├── all/route.ts
 │   │   │   │   │   └── status/route.ts
 │   │   │   │   ├── posts/          # Social post metrics
+│   │   │   │   │   ├── all/route.ts
 │   │   │   │   │   └── reactions/route.ts
 │   │   │   │   ├── carts/          # Shopping cart analytics
+│   │   │   │   │   ├── all/route.ts
+│   │   │   │   │   ├── flow/route.ts
 │   │   │   │   │   └── totals/route.ts
 │   │   │   │   ├── quotes/         # Quote statistics
+│   │   │   │   │   ├── all/route.ts
 │   │   │   │   │   └── authors/route.ts
+│   │   │   │   ├── analytics/      # Analytics data
+│   │   │   │   │   └── funnel/route.ts
 │   │   │   │   ├── heatmap/        # Heatmap sample data
 │   │   │   │   │   └── sample/route.ts
 │   │   │   │   ├── weather/        # Weather proxy
 │   │   │   │   │   └── temperature/route.ts
 │   │   │   │   ├── breweries/      # Brewery data proxy
+│   │   │   │   │   ├── all/route.ts
 │   │   │   │   │   └── states/route.ts
 │   │   │   │   ├── library/        # Library data proxy
 │   │   │   │   │   └── subject-works/route.ts
 │   │   │   │   ├── pokemon/        # Pokemon stats proxy
 │   │   │   │   │   ├── base-xp/route.ts
-│   │   │   │   │   └── height-weight/route.ts
+│   │   │   │   │   ├── height-weight/route.ts
+│   │   │   │   │   └── stats/route.ts
 │   │   │   │   └── spacex/         # SpaceX data proxy
+│   │   │   │       ├── all/route.ts
 │   │   │   │       └── launches/route.ts
 │   │   │   └── proxy/route.ts      # General CORS proxy
 │   │   ├── layout.tsx               # Root layout with providers
 │   │   └── page.tsx                 # Main dashboard page
 │   ├── components/
-│   │   ├── graphs/                  # Chart components (20+ files)
+│   │   ├── graphs/                  # Chart components (44 files)
 │   │   │   ├── chartwrapper.tsx    # Generic chart wrapper
 │   │   │   ├── d3area.tsx          # D3 area chart
 │   │   │   ├── d3line.tsx          # D3 line chart
 │   │   │   ├── d3bar.tsx           # D3 bar chart
+│   │   │   ├── d3scatter.tsx       # D3 scatter chart
+│   │   │   ├── d3radar.tsx         # D3 radar chart
+│   │   │   ├── d3heatmap.tsx       # D3 heatmap
 │   │   │   ├── echartsdonut.tsx    # ECharts donut chart
 │   │   │   ├── echartsline.tsx     # ECharts line chart
 │   │   │   ├── echartspie.tsx      # ECharts pie chart
 │   │   │   ├── echartsbar.tsx      # ECharts bar chart
 │   │   │   ├── echartsscatter.tsx  # ECharts scatter chart
 │   │   │   ├── echartsradar.tsx    # ECharts radar chart
+│   │   │   ├── echartsheatmap.tsx  # ECharts heatmap
+│   │   │   ├── echartstreemap.tsx  # ECharts treemap
+│   │   │   ├── echartsboxplot.tsx  # ECharts box plot
+│   │   │   ├── echartsfunnel.tsx   # ECharts funnel
+│   │   │   ├── echartssunburst.tsx # ECharts sunburst
 │   │   │   ├── nivobar.tsx         # Nivo bar chart
 │   │   │   ├── nivoheatmap.tsx     # Nivo heatmap
+│   │   │   ├── nivoheatmap2.tsx    # Nivo heatmap (alt)
 │   │   │   ├── nivoline.tsx        # Nivo line chart
 │   │   │   ├── nivopie.tsx         # Nivo pie chart
+│   │   │   ├── nivoscatter.tsx     # Nivo scatter chart
 │   │   │   ├── nivoarea.tsx        # Nivo area (bump) chart
 │   │   │   ├── plotlyscatter.tsx   # Plotly scatter plot
 │   │   │   ├── plotlyline.tsx      # Plotly line chart
 │   │   │   ├── plotlybar.tsx       # Plotly bar chart
 │   │   │   ├── plotlypie.tsx       # Plotly pie chart
+│   │   │   ├── plotlyarea.tsx      # Plotly area chart
+│   │   │   ├── plotlyradar.tsx     # Plotly radar chart
+│   │   │   ├── plotlyheatmap.tsx   # Plotly heatmap
 │   │   │   ├── rechartsbar.tsx     # Recharts bar chart
 │   │   │   ├── rechartsline.tsx    # Recharts line chart
 │   │   │   ├── recharts-line2.tsx  # Recharts line (alt)
 │   │   │   ├── rechartsarea.tsx    # Recharts area chart
 │   │   │   ├── rechartspie.tsx     # Recharts pie chart
 │   │   │   ├── rechartsradar.tsx   # Recharts radar chart
+│   │   │   ├── rechartsscatter.tsx # Recharts scatter chart
 │   │   │   ├── chartjsbar.tsx      # Chart.js bar chart
 │   │   │   ├── chartjsdoughnut.tsx # Chart.js doughnut chart
 │   │   │   ├── chartjspie.tsx      # Chart.js pie chart
-│   │   │   └── chartjsradar.tsx    # Chart.js radar chart
+│   │   │   ├── chartjsradar.tsx    # Chart.js radar chart
+│   │   │   └── chartjsscatter.tsx  # Chart.js scatter chart
+│   │   ├── filters/                 # Filter UI components
+│   │   │   ├── FilterContainer.tsx  # Filter wrapper with expand/collapse
+│   │   │   ├── FilterRange.tsx      # Range slider filter
+│   │   │   ├── FilterSingleSelect.tsx # Dropdown select filter
+│   │   │   ├── FilterMultiSelect.tsx  # Multi-checkbox filter
+│   │   │   ├── FilterText.tsx       # Text search filter
+│   │   │   ├── useFilterOptions.ts  # Hook for deriving filter options
+│   │   │   └── index.ts             # Filter exports
 │   │   ├── ui/
+│   │   │   ├── badge.tsx           # Badge component
 │   │   │   ├── button.tsx          # Button component
 │   │   │   ├── card.tsx            # Card component
 │   │   │   ├── checkbox.tsx        # Checkbox component
 │   │   │   ├── skeleton.tsx        # Loading skeleton
 │   │   │   └── tabs.tsx            # Tabs component
 │   │   ├── providers.tsx           # React Query provider setup
-│   │   └── sidebar.tsx             # Chart selection sidebar
+│   │   └── chart-selector.tsx      # Chip-based chart selector
 │   └── lib/
 │       ├── charts/
-│       │   ├── registry.ts         # Chart registry (106 configurations)
+│       │   ├── registry.ts         # Chart registry (72 configurations)
 │       │   ├── transforms.ts       # Data transformation functions
-│       │   └── types.ts            # Chart type definitions
-│       ├── store.ts                # Zustand store configuration
+│       │   ├── types.ts            # Chart type definitions
+│       │   └── filter-types.ts     # Filter type definitions
+│       ├── store.ts                # Zustand store (charts + filters)
 │       └── utils.ts                # Utility functions
 ├── public/                          # Static assets
 ├── components.json                  # shadcn/ui configuration
@@ -230,12 +273,13 @@ The dashboard uses a centralized registry pattern (`src/lib/charts/registry.ts`)
 - **Chart options** (library-specific rendering options)
 
 ### Data Flow
-1. User selects charts from the sidebar
+1. User selects charts from the chip-based selector (grouped by data set)
 2. Selection is persisted to URL query parameters
-3. TanStack Query fetches data from configured APIs in parallel
-4. Data transformers convert API responses to chart-specific formats
-5. Charts render with transformed data
-6. Results are cached for 5 minutes to reduce API calls
+3. TanStack Query fetches data from configured APIs in parallel (charts with same `dataSourceId` share cached data)
+4. User adjusts filters (range sliders, multi-select, etc.) - filter state stored in Zustand
+5. Data transformers convert API responses to chart-specific formats, applying filters client-side
+6. Charts render with transformed data
+7. Results are cached for 5 minutes to reduce API calls; filters apply instantly without re-fetching
 
 ### API Proxy
 The `/api/proxy` route handles API requests to avoid CORS issues and supports:
@@ -243,9 +287,10 @@ The `/api/proxy` route handles API requests to avoid CORS issues and supports:
 - Multi-fetch enrichment (used by PokéAPI to fetch detailed data)
 
 ### State Management
-- **Zustand store** manages selected charts and render keys
-- **URL params** persist selections across page reloads
-- **TanStack Query** handles server state and caching
+- **Zustand store** manages selected charts, render keys, and per-chart filter state
+- **URL params** persist chart selections across page reloads
+- **TanStack Query** handles server state and caching with data source sharing
+- **Filter state** stored in Zustand, applied during client-side transformation for instant feedback
 
 ## Deep Dive: How Charts Work
 
@@ -498,7 +543,7 @@ This pattern scales elegantly from 1 chart to 100+ while keeping the codebase ma
 
 ## Chart Examples
 
-The dashboard includes **106 chart visualizations** across 6 charting libraries, showcasing:
+The dashboard includes **72 chart visualizations** across 6 charting libraries, showcasing:
 
 ### Data Categories
 - **Product Analytics** - Price/rating comparisons, category distributions, brand counts, stock levels, discounts, price distributions
@@ -513,10 +558,14 @@ Each data source is visualized using multiple chart types across different libra
 - **Line Charts** - Trends and time series (Nivo, Recharts, D3, Plotly, ECharts)
 - **Bar Charts** - Categorical comparisons (Nivo, Recharts, D3, Plotly, ECharts, Chart.js)
 - **Pie/Doughnut Charts** - Proportional data (Nivo, Recharts, Plotly, ECharts, Chart.js)
-- **Area Charts** - Filled trends (Nivo, Recharts, D3)
-- **Scatter Charts** - Two-variable correlations (Plotly, ECharts)
-- **Radar Charts** - Multi-dimensional metrics (Recharts, ECharts, Chart.js)
-- **Heatmaps** - Matrix visualizations (Nivo)
+- **Area Charts** - Filled trends (Nivo, Recharts, D3, Plotly)
+- **Scatter Charts** - Two-variable correlations (Nivo, Recharts, D3, Plotly, ECharts, Chart.js)
+- **Radar Charts** - Multi-dimensional metrics (Recharts, D3, Plotly, ECharts, Chart.js)
+- **Heatmaps** - Matrix visualizations (Nivo, D3, Plotly, ECharts)
+- **Treemaps** - Hierarchical proportions (ECharts)
+- **Box Plots** - Statistical distributions (ECharts)
+- **Funnels** - Conversion flows (ECharts)
+- **Sunburst Charts** - Hierarchical data with nesting (ECharts)
 
 This comprehensive coverage enables side-by-side comparison of how different libraries render the same data.
 
@@ -524,11 +573,14 @@ This comprehensive coverage enables side-by-side comparison of how different lib
 
 - **Dynamic imports** for all chart components (code splitting)
 - **TanStack Query caching** (5-min fresh, 15-min cache retention)
+- **Data source sharing** - Charts with same `dataSourceId` share cached raw data
 - **Parallel data fetching** with `useQueries`
 - **Smart refetch policies** (no refetch on window focus/mount/reconnect)
+- **Client-side filtering** - Filter changes apply instantly without re-fetching
 - **Memoized computations** for chart data transformations
 - **URL-based state** reduces unnecessary re-renders
 - **React Compiler** enabled for automatic optimizations
+- **Optimized range sliders** - Smooth drag with render on release
 
 ## Customization
 
@@ -542,17 +594,19 @@ Example:
 ```typescript
 {
   name: "My Chart",
-  displayName: "My Custom Chart",
+  displayName: "Bar - Nivo - My Data",  // Format: {Type} - {Vendor} - {Data Set}
   apiConfig: {
-    endpoint: "https://api.example.com/data",
-    queryKey: ["my-chart"],
-    transform: transformMyData,
+    endpoint: "/api/charts/mydata/all",
+    queryKey: ["mydata", "all"],
+    transform: transformMyDataFiltered,  // Receives optional filters parameter
+    dataSourceId: "mydata-all",  // Share data with other charts using same source
   },
   Component: MyChartComponent,
   chartOptions: {
     title: "My Chart Title",
     // ... library-specific options
   },
+  filterConfig: myDataFilterConfig,  // Optional: Enable interactive filtering
 }
 ```
 
